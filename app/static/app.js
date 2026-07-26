@@ -1,6 +1,7 @@
 let soundEnabled = true;
 let notifEnabled = false;
-let chart = null;
+let chartDashboard = null;
+let chartAnalytics = null;
 let lastModeCode = null;
 let allEvents = [];
 
@@ -41,10 +42,34 @@ function requestNotificationPermission() {
     Notification.requestPermission().then(permission => {
       if (permission === "granted") {
         notifEnabled = true;
-        const btn = document.getElementById('notifToggle');
-        if (btn) btn.innerHTML = '<span>💬</span> Алерты Вкл';
+        updateNotifButtons(true);
       }
     });
+  }
+}
+
+function updateSoundButtons(enabled) {
+  const btn1 = document.getElementById('soundToggle');
+  const btn2 = document.getElementById('settingsSoundBtn');
+  const text = enabled ? '🔔 Включено' : '🔕 Выключено';
+  if (btn1) {
+    setText('soundIcon', enabled ? '🔔' : '🔕');
+    setText('soundText', enabled ? 'Звук' : 'Выкл');
+    btn1.classList.toggle('active', enabled);
+  }
+  if (btn2) {
+    btn2.textContent = text;
+    btn2.classList.toggle('active', enabled);
+  }
+}
+
+function updateNotifButtons(enabled) {
+  const btn1 = document.getElementById('notifToggle');
+  const btn2 = document.getElementById('settingsNotifBtn');
+  if (btn1) btn1.classList.toggle('active', enabled);
+  if (btn2) {
+    btn2.textContent = enabled ? '💬 Включено' : '💬 Включить';
+    btn2.classList.toggle('active', enabled);
   }
 }
 
@@ -54,19 +79,8 @@ function showNotification(title, body) {
   }
 }
 
-function initChart() {
-  const canvas = document.getElementById('voltageChart');
-  if (!canvas || typeof Chart === 'undefined') return;
-
-  const ctx = canvas.getContext('2d');
-  const inGradient = ctx.createLinearGradient(0, 0, 0, 240);
-  inGradient.addColorStop(0, 'rgba(59, 130, 246, 0.35)');
-  inGradient.addColorStop(1, 'rgba(59, 130, 246, 0.0)');
-  const outGradient = ctx.createLinearGradient(0, 0, 0, 240);
-  outGradient.addColorStop(0, 'rgba(16, 185, 129, 0.35)');
-  outGradient.addColorStop(1, 'rgba(16, 185, 129, 0.0)');
-
-  chart = new Chart(ctx, {
+function createChartConfig() {
+  return {
     type: 'line',
     data: {
       labels: [],
@@ -75,7 +89,7 @@ function initChart() {
           label: 'Вход (В)',
           data: [],
           borderColor: '#3b82f6',
-          backgroundColor: inGradient,
+          backgroundColor: 'rgba(59, 130, 246, 0.15)',
           fill: true,
           tension: 0.3,
           borderWidth: 2.5,
@@ -85,7 +99,7 @@ function initChart() {
           label: 'Выход (В)',
           data: [],
           borderColor: '#10b981',
-          backgroundColor: outGradient,
+          backgroundColor: 'rgba(16, 185, 129, 0.15)',
           fill: true,
           tension: 0.3,
           borderWidth: 2.5,
@@ -115,7 +129,20 @@ function initChart() {
         }
       }
     }
-  });
+  };
+}
+
+function initCharts() {
+  const canvas1 = document.getElementById('voltageChart');
+  const canvas2 = document.getElementById('voltageChartAnalytics');
+  if (typeof Chart === 'undefined') return;
+
+  if (canvas1) {
+    chartDashboard = new Chart(canvas1.getContext('2d'), createChartConfig());
+  }
+  if (canvas2) {
+    chartAnalytics = new Chart(canvas2.getContext('2d'), createChartConfig());
+  }
 }
 
 function setText(id, text) {
@@ -126,7 +153,7 @@ function setText(id, text) {
 function renderEventsTable(events) {
   allEvents = events || [];
 
-  // 1. Main Dashboard Table (top 5 events only, clean without scrollbar)
+  // 1. Dashboard preview table (top 5 items)
   const tbody = document.getElementById('eventsTbody');
   if (tbody) {
     if (allEvents.length === 0) {
@@ -147,8 +174,45 @@ function renderEventsTable(events) {
     }
   }
 
-  // 2. Modal Window Table
+  // 2. Tab Events table
+  renderTabEvents();
+
+  // 3. Modal Events table
   renderModalEvents();
+}
+
+function renderTabEvents() {
+  const tabTbody = document.getElementById('tabEventsTbody');
+  const searchInput = document.getElementById('tabEventsSearch');
+  const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
+
+  if (!tabTbody) return;
+
+  const filtered = allEvents.filter(ev => {
+    if (!query) return true;
+    const ts = String(ev.timestamp || '').toLowerCase();
+    const mode = String(ev.mode || '').toLowerCase();
+    return ts.includes(query) || mode.includes(query);
+  });
+
+  if (filtered.length === 0) {
+    tabTbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:2rem;">События не найдены</td></tr>';
+  } else {
+    tabTbody.innerHTML = filtered.map(ev => {
+      let tagClass = 'tag-green';
+      const modeU = String(ev.mode || '').toUpperCase();
+      if (modeU.includes('БАТАРЕ') || modeU.includes('BATTERY')) tagClass = 'tag-amber';
+      else if (modeU.includes('AVR')) tagClass = 'tag-blue';
+      return `<tr>
+        <td class="mono">${ev.timestamp || ev.time_short || ''}</td>
+        <td><span class="tag ${tagClass}">${ev.mode}</span></td>
+        <td style="font-weight:600" class="mono">${ev.in_v} B</td>
+        <td class="mono">${ev.out_v ? ev.out_v + ' B' : '—'}</td>
+        <td class="mono">${ev.load_pct !== undefined ? ev.load_pct + ' %' : '—'}</td>
+        <td class="mono">${ev.batt_v ? ev.batt_v + ' V' : '—'}</td>
+      </tr>`;
+    }).join('');
+  }
 }
 
 function renderModalEvents() {
@@ -207,10 +271,16 @@ function updateUI(snapshot) {
     dot.style.boxShadow = `0 0 16px ${c}`;
   }
 
-  // Header live strip
+  // Live strip
   setText('liveRate', status.connected && status.freq ? `${status.freq.toFixed(1)} Гц` : '-- Гц');
   setText('liveSeq', `#${status.seq || 0}`);
   setText('liveStamp', status.time_short || '--:--:--');
+
+  // Sidebar status badge
+  const sbStatus = document.getElementById('sidebarStatusText');
+  if (sbStatus) {
+    sbStatus.textContent = status.connected ? 'ПОДКЛЮЧЕНО' : 'НЕТ СВЯЗИ';
+  }
 
   // Sound / notification on mode change
   if (status.mode_code && status.mode_code !== lastModeCode) {
@@ -273,12 +343,11 @@ function updateUI(snapshot) {
 
   // Update SVG Arc Gauges
   const GAUGE_C = 351.86;
-  const setArc = (id, ratio, color) => {
+  const setArc = (id, ratio) => {
     const arc = document.getElementById(id);
     if (!arc) return;
     const r = Math.max(0, Math.min(1, ratio || 0));
     arc.style.strokeDashoffset = GAUGE_C * (1 - r);
-    if (color) arc.style.stroke = color;
   };
 
   const inRatio = status.connected ? Math.max(0, Math.min(1, (status.in_v - 140) / 130)) : 0;
@@ -288,12 +357,24 @@ function updateUI(snapshot) {
   setArc('arcBatt', status.connected ? status.batt_pct / 100 : 0);
   setArc('arcLoad', status.connected ? status.load_pct / 100 : 0);
 
-  // Chart update
-  if (chart && history && history.length) {
-    chart.data.labels = history.map(h => h.time);
-    chart.data.datasets[0].data = history.map(h => h.in_v);
-    chart.data.datasets[1].data = history.map(h => h.out_v);
-    chart.update('none');
+  // Charts update
+  if (history && history.length) {
+    const labels = history.map(h => h.time);
+    const inData = history.map(h => h.in_v);
+    const outData = history.map(h => h.out_v);
+
+    if (chartDashboard) {
+      chartDashboard.data.labels = labels;
+      chartDashboard.data.datasets[0].data = inData;
+      chartDashboard.data.datasets[1].data = outData;
+      chartDashboard.update('none');
+    }
+    if (chartAnalytics) {
+      chartAnalytics.data.labels = labels;
+      chartAnalytics.data.datasets[0].data = inData;
+      chartAnalytics.data.datasets[1].data = outData;
+      chartAnalytics.update('none');
+    }
   }
 
   // Events Tables
@@ -395,34 +476,81 @@ function connectWebSocket() {
   };
 }
 
+function initTabNavigation() {
+  const navItems = document.querySelectorAll('.sidebar-nav .nav-item');
+  const tabViews = document.querySelectorAll('.tab-view');
+  const viewTitle = document.getElementById('currentViewTitle');
+
+  const titles = {
+    dashboard: 'Дашборд мониторинга',
+    flow: 'Интерактивная схема питания',
+    analytics: 'Аналитика и динамика напряжений',
+    events: 'Журнал событий питания',
+    settings: 'Настройки оповещений и системы'
+  };
+
+  navItems.forEach(item => {
+    item.addEventListener('click', () => {
+      const tab = item.getAttribute('data-tab');
+      if (!tab) return;
+
+      navItems.forEach(n => n.classList.remove('active'));
+      item.classList.add('active');
+
+      tabViews.forEach(v => {
+        v.classList.remove('active');
+        if (v.id === `view-${tab}`) {
+          v.classList.add('active');
+        }
+      });
+
+      if (viewTitle && titles[tab]) {
+        viewTitle.textContent = titles[tab];
+      }
+
+      // Trigger chart resize if navigating to analytics
+      if (tab === 'analytics' && chartAnalytics) {
+        setTimeout(() => chartAnalytics.resize(), 50);
+      }
+    });
+  });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-  initChart();
+  initCharts();
+  initTabNavigation();
   connectWebSocket();
 
+  // Sound toggles
   const soundBtn = document.getElementById('soundToggle');
-  if (soundBtn) {
-    soundBtn.addEventListener('click', () => {
-      soundEnabled = !soundEnabled;
-      setText('soundIcon', soundEnabled ? '🔔' : '🔕');
-      setText('soundText', soundEnabled ? 'Звук' : 'Выкл');
-      soundBtn.classList.toggle('active', soundEnabled);
-      if (soundEnabled) playAlertSound('avr');
-    });
-  }
+  const settingsSoundBtn = document.getElementById('settingsSoundBtn');
+  const toggleSound = () => {
+    soundEnabled = !soundEnabled;
+    updateSoundButtons(soundEnabled);
+    if (soundEnabled) playAlertSound('avr');
+  };
+
+  if (soundBtn) soundBtn.addEventListener('click', toggleSound);
+  if (settingsSoundBtn) settingsSoundBtn.addEventListener('click', toggleSound);
+
+  // Notification toggles
   const notifBtn = document.getElementById('notifToggle');
+  const settingsNotifBtn = document.getElementById('settingsNotifBtn');
   if (notifBtn) notifBtn.addEventListener('click', requestNotificationPermission);
+  if (settingsNotifBtn) settingsNotifBtn.addEventListener('click', requestNotificationPermission);
 
   // Modal event listeners
   const openModalBtn = document.getElementById('openEventsModalBtn');
   const closeModalBtn = document.getElementById('closeEventsModalBtn');
   const eventsModal = document.getElementById('eventsModal');
-  const searchInput = document.getElementById('modalEventsSearch');
+  const modalSearchInput = document.getElementById('modalEventsSearch');
+  const tabSearchInput = document.getElementById('tabEventsSearch');
 
   const openModal = () => {
     if (eventsModal) {
       eventsModal.classList.add('active');
       renderModalEvents();
-      if (searchInput) searchInput.focus();
+      if (modalSearchInput) modalSearchInput.focus();
     }
   };
 
@@ -439,9 +567,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  if (searchInput) {
-    searchInput.addEventListener('input', () => {
+  if (modalSearchInput) {
+    modalSearchInput.addEventListener('input', () => {
       renderModalEvents();
+    });
+  }
+
+  if (tabSearchInput) {
+    tabSearchInput.addEventListener('input', () => {
+      renderTabEvents();
     });
   }
 
@@ -451,4 +585,3 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
-
