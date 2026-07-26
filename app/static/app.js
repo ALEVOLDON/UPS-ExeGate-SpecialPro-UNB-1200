@@ -2,6 +2,7 @@ let soundEnabled = true;
 let notifEnabled = false;
 let chart = null;
 let lastModeCode = null;
+let allEvents = [];
 
 function playAlertSound(type) {
   if (!soundEnabled) return;
@@ -122,6 +123,71 @@ function setText(id, text) {
   if (el) el.textContent = text;
 }
 
+function renderEventsTable(events) {
+  allEvents = events || [];
+
+  // 1. Main Dashboard Table (top 5 events only, clean without scrollbar)
+  const tbody = document.getElementById('eventsTbody');
+  if (tbody) {
+    if (allEvents.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--text-muted);padding:1.5rem;">История пуста</td></tr>';
+    } else {
+      const top5 = allEvents.slice(0, 5);
+      tbody.innerHTML = top5.map(ev => {
+        let tagClass = 'tag-green';
+        const modeU = String(ev.mode || '').toUpperCase();
+        if (modeU.includes('БАТАРЕ') || modeU.includes('BATTERY')) tagClass = 'tag-amber';
+        else if (modeU.includes('AVR')) tagClass = 'tag-blue';
+        return `<tr>
+          <td>${ev.time_short || (ev.timestamp && String(ev.timestamp).split(' ')[1]) || ''}</td>
+          <td><span class="tag ${tagClass}">${ev.mode}</span></td>
+          <td style="font-weight:600">${ev.in_v} B</td>
+        </tr>`;
+      }).join('');
+    }
+  }
+
+  // 2. Modal Window Table
+  renderModalEvents();
+}
+
+function renderModalEvents() {
+  const modalTbody = document.getElementById('modalEventsTbody');
+  const countBadge = document.getElementById('modalEventsCount');
+  const searchInput = document.getElementById('modalEventsSearch');
+  const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
+
+  if (!modalTbody) return;
+
+  const filtered = allEvents.filter(ev => {
+    if (!query) return true;
+    const ts = String(ev.timestamp || '').toLowerCase();
+    const mode = String(ev.mode || '').toLowerCase();
+    return ts.includes(query) || mode.includes(query);
+  });
+
+  if (countBadge) countBadge.textContent = `${filtered.length} из ${allEvents.length} событий`;
+
+  if (filtered.length === 0) {
+    modalTbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:2rem;">События не найдены</td></tr>';
+  } else {
+    modalTbody.innerHTML = filtered.map(ev => {
+      let tagClass = 'tag-green';
+      const modeU = String(ev.mode || '').toUpperCase();
+      if (modeU.includes('БАТАРЕ') || modeU.includes('BATTERY')) tagClass = 'tag-amber';
+      else if (modeU.includes('AVR')) tagClass = 'tag-blue';
+      return `<tr>
+        <td class="mono">${ev.timestamp || ev.time_short || ''}</td>
+        <td><span class="tag ${tagClass}">${ev.mode}</span></td>
+        <td style="font-weight:600" class="mono">${ev.in_v} B</td>
+        <td class="mono">${ev.out_v ? ev.out_v + ' B' : '—'}</td>
+        <td class="mono">${ev.load_pct !== undefined ? ev.load_pct + ' %' : '—'}</td>
+        <td class="mono">${ev.batt_v ? ev.batt_v + ' V' : '—'}</td>
+      </tr>`;
+    }).join('');
+  }
+}
+
 function updateUI(snapshot) {
   if (!snapshot || !snapshot.status) return;
   const status = snapshot.status;
@@ -230,26 +296,9 @@ function updateUI(snapshot) {
     chart.update('none');
   }
 
-  // Events Table
+  // Events Tables
   if (events) {
-    const tbody = document.getElementById('eventsTbody');
-    if (tbody) {
-      if (events.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--text-muted);padding:1.5rem;">История просадок пуста</td></tr>';
-      } else {
-        tbody.innerHTML = events.map(ev => {
-          let tagClass = 'tag-green';
-          const modeU = String(ev.mode || '').toUpperCase();
-          if (modeU.includes('БАТАРЕ') || modeU.includes('BATTERY')) tagClass = 'tag-amber';
-          else if (modeU.includes('AVR')) tagClass = 'tag-blue';
-          return `<tr>
-            <td>${ev.time_short || (ev.timestamp && String(ev.timestamp).split(' ')[1]) || ''}</td>
-            <td><span class="tag ${tagClass}">${ev.mode}</span></td>
-            <td style="font-weight:600">${ev.in_v} B</td>
-          </tr>`;
-        }).join('');
-      }
-    }
+    renderEventsTable(events);
   }
 }
 
@@ -362,4 +411,44 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   const notifBtn = document.getElementById('notifToggle');
   if (notifBtn) notifBtn.addEventListener('click', requestNotificationPermission);
+
+  // Modal event listeners
+  const openModalBtn = document.getElementById('openEventsModalBtn');
+  const closeModalBtn = document.getElementById('closeEventsModalBtn');
+  const eventsModal = document.getElementById('eventsModal');
+  const searchInput = document.getElementById('modalEventsSearch');
+
+  const openModal = () => {
+    if (eventsModal) {
+      eventsModal.classList.add('active');
+      renderModalEvents();
+      if (searchInput) searchInput.focus();
+    }
+  };
+
+  const closeModal = () => {
+    if (eventsModal) eventsModal.classList.remove('active');
+  };
+
+  if (openModalBtn) openModalBtn.addEventListener('click', openModal);
+  if (closeModalBtn) closeModalBtn.addEventListener('click', closeModal);
+
+  if (eventsModal) {
+    eventsModal.addEventListener('click', (e) => {
+      if (e.target === eventsModal) closeModal();
+    });
+  }
+
+  if (searchInput) {
+    searchInput.addEventListener('input', () => {
+      renderModalEvents();
+    });
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && eventsModal && eventsModal.classList.contains('active')) {
+      closeModal();
+    }
+  });
 });
+

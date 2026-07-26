@@ -293,9 +293,14 @@
       <div class="section-card">
         <div class="section-title">
           <span>Журнал событий</span>
-          <a href="/api/download_csv" download class="btn-icon" style="text-decoration:none;font-size:0.75rem;padding:0.25rem 0.6rem;" title="Скачать CSV файл событий">
-            📥 CSV
-          </a>
+          <div style="display:flex;gap:0.4rem;">
+            <button id="openEventsModalBtn" class="btn-icon" style="font-size:0.75rem;padding:0.25rem 0.6rem;" title="Посмотреть полный журнал событий">
+              🗔 Развернуть
+            </button>
+            <a href="/api/download_csv" download class="btn-icon" style="text-decoration:none;font-size:0.75rem;padding:0.25rem 0.6rem;" title="Скачать CSV файл событий">
+              📥 CSV
+            </a>
+          </div>
         </div>
         <div class="events-table-wrapper">
           <table class="events-table">
@@ -317,6 +322,48 @@
     </div>
 
   </div>
+
+  <!-- Modal: Full Event Log -->
+  <div class="modal-overlay" id="eventsModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title">
+          <span>📜 Журнал событий питания</span>
+          <span class="modal-badge" id="modalEventsCount">0 событий</span>
+        </div>
+        <button class="btn-icon modal-close" id="closeEventsModalBtn" title="Закрыть (Esc)">&times;</button>
+      </div>
+
+      <div class="modal-controls">
+        <input type="text" id="modalEventsSearch" class="modal-search" placeholder="🔍 Поиск по дате или режиму (напр. AVR, Батарея)...">
+        <a href="/api/download_csv" download class="btn-icon" style="text-decoration:none;font-size:0.8rem;padding:0.45rem 0.8rem;" title="Скачать CSV файл">
+          📥 CSV
+        </a>
+      </div>
+
+      <div class="modal-table-wrapper">
+        <table class="events-table modal-events-table">
+          <thead>
+            <tr>
+              <th>Время / Дата</th>
+              <th>Режим работы</th>
+              <th>Вход V</th>
+              <th>Выход V</th>
+              <th>Нагрузка</th>
+              <th>АКБ V</th>
+            </tr>
+          </thead>
+          <tbody id="modalEventsTbody">
+            <tr>
+              <td colspan="6" style="text-align:center;color:var(--text-muted);padding:2rem;">Загрузка событий...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
   <script src="/static/app.js"></script>
 </body>
 </html>
+
