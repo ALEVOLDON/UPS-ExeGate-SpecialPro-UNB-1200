@@ -7,9 +7,16 @@
 
 Современное веб- и десктоп-приложение для мониторинга состояния ИБП **ExeGate SpecialPro UNB-1200** (и совместимых устройств на протоколе RichComm / Megatec `F` через USB HID).
 
-![Dashboard Preview](app/static/index.html)
+<p align="center">
+  <img src="assets/dashboard_preview.jpg" alt="Dashboard Preview" width="100%" style="border-radius: 12px;" />
+</p>
+
+<p align="center">
+  <img src="assets/modal_preview.jpg" alt="Event Log Modal Window" width="100%" style="border-radius: 12px;" />
+</p>
 
 ---
+
 
 ## ✨ Основные возможности
 
