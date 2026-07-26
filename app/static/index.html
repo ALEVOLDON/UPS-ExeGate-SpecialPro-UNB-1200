@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ExeGate SpecialPro UNB-1200 — Мониторинг ИБП</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="/static/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="/static/styles.css">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+</head>
+<body>
+  <div class="container">
+
+    <header>
+      <div class="brand">
+        <div class="brand-icon">⚡</div>
+        <div class="brand-info">
+          <h1>ExeGate SpecialPro UNB-1200</h1>
+          <p>USB HID · мониторинг в реальном времени</p>
+        </div>
+      </div>
+      <div class="header-controls">
+        <div class="live-pill" id="liveStrip">
+          <span class="live-badge"><span class="live-dot"></span> LIVE</span>
+          <span id="liveRate">— Гц</span>
+          <span id="liveSeq">#—</span>
+          <span id="liveStamp">—</span>
+        </div>
+        <button id="soundToggle" class="btn-icon" title="Звуковые оповещения">
+          <span id="soundIcon">🔔</span>
+          <span id="soundText">Звук</span>
+        </button>
+        <button id="notifToggle" class="btn-icon" title="Уведомления">
+          <span>💬</span>
+          <span id="notifText">Алерты</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Status -->
+    <div class="status-banner" id="statusBanner">
+      <div class="status-left">
+        <div class="status-indicator pulse" id="statusDot"></div>
+        <div>
+          <div class="status-title" id="statusTitle">Подключение...</div>
+          <div class="status-desc" id="statusDesc">Инициализация USB</div>
+        </div>
+      </div>
+      <div class="status-time" id="statusTime">--:--:--</div>
+    </div>
+
+    <!-- Raw USB frame + freeze warning (critical for debugging battery events) -->
+    <div class="raw-bar" id="rawBar">
+      <div class="raw-left">
+        <span class="raw-label">Сырой USB</span>
+        <code class="raw-frame mono" id="rawFrame">—</code>
+      </div>
+      <div class="raw-right">
+        <span class="freeze-badge" id="freezeBadge">LIVE DATA</span>
+        <span class="mono" id="freezeSec"></span>
+      </div>
+    </div>
+
+    <!-- Power flow diagram (PowerManager-style) -->
+    <section class="section-card flow-card">
+      <div class="section-title">
+        <span>Схема питания</span>
+        <span class="section-sub" id="flowModeLabel">—</span>
+      </div>
+
+      <div class="power-flow-wrap">
+        <div class="power-flow-row" id="powerFlow">
+          <div class="flow-node" id="nodeMains">
+            <div class="flow-icon mains-icon">
+              <svg viewBox="0 0 48 48" aria-hidden="true">
+                <path d="M18 6h12v8H18zM14 14h20v6c0 8-4 14-10 16v6h0v-6c-6-2-10-8-10-16v-6z" fill="currentColor" opacity=".9"/>
+                <rect x="20" y="18" width="3" height="8" rx="1" fill="#0b0f19"/>
+                <rect x="25" y="18" width="3" height="8" rx="1" fill="#0b0f19"/>
+              </svg>
+            </div>
+            <div class="flow-label">Сеть</div>
+            <div class="flow-value" id="flowInV">-- В</div>
+            <div class="flow-sub" id="flowFreq">-- Гц</div>
+          </div>
+
+          <div class="flow-link" id="linkMainsUps">
+            <div class="flow-wire"><span class="flow-pulse"></span></div>
+            <div class="flow-arrow">›</div>
+          </div>
+
+          <div class="flow-center">
+            <div class="flow-node flow-node-ups" id="nodeUps">
+              <div class="flow-icon ups-icon">
+                <svg viewBox="0 0 48 48" aria-hidden="true">
+                  <rect x="8" y="12" width="32" height="24" rx="4" fill="currentColor"/>
+                  <rect x="12" y="16" width="24" height="10" rx="2" fill="#0b0f19" opacity=".5"/>
+                  <circle cx="16" cy="30" r="2" fill="#34d399"/>
+                  <circle cx="24" cy="30" r="2" fill="#60a5fa"/>
+                  <circle cx="32" cy="30" r="2" fill="#fbbf24"/>
+                </svg>
+              </div>
+              <div class="flow-label">ИБП</div>
+              <div class="flow-value" id="flowOutV">-- В</div>
+              <div class="flow-sub" id="flowAvr">AVR —</div>
+            </div>
+
+            <div class="flow-batt-branch" id="linkBattUps">
+              <div class="flow-wire vertical"><span class="flow-pulse"></span></div>
+              <div class="flow-arrow down">›</div>
+            </div>
+
+            <div class="flow-node flow-node-batt" id="nodeBatt">
+              <div class="flow-icon batt-icon">
+                <svg viewBox="0 0 48 48" aria-hidden="true">
+                  <rect x="8" y="14" width="28" height="20" rx="3" fill="currentColor"/>
+                  <rect x="36" y="20" width="4" height="8" rx="1" fill="currentColor"/>
+                  <rect x="12" y="18" width="20" height="12" rx="1" fill="#0b0f19" opacity=".4"/>
+                  <rect x="12" y="18" width="20" height="12" rx="1" fill="#34d399" opacity=".85"/>
+                </svg>
+              </div>
+              <div class="flow-label">АКБ</div>
+              <div class="flow-value" id="flowBatt">-- %</div>
+              <div class="flow-sub" id="flowBattV">-- V</div>
+            </div>
+          </div>
+
+          <div class="flow-link" id="linkUpsLoad">
+            <div class="flow-wire"><span class="flow-pulse"></span></div>
+            <div class="flow-arrow">›</div>
+          </div>
+
+          <div class="flow-node" id="nodeLoad">
+            <div class="flow-icon load-icon">
+              <svg viewBox="0 0 48 48" aria-hidden="true">
+                <rect x="10" y="10" width="28" height="20" rx="2" fill="currentColor"/>
+                <rect x="14" y="14" width="20" height="12" fill="#0b0f19" opacity=".45"/>
+                <rect x="18" y="32" width="12" height="3" rx="1" fill="currentColor"/>
+                <rect x="14" y="35" width="20" height="3" rx="1" fill="currentColor"/>
+              </svg>
+            </div>
+            <div class="flow-label">Нагрузка</div>
+            <div class="flow-value" id="flowLoad">-- %</div>
+            <div class="flow-sub" id="flowWatts">-- Вт</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Circular gauges -->
+    <section class="gauges-grid">
+
+      <article class="gauge-card" id="cardInV">
+        <div class="gauge-wrap">
+          <svg class="gauge-svg" viewBox="0 0 140 140">
+            <defs>
+              <linearGradient id="gradIn" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#3b82f6"/>
+                <stop offset="100%" stop-color="#22d3ee"/>
+              </linearGradient>
+            </defs>
+            <circle class="gauge-track" cx="70" cy="70" r="56"/>
+            <circle class="gauge-arc" id="arcIn" cx="70" cy="70" r="56"
+              stroke="url(#gradIn)" stroke-dasharray="351.86" stroke-dashoffset="351.86"/>
+          </svg>
+          <div class="gauge-center">
+            <div class="gauge-value mono" id="valInV">--</div>
+            <div class="gauge-unit">В</div>
+          </div>
+        </div>
+        <div class="gauge-meta">
+          <div class="gauge-title">Входная сеть</div>
+          <div class="gauge-caption" id="statusInV">—</div>
+          <div class="gauge-extra"><span id="valFreq">-- Гц</span><span class="metric-delta" id="deltaInV"></span></div>
+        </div>
+      </article>
+
+      <article class="gauge-card" id="cardOutV">
+        <div class="gauge-wrap">
+          <svg class="gauge-svg" viewBox="0 0 140 140">
+            <defs>
+              <linearGradient id="gradOut" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#10b981"/>
+                <stop offset="100%" stop-color="#34d399"/>
+              </linearGradient>
+            </defs>
+            <circle class="gauge-track" cx="70" cy="70" r="56"/>
+            <circle class="gauge-arc" id="arcOut" cx="70" cy="70" r="56"
+              stroke="url(#gradOut)" stroke-dasharray="351.86" stroke-dashoffset="351.86"/>
+          </svg>
+          <div class="gauge-center">
+            <div class="gauge-value mono" id="valOutV">--</div>
+            <div class="gauge-unit">В</div>
+          </div>
+        </div>
+        <div class="gauge-meta">
+          <div class="gauge-title">Выход ИБП</div>
+          <div class="gauge-caption" id="statusOutV">—</div>
+          <div class="gauge-extra"><span id="valAvrDiff">AVR: --</span><span class="metric-delta" id="deltaOutV"></span></div>
+        </div>
+      </article>
+
+      <article class="gauge-card" id="cardBatt">
+        <div class="gauge-wrap">
+          <svg class="gauge-svg" viewBox="0 0 140 140">
+            <defs>
+              <linearGradient id="gradBatt" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#10b981"/>
+                <stop offset="100%" stop-color="#a3e635"/>
+              </linearGradient>
+            </defs>
+            <circle class="gauge-track" cx="70" cy="70" r="56"/>
+            <circle class="gauge-arc" id="arcBatt" cx="70" cy="70" r="56"
+              stroke="url(#gradBatt)" stroke-dasharray="351.86" stroke-dashoffset="351.86"/>
+          </svg>
+          <div class="gauge-center">
+            <div class="gauge-value mono" id="valBattPct">--</div>
+            <div class="gauge-unit">%</div>
+          </div>
+        </div>
+        <div class="gauge-meta">
+          <div class="gauge-title">Заряд АКБ</div>
+          <div class="gauge-caption" id="valBattV">—</div>
+          <div class="gauge-extra"><span title="Оценка по напряжению">оценка по V</span><span class="metric-delta" id="deltaBatt"></span></div>
+        </div>
+      </article>
+
+      <article class="gauge-card" id="cardLoad">
+        <div class="gauge-wrap">
+          <svg class="gauge-svg" viewBox="0 0 140 140">
+            <defs>
+              <linearGradient id="gradLoad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#3b82f6"/>
+                <stop offset="100%" stop-color="#818cf8"/>
+              </linearGradient>
+            </defs>
+            <circle class="gauge-track" cx="70" cy="70" r="56"/>
+            <circle class="gauge-arc" id="arcLoad" cx="70" cy="70" r="56"
+              stroke="url(#gradLoad)" stroke-dasharray="351.86" stroke-dashoffset="351.86"/>
+          </svg>
+          <div class="gauge-center">
+            <div class="gauge-value mono" id="valLoadPct">--</div>
+            <div class="gauge-unit">%</div>
+          </div>
+        </div>
+        <div class="gauge-meta">
+          <div class="gauge-title">Нагрузка</div>
+          <div class="gauge-caption" id="valLoadWatts">—</div>
+          <div class="gauge-extra"><span id="statusLoad">750 Вт max</span><span class="metric-delta" id="deltaLoad"></span></div>
+        </div>
+      </article>
+
+    </section>
+
+    <!-- Mini stats row -->
+    <section class="mini-stats">
+      <div class="mini-stat">
+        <div class="mini-label">Частота</div>
+        <div class="mini-value mono" id="miniFreq">-- Гц</div>
+      </div>
+      <div class="mini-stat">
+        <div class="mini-label">Температура</div>
+        <div class="mini-value mono" id="miniTemp">-- °C</div>
+      </div>
+      <div class="mini-stat">
+        <div class="mini-label">Мощность</div>
+        <div class="mini-value mono" id="miniWatts">-- Вт</div>
+      </div>
+      <div class="mini-stat">
+        <div class="mini-label">АКБ напряжение</div>
+        <div class="mini-value mono" id="miniBattV">-- V</div>
+      </div>
+      <div class="mini-stat">
+        <div class="mini-label">Status bits</div>
+        <div class="mini-value mono" id="miniBits">--------</div>
+      </div>
+    </section>
+
+    <!-- Chart + events -->
+    <div class="dashboard-sections">
+      <div class="section-card">
+        <div class="section-title">
+          <span>График напряжений</span>
+          <span class="section-sub">Вход vs Выход</span>
+        </div>
+        <div class="chart-wrapper">
+          <canvas id="voltageChart"></canvas>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-title">
+          <span>Журнал событий</span>
+          <a href="/api/download_csv" download class="btn-icon" style="text-decoration:none;font-size:0.75rem;padding:0.25rem 0.6rem;" title="Скачать CSV файл событий">
+            📥 CSV
+          </a>
+        </div>
+        <div class="events-table-wrapper">
+          <table class="events-table">
+            <thead>
+              <tr>
+                <th>Время</th>
+                <th>Режим</th>
+                <th>Вход V</th>
+              </tr>
+            </thead>
+            <tbody id="eventsTbody">
+              <tr>
+                <td colspan="3" style="text-align:center;color:var(--text-muted);padding:1.5rem;">История пуста</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <script src="/static/app.js"></script>
+</body>
+</html>
