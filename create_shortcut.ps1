@@ -50,7 +50,12 @@ $Shortcut.TargetPath = $pyInfo.Exe
 $Shortcut.Arguments = $pyInfo.Args
 $Shortcut.WorkingDirectory = $WorkDir
 $Shortcut.Description = "ExeGate UNB-1200 UPS Monitoring Application"
-$Shortcut.IconLocation = "$($pyInfo.Exe),0"
+$IconPath = Join-Path $WorkDir "assets\app_icon.ico"
+if (Test-Path $IconPath) {
+    $Shortcut.IconLocation = "$IconPath,0"
+} else {
+    $Shortcut.IconLocation = "$($pyInfo.Exe),0"
+}
 $Shortcut.Save()
 
 Write-Host "Desktop shortcut created:"

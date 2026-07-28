@@ -15,6 +15,11 @@ if sys.platform == "win32":
         sys.stdout.reconfigure(encoding="utf-8")
     except Exception:
         pass
+    try:
+        import ctypes
+        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("ExeGate.UPSMonitor.SpecialPro.UNB1200")
+    except Exception:
+        pass
 
 from app.netutil import DEFAULT_HOST, DEFAULT_PORT, port_in_use
 
@@ -36,6 +41,38 @@ def show_error(title: str, message: str) -> None:
         pass
 
 
+def set_windows_taskbar_icon(window_title: str, icon_path: str):
+    if sys.platform != "win32" or not os.path.exists(icon_path):
+        return
+
+    def _apply():
+        import ctypes
+
+        for _ in range(25):
+            time.sleep(0.2)
+            hwnd = ctypes.windll.user32.FindWindowW(None, window_title)
+            if hwnd:
+                WM_SETICON = 0x0080
+                ICON_SMALL = 0
+                ICON_BIG = 1
+                IMAGE_ICON = 1
+                LR_LOADFROMFILE = 0x00000010
+
+                h_icon_big = ctypes.windll.user32.LoadImageW(
+                    0, icon_path, IMAGE_ICON, 32, 32, LR_LOADFROMFILE
+                )
+                h_icon_small = ctypes.windll.user32.LoadImageW(
+                    0, icon_path, IMAGE_ICON, 16, 16, LR_LOADFROMFILE
+                )
+                if h_icon_big:
+                    ctypes.windll.user32.SendMessageW(hwnd, WM_SETICON, ICON_BIG, h_icon_big)
+                if h_icon_small:
+                    ctypes.windll.user32.SendMessageW(hwnd, WM_SETICON, ICON_SMALL, h_icon_small)
+                break
+
+    threading.Thread(target=_apply, daemon=True).start()
+
+
 def start_server(app):
     import uvicorn
 
@@ -54,8 +91,12 @@ def wait_for_server(timeout: float = 8.0) -> bool:
 def open_window():
     import webview
 
+    title = "ExeGate SpecialPro UNB-1200 — Мониторинг ИБП"
+    icon_path = os.path.join(APP_DIR, "assets", "app_icon.ico")
+    set_windows_taskbar_icon(title, icon_path)
+
     window = webview.create_window(
-        title="ExeGate SpecialPro UNB-1200 — Мониторинг ИБП",
+        title=title,
         url=f"http://{DEFAULT_HOST}:{DEFAULT_PORT}/?v={int(time.time())}",
         width=1220,
         height=820,
