@@ -83,6 +83,34 @@ async def download_csv():
     return Response(content="CSV not found", status_code=404)
 
 
+@app.get("/api/settings")
+async def get_settings():
+    return ups_driver.shutdown_manager.settings
+
+
+@app.post("/api/settings")
+async def update_settings(request: Request):
+    try:
+        new_data = await request.json()
+        saved = ups_driver.shutdown_manager.save_settings(new_data)
+        return {"ok": True, "settings": saved}
+    except Exception as e:
+        return Response(content=f"Error saving settings: {e}", status_code=400)
+
+
+@app.post("/api/cancel_shutdown")
+async def cancel_shutdown():
+    ok = ups_driver.shutdown_manager.cancel_shutdown(reason="Отмена из веб-интерфейса")
+    return {"ok": ok, "message": "Автовыключение отменено"}
+
+
+@app.post("/api/trigger_shutdown")
+async def trigger_shutdown():
+    ok = ups_driver.shutdown_manager.trigger_shutdown(reason="Тестовая проверка из настроек")
+    return {"ok": ok, "message": "Запущено тестовое выключение (60 сек)"}
+
+
+
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):

@@ -11,9 +11,10 @@ from app.config import (
     VENDOR_ID, PRODUCT_ID, LOG_FILE, MAX_HISTORY_POINTS, MAX_EVENTS, POLL_INTERVAL_SEC
 )
 from app.protocol import parse_f_response, estimate_battery_pct
+from app.notifications import send_notification
+from app.shutdown_manager import ShutdownManager
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
-
 
 
 class UPSDriver:
@@ -23,6 +24,9 @@ class UPSDriver:
         self.thread = None
         self.lock = threading.Lock()
         self._seq = 0
+
+        self.shutdown_manager = ShutdownManager(notification_callback=send_notification)
+
 
         self.current_status = {
             "connected": False,
@@ -170,6 +174,13 @@ class UPSDriver:
                             self.events.appendleft(event_obj)
                             self._append_csv(data)
                             logging.info(f"MODE CHANGE: {self.last_mode_code} -> {mode_code} | in={data['in_v']}V out={data['out_v']}V")
+                            
+                            # Native Toast Notification on mode changes
+                            if self.shutdown_manager.settings.get("toast_notif_enabled"):
+                                send_notification(
+                                    f"ИБП: {data['mode_title']}",
+                                    f"Входное напряжение: {data['in_v']}V -> Выходное: {data['out_v']}V (АКБ: {data['batt_pct']}%)"
+                                )
                         self.last_mode_code = mode_code
 
                 else:
@@ -183,6 +194,10 @@ class UPSDriver:
                         "mode_desc": err or "Переподключение к USB ИБП...",
                         "status_color": "#ef4444"
                     })
+
+                # Update Shutdown Manager
+                self.shutdown_manager.update_status(self.current_status)
+
 
             elapsed = time.monotonic() - t0
             time.sleep(max(0.1, POLL_INTERVAL_SEC - elapsed))
@@ -258,5 +273,7 @@ class UPSDriver:
             return {
                 "status": dict(self.current_status),
                 "history": list(self.history),
-                "events": list(self.events)
+                "events": list(self.events),
+                "shutdown": self.shutdown_manager.get_status_dict()
             }
+
