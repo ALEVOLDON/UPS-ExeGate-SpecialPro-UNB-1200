@@ -37,14 +37,31 @@ function playAlertSound(type) {
   }
 }
 
-function requestNotificationPermission() {
-  if ("Notification" in window) {
+function toggleNotificationPermission() {
+  if (!("Notification" in window)) {
+    alert("Ваш браузер не поддерживает Push-уведомления.");
+    return;
+  }
+
+  if (Notification.permission === "granted") {
+    notifEnabled = !notifEnabled;
+    updateNotifButtons(notifEnabled);
+    if (notifEnabled) {
+      showNotification("ExeGate Pro", "Уведомления браузера включены");
+    }
+  } else if (Notification.permission !== "denied") {
     Notification.requestPermission().then(permission => {
       if (permission === "granted") {
         notifEnabled = true;
         updateNotifButtons(true);
+        showNotification("ExeGate Pro", "Уведомления браузера включены");
+      } else {
+        notifEnabled = false;
+        updateNotifButtons(false);
       }
     });
+  } else {
+    alert("Уведомления заблокированы в настройках браузера. Разрешите их возле адреса сайта.");
   }
 }
 
@@ -66,7 +83,10 @@ function updateSoundButtons(enabled) {
 function updateNotifButtons(enabled) {
   const btn1 = document.getElementById('notifToggle');
   const btn2 = document.getElementById('settingsNotifBtn');
-  if (btn1) btn1.classList.toggle('active', enabled);
+  if (btn1) {
+    setText('notifText', enabled ? 'Алерты' : 'Выкл');
+    btn1.classList.toggle('active', enabled);
+  }
   if (btn2) {
     btn2.innerHTML = enabled 
       ? '<span class="status-dot-sm" style="background:#10b981;"></span> Включено' 
@@ -593,8 +613,14 @@ document.addEventListener('DOMContentLoaded', () => {
   // Notification toggles
   const notifBtn = document.getElementById('notifToggle');
   const settingsNotifBtn = document.getElementById('settingsNotifBtn');
-  if (notifBtn) notifBtn.addEventListener('click', requestNotificationPermission);
-  if (settingsNotifBtn) settingsNotifBtn.addEventListener('click', requestNotificationPermission);
+  if (notifBtn) notifBtn.addEventListener('click', toggleNotificationPermission);
+  if (settingsNotifBtn) settingsNotifBtn.addEventListener('click', toggleNotificationPermission);
+
+  // Check initial notification permission
+  if ("Notification" in window && Notification.permission === "granted") {
+    notifEnabled = true;
+    updateNotifButtons(true);
+  }
 
   // Modal event listeners
   const openModalBtn = document.getElementById('openEventsModalBtn');
