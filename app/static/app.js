@@ -51,14 +51,14 @@ function requestNotificationPermission() {
 function updateSoundButtons(enabled) {
   const btn1 = document.getElementById('soundToggle');
   const btn2 = document.getElementById('settingsSoundBtn');
-  const text = enabled ? '🔔 Включено' : '🔕 Выключено';
   if (btn1) {
-    setText('soundIcon', enabled ? '🔔' : '🔕');
     setText('soundText', enabled ? 'Звук' : 'Выкл');
     btn1.classList.toggle('active', enabled);
   }
   if (btn2) {
-    btn2.textContent = text;
+    btn2.innerHTML = enabled 
+      ? '<span class="status-dot-sm" style="background:#10b981;"></span> Включено' 
+      : '<span class="status-dot-sm" style="background:#64748b;"></span> Выключено';
     btn2.classList.toggle('active', enabled);
   }
 }
@@ -68,7 +68,9 @@ function updateNotifButtons(enabled) {
   const btn2 = document.getElementById('settingsNotifBtn');
   if (btn1) btn1.classList.toggle('active', enabled);
   if (btn2) {
-    btn2.textContent = enabled ? '💬 Включено' : '💬 Включить';
+    btn2.innerHTML = enabled 
+      ? '<span class="status-dot-sm" style="background:#10b981;"></span> Включено' 
+      : '<span class="status-dot-sm" style="background:#64748b;"></span> Включить';
     btn2.classList.toggle('active', enabled);
   }
 }
@@ -417,7 +419,9 @@ function syncSettingsUI(settings) {
 
   if (autoBtn) {
     const isEn = !!settings.auto_shutdown_enabled;
-    autoBtn.textContent = isEn ? '🟢 Включено' : '🔴 Выключено';
+    autoBtn.innerHTML = isEn 
+      ? '<span class="status-dot-sm" style="background:#10b981;"></span> Включено' 
+      : '<span class="status-dot-sm" style="background:#ef4444;"></span> Выключено';
     autoBtn.classList.toggle('active', isEn);
   }
   if (pctSel && pctSel.value != settings.shutdown_battery_pct) {
@@ -428,7 +432,9 @@ function syncSettingsUI(settings) {
   }
   if (toastBtn) {
     const isToast = !!settings.toast_notif_enabled;
-    toastBtn.textContent = isToast ? '💬 Включено' : '💬 Выключено';
+    toastBtn.innerHTML = isToast 
+      ? '<span class="status-dot-sm" style="background:#10b981;"></span> Включено' 
+      : '<span class="status-dot-sm" style="background:#64748b;"></span> Выключено';
     toastBtn.classList.toggle('active', isToast);
   }
 }
