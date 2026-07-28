@@ -346,6 +346,7 @@ function updateUI(snapshot) {
   setText('flowFreq', status.connected ? `${status.freq.toFixed(1)} Гц` : '-- Гц');
   setText('flowAvr', `AVR ${diff >= 0 ? '+' : ''}${diff.toFixed(1)} V`);
   updatePowerFlow(status);
+  updateOutletsUI(status);
 
   // Mini stats row
   setText('miniFreq', status.connected && status.freq !== undefined ? `${status.freq.toFixed(1)} Гц` : '-- Гц');
@@ -527,6 +528,51 @@ function updatePowerFlow(status) {
   }
 }
 
+function initOutletsManager() {
+  const defaults = [
+    'Системный блок ПК',
+    'Монитор',
+    'Wi-Fi Роутер',
+    'Резервная розетка'
+  ];
+
+  for (let i = 1; i <= 4; i++) {
+    const input = document.getElementById(`socketLabel${i}`);
+    if (!input) continue;
+
+    const saved = localStorage.getItem(`ups_socket_name_${i}`);
+    if (saved) input.value = saved;
+
+    input.addEventListener('change', () => {
+      const val = input.value.trim() || defaults[i - 1];
+      input.value = val;
+      localStorage.setItem(`ups_socket_name_${i}`, val);
+    });
+  }
+}
+
+function updateOutletsUI(status) {
+  const isPowered = !!(status.connected && status.out_v > 50);
+  const outVText = status.connected && status.out_v ? `${status.out_v.toFixed(0)} В` : '-- В';
+
+  for (let i = 1; i <= 4; i++) {
+    const card = document.querySelector(`.socket-card[data-socket-id="${i}"]`);
+    const vLabel = document.getElementById(`socketV${i}`);
+    if (!card || !vLabel) continue;
+
+    const dot = card.querySelector('.socket-status-dot');
+    if (isPowered) {
+      card.classList.add('active');
+      if (dot) dot.classList.remove('off');
+      vLabel.textContent = `${outVText} · АКТИВНА`;
+    } else {
+      card.classList.remove('active');
+      if (dot) dot.classList.add('off');
+      vLabel.textContent = `0 В · ОТКЛЮЧЕНА`;
+    }
+  }
+}
+
 function connectWebSocket() {
   const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
   const liveStrip = document.getElementById('liveStrip');
@@ -600,6 +646,7 @@ function initTabNavigation() {
 document.addEventListener('DOMContentLoaded', () => {
   initCharts();
   initTabNavigation();
+  initOutletsManager();
   connectWebSocket();
 
   // Sound toggles
