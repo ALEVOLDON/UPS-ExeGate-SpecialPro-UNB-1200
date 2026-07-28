@@ -466,7 +466,7 @@
                   <div class="settings-desc">Автоматически завершает работу ПК при разряде АКБ ниже порога</div>
                 </div>
               </div>
-              <button id="settingsAutoShutdownBtn" class="btn-icon" style="padding:0.5rem 1rem;flex-shrink:0;">Включено</button>
+              <button id="settingsAutoShutdownBtn" class="btn-icon settings-ctrl">Включено</button>
             </div>
 
             <!-- Threshold Batt % -->
@@ -478,7 +478,7 @@
                   <div class="settings-desc">При каком проценте заряда запускать завершение работы ПК</div>
                 </div>
               </div>
-              <select id="settingsShutdownPctSelect" class="settings-select">
+              <select id="settingsShutdownPctSelect" class="settings-select settings-ctrl">
                 <option value="5">5 %</option>
                 <option value="10">10 %</option>
                 <option value="15" selected>15 %</option>
@@ -497,7 +497,7 @@
                   <div class="settings-desc">Задержка перед окончательным отключением ПК (для отмены)</div>
                 </div>
               </div>
-              <select id="settingsShutdownDelaySelect" class="settings-select">
+              <select id="settingsShutdownDelaySelect" class="settings-select settings-ctrl">
                 <option value="30">30 сек</option>
                 <option value="60" selected>60 сек</option>
                 <option value="90">90 сек</option>
@@ -514,7 +514,7 @@
                   <div class="settings-desc">Всплывающие карточки в углу экрана Windows при событиях сети</div>
                 </div>
               </div>
-              <button id="settingsToastBtn" class="btn-icon" style="padding:0.5rem 1rem;flex-shrink:0;">Включено</button>
+              <button id="settingsToastBtn" class="btn-icon settings-ctrl">Включено</button>
             </div>
 
             <!-- Test Shutdown Trigger -->
@@ -526,8 +526,8 @@
                   <div class="settings-desc">Запустит тестовый отсчёт 60 секунд. Проверьте кнопку отмены!</div>
                 </div>
               </div>
-              <button id="testShutdownBtn" class="btn-icon" style="padding:0.5rem 1rem;flex-shrink:0;background:rgba(239, 68, 68, 0.15);color:#f87171;border-color:rgba(239, 68, 68, 0.3);display:flex;align-items:center;gap:0.4rem;">
-                <svg class="btn-icon-svg" viewBox="0 0 24 24" style="stroke:#f87171;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              <button id="testShutdownBtn" class="btn-icon settings-ctrl" style="background:rgba(239, 68, 68, 0.15);color:#f87171;border-color:rgba(239, 68, 68, 0.3);">
+                <svg class="btn-icon-svg" viewBox="0 0 24 24" style="stroke:#f87171;margin-right:0;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
                 Проверить (60с)
               </button>
             </div>
@@ -541,7 +541,7 @@
                   <div class="settings-desc">Звуковое предупреждение при переходах на АКБ и сработках AVR</div>
                 </div>
               </div>
-              <button id="settingsSoundBtn" class="btn-icon" style="padding:0.5rem 1rem;flex-shrink:0;">Включено</button>
+              <button id="settingsSoundBtn" class="btn-icon settings-ctrl">Включено</button>
             </div>
 
             <!-- Hardware Status -->
@@ -553,7 +553,7 @@
                   <div class="settings-desc">Vendor: 0x0665 · Product: 0x5161 (RichComm Megatec F)</div>
                 </div>
               </div>
-              <span class="tag tag-green" style="flex-shrink:0;">АКТИВЕН И ТРЕЙ В ВИНДОУС</span>
+              <span class="tag tag-green settings-ctrl">Активен (Трей)</span>
             </div>
 
             <!-- CSV Download -->
@@ -565,8 +565,8 @@
                   <div class="settings-desc">Скачать файл истории ups_power_events.csv</div>
                 </div>
               </div>
-              <a href="/api/download_csv" download class="btn-icon" style="text-decoration:none;padding:0.5rem 1rem;flex-shrink:0;display:flex;align-items:center;gap:0.4rem;">
-                <svg class="btn-icon-svg" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+              <a href="/api/download_csv" download class="btn-icon settings-ctrl" style="text-decoration:none;">
+                <svg class="btn-icon-svg" viewBox="0 0 24 24" style="margin-right:0;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
                 Скачать CSV
               </a>
             </div>
