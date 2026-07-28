@@ -54,7 +54,7 @@ def wait_for_server(timeout: float = 8.0) -> bool:
 def open_window():
     import webview
 
-    webview.create_window(
+    window = webview.create_window(
         title="ExeGate SpecialPro UNB-1200 — Мониторинг ИБП",
         url=f"http://{DEFAULT_HOST}:{DEFAULT_PORT}/?v={int(time.time())}",
         width=1220,
@@ -66,6 +66,23 @@ def open_window():
     )
     print(f"[+] Desktop window -> http://{DEFAULT_HOST}:{DEFAULT_PORT}")
     webview.start()
+    return window
+
+
+def start_tray_updater(tray_icon, ups_driver_inst):
+    def update_loop():
+        while True:
+            try:
+                snap = ups_driver_inst.get_snapshot()
+                ups_status = snap.get("status", {})
+                shutdown_status = snap.get("shutdown", {})
+                tray_icon.update(ups_status, shutdown_status)
+            except Exception:
+                pass
+            time.sleep(1.0)
+
+    t = threading.Thread(target=update_loop, daemon=True)
+    t.start()
 
 
 def main():
@@ -100,15 +117,32 @@ def main():
         return
 
     try:
-        from app.server import app as fastapi_app
+        from app.server import app as fastapi_app, ups_driver
+        from app.tray_icon import UPSTrayIcon
     except ImportError as e:
         show_error(
             "UPS Monitor — нет зависимости",
-            f"Не удалось импортировать сервер: {e}\n\n"
+            f"Не удалось импортировать сервер/трей: {e}\n\n"
             "Установите зависимости:\n"
             "  pip install -r requirements.txt",
         )
         sys.exit(1)
+
+    # Initialize System Tray Icon
+    def on_open():
+        import webbrowser
+        webbrowser.open(f"http://{DEFAULT_HOST}:{DEFAULT_PORT}")
+
+    def on_cancel():
+        ups_driver.shutdown_manager.cancel_shutdown(reason="Отмена из меню трея")
+
+    tray = UPSTrayIcon(
+        on_open_dashboard=on_open,
+        on_cancel_shutdown=on_cancel,
+        on_exit=lambda: os._exit(0)
+    )
+    tray.start()
+    start_tray_updater(tray, ups_driver)
 
     server_thread = threading.Thread(
         target=start_server, args=(fastapi_app,), daemon=True
@@ -135,3 +169,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
