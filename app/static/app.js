@@ -381,7 +381,58 @@ function updateUI(snapshot) {
   if (events) {
     renderEventsTable(events);
   }
+
+  // Graceful Shutdown Banner Update
+  if (snapshot.shutdown) {
+    updateShutdownBanner(snapshot.shutdown);
+    syncSettingsUI(snapshot.shutdown.settings);
+  }
 }
+
+function updateShutdownBanner(shutdownData) {
+  const banner = document.getElementById('shutdownBanner');
+  const timer = document.getElementById('shutdownTimer');
+  const reason = document.getElementById('shutdownReason');
+
+  if (!banner || !timer || !reason) return;
+
+  if (shutdownData.shutdown_active) {
+    banner.style.display = 'flex';
+    timer.textContent = `${shutdownData.seconds_left}с`;
+    reason.textContent = `Причина: ${shutdownData.shutdown_reason || 'Критический разряд АКБ'}`;
+  } else {
+    banner.style.display = 'none';
+  }
+}
+
+let lastSyncedSettings = {};
+function syncSettingsUI(settings) {
+  if (!settings) return;
+  lastSyncedSettings = settings;
+
+  const autoBtn = document.getElementById('settingsAutoShutdownBtn');
+  const pctSel = document.getElementById('settingsShutdownPctSelect');
+  const delaySel = document.getElementById('settingsShutdownDelaySelect');
+  const toastBtn = document.getElementById('settingsToastBtn');
+
+  if (autoBtn) {
+    const isEn = !!settings.auto_shutdown_enabled;
+    autoBtn.textContent = isEn ? '🟢 Включено' : '🔴 Выключено';
+    autoBtn.classList.toggle('active', isEn);
+  }
+  if (pctSel && pctSel.value != settings.shutdown_battery_pct) {
+    pctSel.value = settings.shutdown_battery_pct || 15;
+  }
+  if (delaySel && delaySel.value != settings.shutdown_delay_sec) {
+    delaySel.value = settings.shutdown_delay_sec || 60;
+  }
+  if (toastBtn) {
+    const isToast = !!settings.toast_notif_enabled;
+    toastBtn.textContent = isToast ? '💬 Включено' : '💬 Выключено';
+    toastBtn.classList.toggle('active', isToast);
+  }
+}
+
 
 function updatePowerFlow(status) {
   const mains = document.getElementById('nodeMains');
@@ -584,4 +635,78 @@ document.addEventListener('DOMContentLoaded', () => {
       closeModal();
     }
   });
+
+  // Emergency Cancel Shutdown Button
+  const cancelBtn = document.getElementById('cancelShutdownBtn');
+  if (cancelBtn) {
+    cancelBtn.addEventListener('click', async () => {
+      try {
+        const res = await fetch('/api/cancel_shutdown', { method: 'POST' });
+        const data = await res.json();
+        console.log('Shutdown canceled:', data);
+      } catch (err) {
+        console.error('Error canceling shutdown:', err);
+      }
+    });
+  }
+
+  // Auto Shutdown Settings Handlers
+  const autoShutdownBtn = document.getElementById('settingsAutoShutdownBtn');
+  if (autoShutdownBtn) {
+    autoShutdownBtn.addEventListener('click', () => {
+      const nextVal = !lastSyncedSettings.auto_shutdown_enabled;
+      saveSettingPatch({ auto_shutdown_enabled: nextVal });
+    });
+  }
+
+  const pctSelect = document.getElementById('settingsShutdownPctSelect');
+  if (pctSelect) {
+    pctSelect.addEventListener('change', () => {
+      saveSettingPatch({ shutdown_battery_pct: parseInt(pctSelect.value, 10) });
+    });
+  }
+
+  const delaySelect = document.getElementById('settingsShutdownDelaySelect');
+  if (delaySelect) {
+    delaySelect.addEventListener('change', () => {
+      saveSettingPatch({ shutdown_delay_sec: parseInt(delaySelect.value, 10) });
+    });
+  }
+
+  const toastBtn = document.getElementById('settingsToastBtn');
+  if (toastBtn) {
+    toastBtn.addEventListener('click', () => {
+      const nextVal = !lastSyncedSettings.toast_notif_enabled;
+      saveSettingPatch({ toast_notif_enabled: nextVal });
+    });
+  }
+
+  const testBtn = document.getElementById('testShutdownBtn');
+  if (testBtn) {
+    testBtn.addEventListener('click', async () => {
+      if (confirm("Запустить тестовый отсчёт выключения ПК на 60 секунд?\nВы сможете сразу же отменить его кнопкой на экране.")) {
+        try {
+          await fetch('/api/trigger_shutdown', { method: 'POST' });
+        } catch (err) {
+          console.error("Error triggering test shutdown:", err);
+        }
+      }
+    });
+  }
 });
+
+async function saveSettingPatch(patchObj) {
+  try {
+    const newSettings = Object.assign({}, lastSyncedSettings, patchObj);
+    const res = await fetch('/api/settings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newSettings)
+    });
+    const data = await res.json();
+    if (data.settings) syncSettingsUI(data.settings);
+  } catch (e) {
+    console.error("Error saving settings:", e);
+  }
+}
+

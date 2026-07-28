@@ -81,6 +81,21 @@
         </div>
       </header>
 
+      <!-- Critical Emergency Shutdown Countdown Banner -->
+      <div class="shutdown-banner" id="shutdownBanner" style="display:none;">
+        <div class="shutdown-banner-left">
+          <div class="shutdown-alert-icon">⚠️</div>
+          <div>
+            <div class="shutdown-alert-title">КРИТИЧЕСКИЙ ЗАРЯД БАТАРЕИ — АВТОВЫКЛЮЧЕНИЕ ПК!</div>
+            <div class="shutdown-alert-desc" id="shutdownReason">Причина: разряд АКБ ниже порога</div>
+          </div>
+        </div>
+        <div class="shutdown-banner-right">
+          <div class="shutdown-timer mono" id="shutdownTimer">60с</div>
+          <button id="cancelShutdownBtn" class="btn-cancel-shutdown">❌ Отменить выключение ПК</button>
+        </div>
+      </div>
+
       <!-- Status Banner -->
       <div class="status-banner" id="statusBanner">
         <div class="status-left">
@@ -92,6 +107,7 @@
         </div>
         <div class="status-time" id="statusTime">--:--:--</div>
       </div>
+
 
       <!-- Raw USB Bar -->
       <div class="raw-bar" id="rawBar">
@@ -416,43 +432,99 @@
       <div class="tab-view" id="view-settings">
         <div class="section-card">
           <div class="section-title">
-            <span>Настройки оповещений и системы</span>
+            <span>Настройки безопасного выключения и оповещений</span>
           </div>
-          <div style="display:flex;flex-direction:column;gap:1.25rem;padding:0.5rem 0;">
-            <div class="mini-stat" style="display:flex;justify-content:space-between;align-items:center;">
-              <div>
-                <div style="font-weight:700;font-size:0.95rem;">🔊 Звуковые алерты</div>
-                <div style="font-size:0.8rem;color:var(--text-muted);">Звуковое предупреждение при переходах на АКБ и сработках AVR</div>
+          <div style="display:flex;flex-direction:column;gap:1rem;padding:0.5rem 0;">
+            <!-- Auto Shutdown Toggle -->
+            <div class="settings-row">
+              <div class="settings-info">
+                <div class="settings-title">⚡ Автовыключение Windows (Graceful Shutdown)</div>
+                <div class="settings-desc">Автоматически завершает работу ПК при разряде АКБ ниже порога</div>
               </div>
-              <button id="settingsSoundBtn" class="btn-icon" style="padding:0.5rem 1rem;">🔔 Включено</button>
+              <button id="settingsAutoShutdownBtn" class="btn-icon" style="padding:0.5rem 1rem;flex-shrink:0;">🟢 Включено</button>
             </div>
 
-            <div class="mini-stat" style="display:flex;justify-content:space-between;align-items:center;">
-              <div>
-                <div style="font-weight:700;font-size:0.95rem;">💬 Браузерные Push-уведомления</div>
-                <div style="font-size:0.8rem;color:var(--text-muted);">Всплывающие текстовые и голосовые алерты Windows</div>
+            <!-- Threshold Batt % -->
+            <div class="settings-row">
+              <div class="settings-info">
+                <div class="settings-title">🔋 Порог разряда АКБ для выключения</div>
+                <div class="settings-desc">При каком проценте заряда запускать завершение работы ПК</div>
               </div>
-              <button id="settingsNotifBtn" class="btn-icon" style="padding:0.5rem 1rem;">💬 Включить</button>
+              <select id="settingsShutdownPctSelect" class="settings-select">
+                <option value="5">5 %</option>
+                <option value="10">10 %</option>
+                <option value="15" selected>15 %</option>
+                <option value="20">20 %</option>
+                <option value="25">25 %</option>
+                <option value="30">30 %</option>
+              </select>
             </div>
 
-            <div class="mini-stat" style="display:flex;justify-content:space-between;align-items:center;">
-              <div>
-                <div style="font-weight:700;font-size:0.95rem;">⚡ USB HID устройство</div>
-                <div style="font-size:0.8rem;color:var(--text-muted);">Vendor: 0x0665 · Product: 0x5161 (RichComm Megatec F)</div>
+            <!-- Shutdown Delay Sec -->
+            <div class="settings-row">
+              <div class="settings-info">
+                <div class="settings-title">⏱️ Время таймера отсчёта выключения</div>
+                <div class="settings-desc">Задержка перед окончательным отключением ПК (для отмены)</div>
               </div>
-              <span class="tag tag-green">АКТИВЕН (1.0 Hz)</span>
+              <select id="settingsShutdownDelaySelect" class="settings-select">
+                <option value="30">30 сек</option>
+                <option value="60" selected>60 сек</option>
+                <option value="90">90 сек</option>
+                <option value="120">120 сек</option>
+              </select>
             </div>
 
-            <div class="mini-stat" style="display:flex;justify-content:space-between;align-items:center;">
-              <div>
-                <div style="font-weight:700;font-size:0.95rem;">📜 Выгрузка архива событий</div>
-                <div style="font-size:0.8rem;color:var(--text-muted);">Скачать файл истории ups_power_events.csv</div>
+            <!-- Windows Native Toast Notifications -->
+            <div class="settings-row">
+              <div class="settings-info">
+                <div class="settings-title">💬 Нативные уведомления Windows (Toast)</div>
+                <div class="settings-desc">Всплывающие карточки в углу экрана Windows при событиях сети</div>
               </div>
-              <a href="/api/download_csv" download class="btn-icon" style="text-decoration:none;padding:0.5rem 1rem;">📥 Скачать CSV</a>
+              <button id="settingsToastBtn" class="btn-icon" style="padding:0.5rem 1rem;flex-shrink:0;">💬 Включено</button>
+            </div>
+
+            <!-- Test Shutdown Trigger -->
+            <div class="settings-row">
+              <div class="settings-info">
+                <div class="settings-title">🧪 Проверка автовыключения ПК</div>
+                <div class="settings-desc">Запустит тестовый отсчёт 60 секунд. Проверьте кнопку отмены!</div>
+              </div>
+              <button id="testShutdownBtn" class="btn-icon" style="padding:0.5rem 1rem;flex-shrink:0;background:rgba(239, 68, 68, 0.15);color:#f87171;border-color:rgba(239, 68, 68, 0.3);">
+                ⚠️ Проверить (60с)
+              </button>
+            </div>
+
+            <!-- Sound Alerts -->
+            <div class="settings-row">
+              <div class="settings-info">
+                <div class="settings-title">🔊 Звуковые алерты в браузере</div>
+                <div class="settings-desc">Звуковое предупреждение при переходах на АКБ и сработках AVR</div>
+              </div>
+              <button id="settingsSoundBtn" class="btn-icon" style="padding:0.5rem 1rem;flex-shrink:0;">🔔 Включено</button>
+            </div>
+
+            <!-- Hardware Status -->
+            <div class="settings-row">
+              <div class="settings-info">
+                <div class="settings-title">⚡ USB HID устройство & Трей</div>
+                <div class="settings-desc">Vendor: 0x0665 · Product: 0x5161 (RichComm Megatec F)</div>
+              </div>
+              <span class="tag tag-green" style="flex-shrink:0;">АКТИВЕН И ТРЕЙ В ВИНДОУС</span>
+            </div>
+
+            <!-- CSV Download -->
+            <div class="settings-row">
+              <div class="settings-info">
+                <div class="settings-title">📜 Выгрузка архива событий</div>
+                <div class="settings-desc">Скачать файл истории ups_power_events.csv</div>
+              </div>
+              <a href="/api/download_csv" download class="btn-icon" style="text-decoration:none;padding:0.5rem 1rem;flex-shrink:0;">📥 Скачать CSV</a>
             </div>
           </div>
         </div>
       </div>
+
+
 
     </main>
   </div>
