@@ -113,7 +113,7 @@ def parse_f_response(raw_text: str):
             "batt_pct": batt_pct,
             "temp": temp,
             "status_bits": status_bits,
-            "raw_frame": f"F({text}",
+            "raw_frame": f"F({' '.join(parts[:8])})",
             "is_battery": is_battery,
             "is_batt_low": is_batt_low,
             "is_avr": is_avr,
