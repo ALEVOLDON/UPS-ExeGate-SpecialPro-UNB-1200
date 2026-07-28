@@ -363,13 +363,17 @@ function updateUI(snapshot) {
     setText('freezeSec', '');
   }
 
-  // Update SVG Arc Gauges
+  // Update SVG Arc Gauges (Segmented Slices)
   const GAUGE_C = 351.86;
   const setArc = (id, ratio) => {
+    const mask = document.getElementById(id + 'Mask');
     const arc = document.getElementById(id);
-    if (!arc) return;
     const r = Math.max(0, Math.min(1, ratio || 0));
-    arc.style.strokeDashoffset = GAUGE_C * (1 - r);
+    if (mask) {
+      mask.style.strokeDashoffset = GAUGE_C * (1 - r);
+    } else if (arc) {
+      arc.style.strokeDashoffset = GAUGE_C * (1 - r);
+    }
   };
 
   const inRatio = status.connected ? Math.max(0, Math.min(1, (status.in_v - 140) / 130)) : 0;

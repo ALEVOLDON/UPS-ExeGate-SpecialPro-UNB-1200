@@ -150,10 +150,14 @@
                     <stop offset="0%" stop-color="#3b82f6"/>
                     <stop offset="100%" stop-color="#22d3ee"/>
                   </linearGradient>
+                  <mask id="maskIn">
+                    <circle cx="70" cy="70" r="56" fill="none" stroke="#ffffff" stroke-width="14"
+                      stroke-dasharray="351.86" stroke-dashoffset="351.86" id="arcInMask"/>
+                  </mask>
                 </defs>
                 <circle class="gauge-track" cx="70" cy="70" r="56"/>
                 <circle class="gauge-arc" id="arcIn" cx="70" cy="70" r="56"
-                  stroke="url(#gradIn)" stroke-dasharray="351.86" stroke-dashoffset="351.86"/>
+                  stroke="url(#gradIn)" mask="url(#maskIn)"/>
               </svg>
               <div class="gauge-center">
                 <div class="gauge-value mono" id="valInV">--</div>
@@ -175,10 +179,14 @@
                     <stop offset="0%" stop-color="#10b981"/>
                     <stop offset="100%" stop-color="#34d399"/>
                   </linearGradient>
+                  <mask id="maskOut">
+                    <circle cx="70" cy="70" r="56" fill="none" stroke="#ffffff" stroke-width="14"
+                      stroke-dasharray="351.86" stroke-dashoffset="351.86" id="arcOutMask"/>
+                  </mask>
                 </defs>
                 <circle class="gauge-track" cx="70" cy="70" r="56"/>
                 <circle class="gauge-arc" id="arcOut" cx="70" cy="70" r="56"
-                  stroke="url(#gradOut)" stroke-dasharray="351.86" stroke-dashoffset="351.86"/>
+                  stroke="url(#gradOut)" mask="url(#maskOut)"/>
               </svg>
               <div class="gauge-center">
                 <div class="gauge-value mono" id="valOutV">--</div>
@@ -200,10 +208,14 @@
                     <stop offset="0%" stop-color="#10b981"/>
                     <stop offset="100%" stop-color="#a3e635"/>
                   </linearGradient>
+                  <mask id="maskBatt">
+                    <circle cx="70" cy="70" r="56" fill="none" stroke="#ffffff" stroke-width="14"
+                      stroke-dasharray="351.86" stroke-dashoffset="351.86" id="arcBattMask"/>
+                  </mask>
                 </defs>
                 <circle class="gauge-track" cx="70" cy="70" r="56"/>
                 <circle class="gauge-arc" id="arcBatt" cx="70" cy="70" r="56"
-                  stroke="url(#gradBatt)" stroke-dasharray="351.86" stroke-dashoffset="351.86"/>
+                  stroke="url(#gradBatt)" mask="url(#maskBatt)"/>
               </svg>
               <div class="gauge-center">
                 <div class="gauge-value mono" id="valBattPct">--</div>
@@ -225,10 +237,14 @@
                     <stop offset="0%" stop-color="#3b82f6"/>
                     <stop offset="100%" stop-color="#818cf8"/>
                   </linearGradient>
+                  <mask id="maskLoad">
+                    <circle cx="70" cy="70" r="56" fill="none" stroke="#ffffff" stroke-width="14"
+                      stroke-dasharray="351.86" stroke-dashoffset="351.86" id="arcLoadMask"/>
+                  </mask>
                 </defs>
                 <circle class="gauge-track" cx="70" cy="70" r="56"/>
                 <circle class="gauge-arc" id="arcLoad" cx="70" cy="70" r="56"
-                  stroke="url(#gradLoad)" stroke-dasharray="351.86" stroke-dashoffset="351.86"/>
+                  stroke="url(#gradLoad)" mask="url(#maskLoad)"/>
               </svg>
               <div class="gauge-center">
                 <div class="gauge-value mono" id="valLoadPct">--</div>
