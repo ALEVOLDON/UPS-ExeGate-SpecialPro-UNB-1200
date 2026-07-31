@@ -91,7 +91,7 @@ def wait_for_server(timeout: float = 8.0) -> bool:
 def open_window():
     import webview
 
-    title = "ExeGate SpecialPro UNB-1200 — Мониторинг ИБП"
+    title = "ExeGate SpecialPro UNB-1200 — UPS Monitor"
     icon_path = os.path.join(APP_DIR, "assets", "app_icon.ico")
     set_windows_taskbar_icon(title, icon_path)
 

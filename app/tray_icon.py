@@ -48,7 +48,7 @@ class UPSTrayIcon:
         self.icon = None
         self.running = False
         self.last_color = None
-        self.current_title = "ExeGate ИБП — Подключение..."
+        self.current_title = "ExeGate UPS — Connecting..."
 
     def start(self):
         """Start the system tray icon in a dedicated daemon thread."""
@@ -67,11 +67,11 @@ class UPSTrayIcon:
         try:
             initial_img = create_tray_image("#9ca3af")
             menu = pystray.Menu(
-                pystray.MenuItem("⚡ Открыть панель ИБП", self._handle_open, default=True),
+                pystray.MenuItem("⚡ Open UPS Dashboard / Панель ИБП", self._handle_open, default=True),
                 pystray.Menu.SEPARATOR,
-                pystray.MenuItem("❌ Отменить выключение ПК", self._handle_cancel_shutdown),
+                pystray.MenuItem("❌ Cancel PC Shutdown / Отмена выключения", self._handle_cancel_shutdown),
                 pystray.Menu.SEPARATOR,
-                pystray.MenuItem("🚪 Выйти из приложения", self._handle_exit)
+                pystray.MenuItem("🚪 Exit Application / Выход", self._handle_exit)
             )
 
             self.icon = pystray.Icon(
@@ -90,20 +90,34 @@ class UPSTrayIcon:
         if not self.icon or not self.running:
             return
 
+        settings = shutdown_status.get("settings", {}) if shutdown_status else {}
+        lang = settings.get("language", "en")
+
         color = ups_status.get("status_color", "#9ca3af")
-        mode_title = ups_status.get("mode_title", "Подключение...")
+        mode_title = (
+            ups_status.get("mode_title", "Connecting...")
+            if lang == "en"
+            else ups_status.get("mode_title_ru", ups_status.get("mode_title", "Подключение..."))
+        )
         in_v = ups_status.get("in_v", 0.0)
         batt_pct = ups_status.get("batt_pct", 0)
         
         if shutdown_status and shutdown_status.get("shutdown_active"):
             color = "#ef4444"
             sec = shutdown_status.get("seconds_left", 0)
-            tooltip = f"⚠️ ВЫКЛЮЧЕНИЕ ПК ЧЕРЕЗ {sec}с!\nПричина: {shutdown_status.get('shutdown_reason', '')}"
+            reason = shutdown_status.get("shutdown_reason", "")
+            if lang == "en":
+                tooltip = f"⚠️ PC SHUTDOWN IN {sec}s!\nReason: {reason}"
+            else:
+                tooltip = f"⚠️ ВЫКЛЮЧЕНИЕ ПК ЧЕРЕЗ {sec}с!\nПричина: {reason}"
         elif ups_status.get("connected"):
-            tooltip = f"ExeGate UNB-1200: {mode_title}\nВход: {in_v}V | АКБ: {batt_pct}%"
+            if lang == "en":
+                tooltip = f"ExeGate UNB-1200: {mode_title}\nInput: {in_v}V | Batt: {batt_pct}%"
+            else:
+                tooltip = f"ExeGate UNB-1200: {mode_title}\nВход: {in_v}V | АКБ: {batt_pct}%"
         else:
             color = "#ef4444"
-            tooltip = "ExeGate ИБП — Нет связи по USB"
+            tooltip = "ExeGate UPS — USB Disconnected" if lang == "en" else "ExeGate ИБП — Нет связи по USB"
 
         self.current_title = tooltip
 

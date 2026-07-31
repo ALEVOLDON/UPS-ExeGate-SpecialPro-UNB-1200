@@ -78,28 +78,38 @@ def parse_f_response(raw_text: str):
 
         if is_battery:
             mode_code = "BATTERY"
-            mode_title = "ОТ БАТАРЕИ"
-            mode_desc = "Питание от встроенных аккумуляторов! Сеть отсутствует."
+            mode_title = "ON BATTERY"
+            mode_title_ru = "ОТ БАТАРЕИ"
+            mode_desc = "Running on internal batteries! Mains power lost."
+            mode_desc_ru = "Питание от встроенных аккумуляторов! Сеть отсутствует."
             status_color = "#f59e0b"
         elif is_avr_boost:
             mode_code = "AVR_BOOST"
-            mode_title = "AVR СТАБИЛИЗАЦИЯ (ПОДЪЕМ)"
-            mode_desc = f"Просадка в сети ({in_v}V). Трансформатор повышает напряжение до {out_v}V."
+            mode_title = "AVR BOOST"
+            mode_title_ru = "AVR СТАБИЛИЗАЦИЯ (ПОДЪЕМ)"
+            mode_desc = f"Grid voltage drop ({in_v}V). Boosting output to {out_v}V."
+            mode_desc_ru = f"Просадка в сети ({in_v}V). Трансформатор повышает напряжение до {out_v}V."
             status_color = "#3b82f6"
         elif is_avr_trim:
             mode_code = "AVR_TRIM"
-            mode_title = "AVR СТАБИЛИЗАЦИЯ (ПОНИЖЕНИЕ)"
-            mode_desc = f"Повышенное напряжение ({in_v}V). Трансформатор снижает до {out_v}V."
+            mode_title = "AVR TRIM"
+            mode_title_ru = "AVR СТАБИЛИЗАЦИЯ (ПОНИЖЕНИЕ)"
+            mode_desc = f"High grid voltage ({in_v}V). Trimming output to {out_v}V."
+            mode_desc_ru = f"Повышенное напряжение ({in_v}V). Трансформатор снижает до {out_v}V."
             status_color = "#6366f1"
         elif is_avr:
             mode_code = "AVR"
-            mode_title = "AVR СТАБИЛИЗАЦИЯ"
-            mode_desc = f"Стабилизация напряжения в сети ({in_v}V -> {out_v}V)."
+            mode_title = "AVR STABILIZATION"
+            mode_title_ru = "AVR СТАБИЛИЗАЦИЯ"
+            mode_desc = f"Mains voltage stabilization ({in_v}V -> {out_v}V)."
+            mode_desc_ru = f"Стабилизация напряжения в сети ({in_v}V -> {out_v}V)."
             status_color = "#3b82f6"
         else:
             mode_code = "ONLINE"
-            mode_title = "СЕТЬ В НОРМЕ"
-            mode_desc = "Питание от сети стабильное. Аккумулятор заряжен."
+            mode_title = "ONLINE"
+            mode_title_ru = "СЕТЬ В НОРМЕ"
+            mode_desc = "Mains power stable. Battery fully charged."
+            mode_desc_ru = "Питание от сети стабильное. Аккумулятор заряжен."
             status_color = "#10b981"
 
         return {
@@ -121,7 +131,9 @@ def parse_f_response(raw_text: str):
             "is_avr_trim": is_avr_trim,
             "mode_code": mode_code,
             "mode_title": mode_title,
+            "mode_title_ru": mode_title_ru,
             "mode_desc": mode_desc,
+            "mode_desc_ru": mode_desc_ru,
             "status_color": status_color
         }
     except Exception:

@@ -15,7 +15,8 @@ DEFAULT_SETTINGS = {
     "shutdown_battery_pct": 15,
     "shutdown_delay_sec": 60,
     "toast_notif_enabled": True,
-    "sound_enabled": True
+    "sound_enabled": True,
+    "language": "en"
 }
 
 
@@ -63,19 +64,24 @@ class ShutdownManager:
 
         is_battery = ups_data.get("is_battery", False)
         batt_pct = ups_data.get("batt_pct", 100)
+        lang = self.settings.get("language", "en")
         
         # 1. Check if shutdown should be aborted because grid power was restored
         if self.shutdown_active and not is_battery:
-            self.cancel_shutdown(reason="Питание от сети восстановлено")
+            cancel_reason = "Grid power restored" if lang == "en" else "Питание от сети восстановлено"
+            self.cancel_shutdown(reason=cancel_reason)
             return
 
         # 2. Check if shutdown should be triggered
         if not self.shutdown_active and is_battery and self.settings.get("auto_shutdown_enabled"):
             threshold = self.settings.get("shutdown_battery_pct", 15)
             if batt_pct <= threshold:
-                self.trigger_shutdown(
-                    reason=f"Критический уровень разряда АКБ ({batt_pct}% <= {threshold}%)"
+                trig_reason = (
+                    f"Critical battery level ({batt_pct}% <= {threshold}%)"
+                    if lang == "en"
+                    else f"Критический уровень разряда АКБ ({batt_pct}% <= {threshold}%)"
                 )
+                self.trigger_shutdown(reason=trig_reason)
 
         # 3. Update active countdown seconds_left
         if self.shutdown_active:
@@ -83,10 +89,14 @@ class ShutdownManager:
             remaining = max(0, self.shutdown_delay - elapsed)
             self.seconds_left = remaining
 
-    def trigger_shutdown(self, reason: str = "Низкий заряд АКБ") -> bool:
+    def trigger_shutdown(self, reason: str = None) -> bool:
         """Initiate Windows graceful shutdown with a countdown."""
         if self.shutdown_active:
             return True
+
+        lang = self.settings.get("language", "en")
+        if not reason:
+            reason = "Low battery charge" if lang == "en" else "Низкий заряд АКБ"
 
         delay = int(self.settings.get("shutdown_delay_sec", 60))
         self.shutdown_active = True
@@ -95,7 +105,7 @@ class ShutdownManager:
         self.seconds_left = delay
         self.shutdown_reason = reason
 
-        msg_comment = f"ExeGate UPS: {reason}. Выключение через {delay} сек."
+        msg_comment = f"ExeGate UPS: {reason}. Shutdown in {delay} sec."
         logging.warning(f"INITIATING SHUTDOWN: {reason} (delay={delay}s)")
 
         if sys.platform == "win32":
@@ -106,14 +116,21 @@ class ShutdownManager:
                 logging.error(f"Failed to execute shutdown command: {e}")
 
         if self.notification_callback and self.settings.get("toast_notif_enabled"):
-            self.notification_callback(
-                "⚠️ ВНИМАНИЕ: Автовыключение ПК!",
-                f"{reason}. Выключение компьютера через {delay} секунд."
+            notif_title = "⚠️ WARNING: PC Auto Shutdown!" if lang == "en" else "⚠️ ВНИМАНИЕ: Автовыключение ПК!"
+            notif_msg = (
+                f"{reason}. Computer will shutdown in {delay} seconds."
+                if lang == "en"
+                else f"{reason}. Выключение компьютера через {delay} секунд."
             )
+            self.notification_callback(notif_title, notif_msg)
         return True
 
-    def cancel_shutdown(self, reason: str = "Запрос пользователя") -> bool:
+    def cancel_shutdown(self, reason: str = None) -> bool:
         """Abort any active Windows shutdown command."""
+        lang = self.settings.get("language", "en")
+        if not reason:
+            reason = "User request" if lang == "en" else "Запрос пользователя"
+
         if not self.shutdown_active:
             # Still run shutdown /a in case system initiated it outside
             if sys.platform == "win32":
@@ -134,10 +151,13 @@ class ShutdownManager:
                 logging.error(f"Failed to execute shutdown /a command: {e}")
 
         if self.notification_callback and self.settings.get("toast_notif_enabled"):
-            self.notification_callback(
-                "✅ Автовыключение отменено",
-                f"{reason}. Компьютер продолжит работу."
+            notif_title = "✅ Auto Shutdown Canceled" if lang == "en" else "✅ Автовыключение отменено"
+            notif_msg = (
+                f"{reason}. Computer will continue working."
+                if lang == "en"
+                else f"{reason}. Компьютер продолжит работу."
             )
+            self.notification_callback(notif_title, notif_msg)
         return True
 
     def get_status_dict(self) -> dict:

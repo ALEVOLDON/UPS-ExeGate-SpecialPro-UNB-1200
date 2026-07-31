@@ -1,96 +1,202 @@
 let soundEnabled = true;
-let notifEnabled = false;
+let notifEnabled = true;
 let chartDashboard = null;
 let chartAnalytics = null;
 let lastModeCode = null;
 let allEvents = [];
+let latestSnapshot = null;
+let activeTab = 'dashboard';
+
+let globalAudioCtx = null;
+
+function getAudioContext() {
+  if (!globalAudioCtx) {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (AudioCtx) {
+      globalAudioCtx = new AudioCtx();
+    }
+  }
+  if (globalAudioCtx && globalAudioCtx.state === 'suspended') {
+    globalAudioCtx.resume().catch(() => {});
+  }
+  return globalAudioCtx;
+}
+
+// Unlock Web Audio API on first user interaction anywhere on the page
+document.addEventListener('pointerdown', () => {
+  getAudioContext();
+}, { once: true });
 
 function playAlertSound(type) {
   if (!soundEnabled) return;
   try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    if (type === 'battery') {
-      osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(880, ctx.currentTime);
-      gain.gain.setValueAtTime(0.15, ctx.currentTime);
-      osc.start();
-      osc.stop(ctx.currentTime + 0.3);
-    } else if (type === 'avr') {
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(523.25, ctx.currentTime);
-      gain.gain.setValueAtTime(0.1, ctx.currentTime);
-      osc.start();
-      osc.stop(ctx.currentTime + 0.15);
-    } else if (type === 'online') {
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(659.25, ctx.currentTime);
-      gain.gain.setValueAtTime(0.08, ctx.currentTime);
-      osc.start();
-      osc.stop(ctx.currentTime + 0.2);
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    
+    if (ctx.state === 'suspended') {
+      ctx.resume().then(() => playAlertSoundImpl(ctx, type)).catch(() => {});
+    } else {
+      playAlertSoundImpl(ctx, type);
     }
   } catch (e) {
-    console.error("Audio error:", e);
+    console.error("Audio play error:", e);
+  }
+}
+
+function playAlertSoundImpl(ctx, type) {
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+
+  if (type === 'battery') {
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(880, ctx.currentTime);
+    gain.gain.setValueAtTime(0.15, ctx.currentTime);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.3);
+  } else if (type === 'avr') {
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(523.25, ctx.currentTime);
+    gain.gain.setValueAtTime(0.1, ctx.currentTime);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.15);
+  } else if (type === 'online') {
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(659.25, ctx.currentTime);
+    gain.gain.setValueAtTime(0.08, ctx.currentTime);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.2);
+  } else if (type === 'test') {
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(523.25, ctx.currentTime);
+    gain.gain.setValueAtTime(0.1, ctx.currentTime);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.15);
+  }
+}
+
+function initLanguage() {
+  const savedLang = localStorage.getItem('ups_language') || 'en';
+  applyLanguage(savedLang);
+
+  const langBtn = document.getElementById('langToggle');
+  if (langBtn) {
+    langBtn.addEventListener('click', () => {
+      const cur = getLanguage();
+      const next = cur === 'en' ? 'ru' : 'en';
+      applyLanguage(next);
+      localStorage.setItem('ups_language', next);
+      saveSettingPatch({ language: next });
+    });
+  }
+}
+
+function applyLanguage(lang) {
+  setLanguage(lang);
+
+  // 1. Update text of elements with data-i18n
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (key) {
+      el.textContent = t(key);
+    }
+  });
+
+  // 2. Update placeholders with data-i18n-ph
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+    const key = el.getAttribute('data-i18n-ph');
+    if (key) {
+      el.placeholder = t(key);
+    }
+  });
+
+  // 3. Document title
+  document.title = t('app_title');
+
+  // 4. Lang toggle button label
+  setText('langText', lang === 'en' ? 'EN 🇬🇧' : 'RU 🇷🇺');
+
+  // 5. Update header current view title
+  const viewTitle = document.getElementById('currentViewTitle');
+  if (viewTitle) {
+    const titles = {
+      dashboard: 'view_dashboard',
+      flow: 'view_flow',
+      analytics: 'view_analytics',
+      events: 'view_events',
+      settings: 'view_settings'
+    };
+    if (titles[activeTab]) {
+      viewTitle.textContent = t(titles[activeTab]);
+    }
+  }
+
+  // 6. Update chart dataset labels
+  if (chartDashboard) {
+    chartDashboard.data.datasets[0].label = `${t('chart_in_v')}`;
+    chartDashboard.data.datasets[1].label = `${t('chart_out_v')}`;
+    chartDashboard.update('none');
+  }
+  if (chartAnalytics) {
+    chartAnalytics.data.datasets[0].label = `${t('chart_in_v')}`;
+    chartAnalytics.data.datasets[1].label = `${t('chart_out_v')}`;
+    chartAnalytics.update('none');
+  }
+
+  // 7. Update button states & latest telemetry UI
+  updateSoundButtons(soundEnabled);
+  updateNotifButtons(notifEnabled);
+  if (latestSnapshot) {
+    updateUI(latestSnapshot);
+  } else {
+    renderEventsTable(allEvents);
   }
 }
 
 function toggleNotificationPermission() {
-  if (!("Notification" in window)) {
-    alert("Ваш браузер не поддерживает Push-уведомления.");
-    return;
-  }
+  const isEnabled = !!lastSyncedSettings.toast_notif_enabled;
+  const nextVal = !isEnabled;
+  notifEnabled = nextVal;
+  updateNotifButtons(nextVal);
+  saveSettingPatch({ toast_notif_enabled: nextVal });
 
-  if (Notification.permission === "granted") {
-    notifEnabled = !notifEnabled;
-    updateNotifButtons(notifEnabled);
-    if (notifEnabled) {
-      showNotification("ExeGate Pro", "Уведомления браузера включены");
-    }
-  } else if (Notification.permission !== "denied") {
-    Notification.requestPermission().then(permission => {
-      if (permission === "granted") {
-        notifEnabled = true;
-        updateNotifButtons(true);
-        showNotification("ExeGate Pro", "Уведомления браузера включены");
-      } else {
-        notifEnabled = false;
-        updateNotifButtons(false);
-      }
-    });
-  } else {
-    alert("Уведомления заблокированы в настройках браузера. Разрешите их возле адреса сайта.");
+  if ("Notification" in window && Notification.permission !== "granted" && Notification.permission !== "denied") {
+    try {
+      Notification.requestPermission().catch(() => {});
+    } catch (e) {}
   }
 }
 
 function updateSoundButtons(enabled) {
   const btn1 = document.getElementById('soundToggle');
   const btn2 = document.getElementById('settingsSoundBtn');
+  const txt = enabled ? t('sound_toggle') : t('sound_off');
   if (btn1) {
-    setText('soundText', enabled ? 'Звук' : 'Выкл');
+    setText('soundText', txt);
     btn1.classList.toggle('active', enabled);
   }
   if (btn2) {
     btn2.innerHTML = enabled 
-      ? '<span class="status-dot-sm" style="background:#10b981;"></span> Включено' 
-      : '<span class="status-dot-sm" style="background:#64748b;"></span> Выключено';
+      ? `<span class="status-dot-sm" style="background:#10b981;"></span> ${t('btn_enabled')}` 
+      : `<span class="status-dot-sm" style="background:#64748b;"></span> ${t('btn_disabled')}`;
     btn2.classList.toggle('active', enabled);
   }
 }
 
 function updateNotifButtons(enabled) {
+  notifEnabled = !!enabled;
   const btn1 = document.getElementById('notifToggle');
-  const btn2 = document.getElementById('settingsNotifBtn');
+  const btn2 = document.getElementById('settingsToastBtn');
+  const txt = enabled ? t('notif_toggle') : t('notif_off');
   if (btn1) {
-    setText('notifText', enabled ? 'Алерты' : 'Выкл');
+    setText('notifText', txt);
     btn1.classList.toggle('active', enabled);
   }
   if (btn2) {
     btn2.innerHTML = enabled 
-      ? '<span class="status-dot-sm" style="background:#10b981;"></span> Включено' 
-      : '<span class="status-dot-sm" style="background:#64748b;"></span> Включить';
+      ? `<span class="status-dot-sm" style="background:#10b981;"></span> ${t('btn_enabled')}` 
+      : `<span class="status-dot-sm" style="background:#64748b;"></span> ${t('btn_disabled')}`;
     btn2.classList.toggle('active', enabled);
   }
 }
@@ -108,7 +214,7 @@ function createChartConfig() {
       labels: [],
       datasets: [
         {
-          label: 'Вход (В)',
+          label: t('chart_in_v'),
           data: [],
           borderColor: '#3b82f6',
           backgroundColor: 'rgba(59, 130, 246, 0.15)',
@@ -118,7 +224,7 @@ function createChartConfig() {
           pointRadius: 1
         },
         {
-          label: 'Выход (В)',
+          label: t('chart_out_v'),
           data: [],
           borderColor: '#10b981',
           backgroundColor: 'rgba(16, 185, 129, 0.15)',
@@ -172,6 +278,30 @@ function setText(id, text) {
   if (el) el.textContent = text;
 }
 
+function formatModeText(modeStr) {
+  if (!modeStr) return '—';
+  const u = String(modeStr).toUpperCase();
+  if (u.includes('BATTERY') || u.includes('БАТАРЕ')) {
+    return t('mode_battery');
+  }
+  if (u.includes('BOOST') || u.includes('ПОДЪЕМ')) {
+    return t('mode_avr_boost');
+  }
+  if (u.includes('TRIM') || u.includes('ПОНИЖЕНИЕ')) {
+    return t('mode_avr_trim');
+  }
+  if (u.includes('AVR') || u.includes('СТАБИЛИЗАЦИЯ')) {
+    return t('mode_avr');
+  }
+  if (u.includes('ONLINE') || u.includes('СЕТЬ') || u.includes('НОРМ')) {
+    return t('mode_online');
+  }
+  if (u.includes('DISCONNECT') || u.includes('СВЯЗ')) {
+    return t('mode_disconnected');
+  }
+  return modeStr;
+}
+
 function renderEventsTable(events) {
   allEvents = events || [];
 
@@ -179,7 +309,7 @@ function renderEventsTable(events) {
   const tbody = document.getElementById('eventsTbody');
   if (tbody) {
     if (allEvents.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--text-muted);padding:1.5rem;">История пуста</td></tr>';
+      tbody.innerHTML = `<tr><td colspan="3" style="text-align:center;color:var(--text-muted);padding:1.5rem;">${t('tbl_empty')}</td></tr>`;
     } else {
       const top5 = allEvents.slice(0, 5);
       tbody.innerHTML = top5.map(ev => {
@@ -187,10 +317,11 @@ function renderEventsTable(events) {
         const modeU = String(ev.mode || '').toUpperCase();
         if (modeU.includes('БАТАРЕ') || modeU.includes('BATTERY')) tagClass = 'tag-amber';
         else if (modeU.includes('AVR')) tagClass = 'tag-blue';
+        const modeLabel = formatModeText(ev.mode);
         return `<tr>
           <td>${ev.time_short || (ev.timestamp && String(ev.timestamp).split(' ')[1]) || ''}</td>
-          <td><span class="tag ${tagClass}">${ev.mode}</span></td>
-          <td style="font-weight:600">${ev.in_v} B</td>
+          <td><span class="tag ${tagClass}">${modeLabel}</span></td>
+          <td style="font-weight:600">${ev.in_v} V</td>
         </tr>`;
       }).join('');
     }
@@ -218,18 +349,19 @@ function renderTabEvents() {
   });
 
   if (filtered.length === 0) {
-    tabTbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:2rem;">События не найдены</td></tr>';
+    tabTbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:2rem;">${t('tbl_not_found')}</td></tr>`;
   } else {
     tabTbody.innerHTML = filtered.map(ev => {
       let tagClass = 'tag-green';
       const modeU = String(ev.mode || '').toUpperCase();
       if (modeU.includes('БАТАРЕ') || modeU.includes('BATTERY')) tagClass = 'tag-amber';
       else if (modeU.includes('AVR')) tagClass = 'tag-blue';
+      const modeLabel = formatModeText(ev.mode);
       return `<tr>
         <td class="mono">${ev.timestamp || ev.time_short || ''}</td>
-        <td><span class="tag ${tagClass}">${ev.mode}</span></td>
-        <td style="font-weight:600" class="mono">${ev.in_v} B</td>
-        <td class="mono">${ev.out_v ? ev.out_v + ' B' : '—'}</td>
+        <td><span class="tag ${tagClass}">${modeLabel}</span></td>
+        <td style="font-weight:600" class="mono">${ev.in_v} V</td>
+        <td class="mono">${ev.out_v ? ev.out_v + ' V' : '—'}</td>
         <td class="mono">${ev.load_pct !== undefined ? ev.load_pct + ' %' : '—'}</td>
         <td class="mono">${ev.batt_v ? ev.batt_v + ' V' : '—'}</td>
       </tr>`;
@@ -252,21 +384,24 @@ function renderModalEvents() {
     return ts.includes(query) || mode.includes(query);
   });
 
-  if (countBadge) countBadge.textContent = `${filtered.length} из ${allEvents.length} событий`;
+  if (countBadge) {
+    countBadge.textContent = t('events_count_fmt', { filtered: filtered.length, total: allEvents.length });
+  }
 
   if (filtered.length === 0) {
-    modalTbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:2rem;">События не найдены</td></tr>';
+    modalTbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:2rem;">${t('tbl_not_found')}</td></tr>`;
   } else {
     modalTbody.innerHTML = filtered.map(ev => {
       let tagClass = 'tag-green';
       const modeU = String(ev.mode || '').toUpperCase();
       if (modeU.includes('БАТАРЕ') || modeU.includes('BATTERY')) tagClass = 'tag-amber';
       else if (modeU.includes('AVR')) tagClass = 'tag-blue';
+      const modeLabel = formatModeText(ev.mode);
       return `<tr>
         <td class="mono">${ev.timestamp || ev.time_short || ''}</td>
-        <td><span class="tag ${tagClass}">${ev.mode}</span></td>
-        <td style="font-weight:600" class="mono">${ev.in_v} B</td>
-        <td class="mono">${ev.out_v ? ev.out_v + ' B' : '—'}</td>
+        <td><span class="tag ${tagClass}">${modeLabel}</span></td>
+        <td style="font-weight:600" class="mono">${ev.in_v} V</td>
+        <td class="mono">${ev.out_v ? ev.out_v + ' V' : '—'}</td>
         <td class="mono">${ev.load_pct !== undefined ? ev.load_pct + ' %' : '—'}</td>
         <td class="mono">${ev.batt_v ? ev.batt_v + ' V' : '—'}</td>
       </tr>`;
@@ -276,13 +411,29 @@ function renderModalEvents() {
 
 function updateUI(snapshot) {
   if (!snapshot || !snapshot.status) return;
+  latestSnapshot = snapshot;
   const status = snapshot.status;
   const history = snapshot.history;
   const events = snapshot.events;
 
+  const curLang = getLanguage();
+
+  // Mode Title & Description lookup
+  let modeTitleText = curLang === 'en' ? status.mode_title : (status.mode_title_ru || status.mode_title);
+  let modeDescText = curLang === 'en' ? status.mode_desc : (status.mode_desc_ru || status.mode_desc);
+
+  if (status.mode_code) {
+    const keyTitle = 'mode_' + status.mode_code.toLowerCase();
+    const keyDesc = 'mode_' + status.mode_code.toLowerCase() + '_desc';
+    const trTitle = t(keyTitle);
+    if (trTitle && trTitle !== keyTitle) modeTitleText = trTitle;
+    const trDesc = t(keyDesc, { in_v: status.in_v, out_v: status.out_v });
+    if (trDesc && trDesc !== keyDesc) modeDescText = trDesc;
+  }
+
   // Header & status banner
-  setText('statusTitle', status.mode_title || 'Подключение...');
-  setText('statusDesc', status.mode_desc || '');
+  setText('statusTitle', modeTitleText || t('status_connecting'));
+  setText('statusDesc', modeDescText || '');
   setText('statusTime', status.time_short || '--:--:--');
   setText('rawFrame', status.raw_frame || '—');
 
@@ -294,14 +445,14 @@ function updateUI(snapshot) {
   }
 
   // Live strip
-  setText('liveRate', status.connected && status.freq ? `${status.freq.toFixed(1)} Гц` : '-- Гц');
+  setText('liveRate', status.connected && status.freq ? `${status.freq.toFixed(1)} ${t('unit_hz')}` : `-- ${t('unit_hz')}`);
   setText('liveSeq', `#${status.seq || 0}`);
   setText('liveStamp', status.time_short || '--:--:--');
 
   // Sidebar status badge
   const sbStatus = document.getElementById('sidebarStatusText');
   if (sbStatus) {
-    sbStatus.textContent = status.connected ? 'ПОДКЛЮЧЕНО' : 'НЕТ СВЯЗИ';
+    sbStatus.textContent = status.connected ? t('sidebar_connected') : t('sidebar_disconnected');
   }
 
   // Sound / notification on mode change
@@ -309,13 +460,19 @@ function updateUI(snapshot) {
     if (lastModeCode !== null) {
       if (status.is_battery) {
         playAlertSound('battery');
-        showNotification('⚡ Питание от батареи!', `Отключение сети. Вход: ${status.in_v}V`);
+        showNotification(
+          `⚡ ${t('status_batt_mode')}!`,
+          `${curLang === 'ru' ? 'Отключение сети. Вход: ' : 'Mains power lost. Input: '}${status.in_v}V`
+        );
       } else if (status.is_avr) {
         playAlertSound('avr');
-        showNotification('⚡ Сработка AVR', `${status.in_v}V → ${status.out_v}V`);
+        showNotification('⚡ AVR', `${status.in_v}V → ${status.out_v}V`);
       } else if (status.mode_code === 'ONLINE') {
         playAlertSound('online');
-        showNotification('🟢 Сеть восстановлена', `Вход: ${status.in_v}V`);
+        showNotification(
+          `🟢 ${t('status_grid_ok')}`,
+          `${curLang === 'ru' ? 'Входное напряжение: ' : 'Input voltage: '}${status.in_v}V`
+        );
       }
     }
     lastModeCode = status.mode_code;
@@ -326,41 +483,41 @@ function updateUI(snapshot) {
   setText('valOutV', status.out_v ? status.out_v.toFixed(1) : '--');
   setText('valBattPct', status.batt_pct !== undefined ? status.batt_pct : '--');
   setText('valLoadPct', status.load_pct !== undefined ? status.load_pct : '--');
-  setText('valBattV', `Напряжение: ${status.batt_v ? status.batt_v.toFixed(1) : '--'} V`);
-  setText('valLoadWatts', `~${status.load_watts || 0} Вт`);
-  setText('valFreq', status.connected && status.freq ? `${status.freq.toFixed(1)} Гц` : '-- Гц');
-  setText('statusInV', status.connected ? (status.in_v > 0 ? 'Сеть в норме' : 'Нет сети') : '—');
-  setText('statusOutV', status.connected ? (status.is_battery ? 'Питание от АКБ' : 'Норма') : '—');
+  setText('valBattV', `${t('mini_batt_v')}: ${status.batt_v ? status.batt_v.toFixed(1) : '--'} V`);
+  setText('valLoadWatts', `~${status.load_watts || 0} ${t('unit_w')}`);
+  setText('valFreq', status.connected && status.freq ? `${status.freq.toFixed(1)} ${t('unit_hz')}` : `-- ${t('unit_hz')}`);
+  setText('statusInV', status.connected ? (status.in_v > 0 ? t('status_grid_ok') : t('status_grid_no')) : '—');
+  setText('statusOutV', status.connected ? (status.is_battery ? t('status_batt_mode') : t('status_normal')) : '—');
 
   const diff = status.out_v - status.in_v;
   setText('valAvrDiff', `AVR: ${diff >= 0 ? '+' : ''}${diff.toFixed(1)}V`);
 
   // Power flow diagram
-  setText('flowModeLabel', status.mode_title || '—');
-  setText('flowInV', status.connected ? `${status.in_v.toFixed(1)} В` : '-- В');
-  setText('flowOutV', status.connected ? `${status.out_v.toFixed(1)} В` : '-- В');
+  setText('flowModeLabel', modeTitleText || '—');
+  setText('flowInV', status.connected ? `${status.in_v.toFixed(1)} ${t('unit_v')}` : `-- ${t('unit_v')}`);
+  setText('flowOutV', status.connected ? `${status.out_v.toFixed(1)} ${t('unit_v')}` : `-- ${t('unit_v')}`);
   setText('flowLoad', status.connected ? `${status.load_pct} %` : '-- %');
-  setText('flowWatts', status.connected ? `${status.load_watts} Вт` : '-- Вт');
+  setText('flowWatts', status.connected ? `${status.load_watts} ${t('unit_w')}` : `-- ${t('unit_w')}`);
   setText('flowBatt', status.connected ? `${status.batt_pct} %` : '-- %');
   setText('flowBattV', status.connected ? `${status.batt_v.toFixed(1)} V` : '-- V');
-  setText('flowFreq', status.connected ? `${status.freq.toFixed(1)} Гц` : '-- Гц');
+  setText('flowFreq', status.connected ? `${status.freq.toFixed(1)} ${t('unit_hz')}` : `-- ${t('unit_hz')}`);
   setText('flowAvr', `AVR ${diff >= 0 ? '+' : ''}${diff.toFixed(1)} V`);
   updatePowerFlow(status);
   updateOutletsUI(status);
 
   // Mini stats row
-  setText('miniFreq', status.connected && status.freq !== undefined ? `${status.freq.toFixed(1)} Гц` : '-- Гц');
+  setText('miniFreq', status.connected && status.freq !== undefined ? `${status.freq.toFixed(1)} ${t('unit_hz')}` : `-- ${t('unit_hz')}`);
   setText('miniTemp', status.connected && status.temp !== undefined ? `${status.temp.toFixed(1)} °C` : '-- °C');
-  setText('miniWatts', status.connected && status.load_watts !== undefined ? `${status.load_watts} Вт` : '-- Вт');
+  setText('miniWatts', status.connected && status.load_watts !== undefined ? `${status.load_watts} ${t('unit_w')}` : `-- ${t('unit_w')}`);
   setText('miniBattV', status.connected && status.batt_v !== undefined ? `${status.batt_v.toFixed(1)} V` : '-- V');
   setText('miniBits', status.connected && status.status_bits ? status.status_bits : '--------');
 
   // Freeze badge status
   if (status.telemetry_frozen) {
-    setText('freezeBadge', 'ЗАМОРОЖЕНО');
+    setText('freezeBadge', t('frozen'));
     setText('freezeSec', ` (${status.freeze_sec.toFixed(1)}s)`);
   } else {
-    setText('freezeBadge', status.connected ? 'LIVE DATA' : 'НЕТ СВЯЗИ');
+    setText('freezeBadge', status.connected ? t('live_data') : t('no_connection'));
     setText('freezeSec', '');
   }
 
@@ -425,8 +582,8 @@ function updateShutdownBanner(shutdownData) {
 
   if (shutdownData.shutdown_active) {
     banner.style.display = 'flex';
-    timer.textContent = `${shutdownData.seconds_left}с`;
-    reason.textContent = `Причина: ${shutdownData.shutdown_reason || 'Критический разряд АКБ'}`;
+    timer.textContent = `${shutdownData.seconds_left}s`;
+    reason.textContent = `${t('shutdown_alert_reason')}: ${shutdownData.shutdown_reason || ''}`;
   } else {
     banner.style.display = 'none';
   }
@@ -437,6 +594,12 @@ function syncSettingsUI(settings) {
   if (!settings) return;
   lastSyncedSettings = settings;
 
+  // Sync language if backend has a saved setting
+  if (settings.language && settings.language !== getLanguage()) {
+    applyLanguage(settings.language);
+    localStorage.setItem('ups_language', settings.language);
+  }
+
   const autoBtn = document.getElementById('settingsAutoShutdownBtn');
   const pctSel = document.getElementById('settingsShutdownPctSelect');
   const delaySel = document.getElementById('settingsShutdownDelaySelect');
@@ -445,8 +608,8 @@ function syncSettingsUI(settings) {
   if (autoBtn) {
     const isEn = !!settings.auto_shutdown_enabled;
     autoBtn.innerHTML = isEn 
-      ? '<span class="status-dot-sm" style="background:#10b981;"></span> Включено' 
-      : '<span class="status-dot-sm" style="background:#ef4444;"></span> Выключено';
+      ? `<span class="status-dot-sm" style="background:#10b981;"></span> ${t('btn_enabled')}` 
+      : `<span class="status-dot-sm" style="background:#ef4444;"></span> ${t('btn_disabled')}`;
     autoBtn.classList.toggle('active', isEn);
   }
   if (pctSel && pctSel.value != settings.shutdown_battery_pct) {
@@ -458,12 +621,16 @@ function syncSettingsUI(settings) {
   if (toastBtn) {
     const isToast = !!settings.toast_notif_enabled;
     toastBtn.innerHTML = isToast 
-      ? '<span class="status-dot-sm" style="background:#10b981;"></span> Включено' 
-      : '<span class="status-dot-sm" style="background:#64748b;"></span> Выключено';
+      ? `<span class="status-dot-sm" style="background:#10b981;"></span> ${t('btn_enabled')}` 
+      : `<span class="status-dot-sm" style="background:#64748b;"></span> ${t('btn_disabled')}`;
     toastBtn.classList.toggle('active', isToast);
   }
-}
 
+  if (settings.sound_enabled !== undefined && settings.sound_enabled !== soundEnabled) {
+    soundEnabled = !!settings.sound_enabled;
+    updateSoundButtons(soundEnabled);
+  }
+}
 
 function updatePowerFlow(status) {
   const mains = document.getElementById('nodeMains');
@@ -530,10 +697,10 @@ function updatePowerFlow(status) {
 
 function initOutletsManager() {
   const defaults = [
-    'Системный блок ПК',
-    'Монитор',
-    'Wi-Fi Роутер',
-    'Резервная розетка'
+    t('socket_default_1'),
+    t('socket_default_2'),
+    t('socket_default_3'),
+    t('socket_default_4')
   ];
 
   for (let i = 1; i <= 4; i++) {
@@ -542,6 +709,7 @@ function initOutletsManager() {
 
     const saved = localStorage.getItem(`ups_socket_name_${i}`);
     if (saved) input.value = saved;
+    else input.value = defaults[i - 1];
 
     input.addEventListener('change', () => {
       const val = input.value.trim() || defaults[i - 1];
@@ -552,8 +720,9 @@ function initOutletsManager() {
 }
 
 function updateOutletsUI(status) {
+  if (!status) return;
   const isPowered = !!(status.connected && status.out_v > 50);
-  const outVText = status.connected && status.out_v ? `${status.out_v.toFixed(0)} В` : '-- В';
+  const outVText = status.connected && status.out_v ? `${status.out_v.toFixed(0)} ${t('unit_v')}` : `-- ${t('unit_v')}`;
 
   for (let i = 1; i <= 4; i++) {
     const card = document.querySelector(`.socket-card[data-socket-id="${i}"]`);
@@ -564,11 +733,11 @@ function updateOutletsUI(status) {
     if (isPowered) {
       card.classList.add('active');
       if (dot) dot.classList.remove('off');
-      vLabel.textContent = `${outVText} · АКТИВНА`;
+      vLabel.textContent = `${outVText} · ${t('socket_active')}`;
     } else {
       card.classList.remove('active');
       if (dot) dot.classList.add('off');
-      vLabel.textContent = `0 В · ОТКЛЮЧЕНА`;
+      vLabel.textContent = `0 ${t('unit_v')} · ${t('socket_disabled')}`;
     }
   }
 }
@@ -609,17 +778,18 @@ function initTabNavigation() {
   const viewTitle = document.getElementById('currentViewTitle');
 
   const titles = {
-    dashboard: 'Дашборд мониторинга',
-    flow: 'Интерактивная схема питания',
-    analytics: 'Аналитика и динамика напряжений',
-    events: 'Журнал событий питания',
-    settings: 'Настройки оповещений и системы'
+    dashboard: 'view_dashboard',
+    flow: 'view_flow',
+    analytics: 'view_analytics',
+    events: 'view_events',
+    settings: 'view_settings'
   };
 
   navItems.forEach(item => {
     item.addEventListener('click', () => {
       const tab = item.getAttribute('data-tab');
       if (!tab) return;
+      activeTab = tab;
 
       navItems.forEach(n => n.classList.remove('active'));
       item.classList.add('active');
@@ -632,7 +802,7 @@ function initTabNavigation() {
       });
 
       if (viewTitle && titles[tab]) {
-        viewTitle.textContent = titles[tab];
+        viewTitle.textContent = t(titles[tab]);
       }
 
       // Trigger chart resize if navigating to analytics
@@ -644,6 +814,7 @@ function initTabNavigation() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  initLanguage();
   initCharts();
   initTabNavigation();
   initOutletsManager();
@@ -655,11 +826,21 @@ document.addEventListener('DOMContentLoaded', () => {
   const toggleSound = () => {
     soundEnabled = !soundEnabled;
     updateSoundButtons(soundEnabled);
-    if (soundEnabled) playAlertSound('avr');
+    if (soundEnabled) {
+      playAlertSound('test');
+    }
+    saveSettingPatch({ sound_enabled: soundEnabled });
   };
 
   if (soundBtn) soundBtn.addEventListener('click', toggleSound);
   if (settingsSoundBtn) settingsSoundBtn.addEventListener('click', toggleSound);
+
+  const testSoundBtn = document.getElementById('testSoundBtn');
+  if (testSoundBtn) {
+    testSoundBtn.addEventListener('click', () => {
+      playAlertSound('test');
+    });
+  }
 
   // Notification toggles
   const notifBtn = document.getElementById('notifToggle');
@@ -767,7 +948,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const testBtn = document.getElementById('testShutdownBtn');
   if (testBtn) {
     testBtn.addEventListener('click', async () => {
-      if (confirm("Запустить тестовый отсчёт выключения ПК на 60 секунд?\nВы сможете сразу же отменить его кнопкой на экране.")) {
+      const confirmMsg = getLanguage() === 'ru'
+        ? "Запустить тестовый отсчёт выключения ПК на 60 секунд?\nВы сможете сразу же отменить его кнопкой на экране."
+        : "Start 60-second PC shutdown test?\nYou can cancel it immediately using the button on screen.";
+      if (confirm(confirmMsg)) {
         try {
           await fetch('/api/trigger_shutdown', { method: 'POST' });
         } catch (err) {
@@ -792,4 +976,3 @@ async function saveSettingPatch(patchObj) {
     console.error("Error saving settings:", e);
   }
 }
-

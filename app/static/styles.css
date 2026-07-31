@@ -263,6 +263,27 @@ header {
 .btn-icon:hover { background: rgba(255, 255, 255, 0.08); }
 .btn-icon.active { border-color: #3b82f6; background: rgba(59, 130, 246, 0.15); color: #93c5fd; }
 
+.lang-toggle {
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  color: #93c5fd;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  padding: 0.45rem 0.8rem;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+  transition: all 0.2s ease;
+}
+.lang-toggle:hover {
+  background: rgba(59, 130, 246, 0.2);
+  border-color: #3b82f6;
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.25);
+}
+
 .live-pill {
   display: flex; align-items: center; gap: 0.65rem;
   padding: 0.4rem 0.8rem;

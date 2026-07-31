@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ExeGate SpecialPro UNB-1200 — Мониторинг ИБП</title>
+  <title data-i18n="app_title">ExeGate SpecialPro UNB-1200 — UPS Monitor</title>
   <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
   <link rel="icon" type="image/png" href="/static/favicon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -23,48 +23,48 @@
           <svg viewBox="0 0 24 24" style="width:1.4rem;height:1.4rem;stroke:#ffffff;fill:none;stroke-width:2.2px;stroke-linecap:round;stroke-linejoin:round;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
         </div>
         <div class="brand-info">
-          <h1 class="brand-name">ExeGate Pro</h1>
-          <p class="brand-sub">UNB-1200 · USB HID</p>
+          <h1 class="brand-name" data-i18n="brand_name">ExeGate Pro</h1>
+          <p class="brand-sub" data-i18n="brand_sub">UNB-1200 · USB HID</p>
         </div>
       </div>
 
       <nav class="sidebar-nav">
-        <button class="nav-item active" data-tab="dashboard" title="Общий обзор и дашборд">
+        <button class="nav-item active" data-tab="dashboard" title="Dashboard & Overview">
           <span class="nav-icon">
             <svg class="nav-icon-svg" viewBox="0 0 24 24"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
           </span>
-          <span class="nav-label">Обзор</span>
+          <span class="nav-label" data-i18n="nav_overview">Overview</span>
         </button>
-        <button class="nav-item" data-tab="flow" title="Схема потока питания">
+        <button class="nav-item" data-tab="flow" title="Power Flow Scheme">
           <span class="nav-icon">
             <svg class="nav-icon-svg" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
           </span>
-          <span class="nav-label">Схема питания</span>
+          <span class="nav-label" data-i18n="nav_flow">Power Flow</span>
         </button>
-        <button class="nav-item" data-tab="analytics" title="Аналитика и график напряжений">
+        <button class="nav-item" data-tab="analytics" title="Voltage Analytics & Graphs">
           <span class="nav-icon">
             <svg class="nav-icon-svg" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
           </span>
-          <span class="nav-label">Аналитика</span>
+          <span class="nav-label" data-i18n="nav_analytics">Analytics</span>
         </button>
-        <button class="nav-item" data-tab="events" title="Журнал событий">
+        <button class="nav-item" data-tab="events" title="Power Events Log">
           <span class="nav-icon">
             <svg class="nav-icon-svg" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>
           </span>
-          <span class="nav-label">Журнал</span>
+          <span class="nav-label" data-i18n="nav_events">Event Log</span>
         </button>
-        <button class="nav-item" data-tab="settings" title="Настройки оповещений и системы">
+        <button class="nav-item" data-tab="settings" title="Alerts & System Settings">
           <span class="nav-icon">
             <svg class="nav-icon-svg" viewBox="0 0 24 24"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/><circle cx="8" cy="6" r="2"/><circle cx="16" cy="12" r="2"/><circle cx="10" cy="18" r="2"/></svg>
           </span>
-          <span class="nav-label">Настройки</span>
+          <span class="nav-label" data-i18n="nav_settings">Settings</span>
         </button>
       </nav>
 
       <div class="sidebar-footer">
         <div class="sidebar-status" id="sidebarStatus">
           <span class="status-dot-sm"></span>
-          <span class="status-text-sm" id="sidebarStatusText">ПОДКЛЮЧЕНО</span>
+          <span class="status-text-sm" id="sidebarStatusText" data-i18n="sidebar_connected">CONNECTED</span>
         </div>
       </div>
     </aside>
@@ -75,22 +75,28 @@
       <!-- Top Header Bar -->
       <header>
         <div class="header-left">
-          <h2 class="view-title" id="currentViewTitle">Дашборд мониторинга</h2>
+          <h2 class="view-title" id="currentViewTitle" data-i18n="view_dashboard">Monitoring Dashboard</h2>
         </div>
         <div class="header-controls">
           <div class="live-pill" id="liveStrip">
             <span class="live-badge"><span class="live-dot"></span> LIVE</span>
-            <span id="liveRate">— Гц</span>
+            <span id="liveRate">— Hz</span>
             <span id="liveSeq">#—</span>
             <span id="liveStamp">—</span>
           </div>
-          <button id="soundToggle" class="btn-icon" title="Звуковые оповещения" style="display:flex;align-items:center;gap:0.4rem;">
-            <svg class="btn-icon-svg" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
-            <span id="soundText">Звук</span>
+
+          <!-- Language Switcher Button -->
+          <button id="langToggle" class="lang-toggle" title="Switch Language / Переключить язык">
+            🌐 <span id="langText">EN / RU</span>
           </button>
-          <button id="notifToggle" class="btn-icon" title="Уведомления браузера" style="display:flex;align-items:center;gap:0.4rem;">
+
+          <button id="soundToggle" class="btn-icon" title="Audio Alert Sounds" style="display:flex;align-items:center;gap:0.4rem;">
+            <svg class="btn-icon-svg" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+            <span id="soundText" data-i18n="sound_toggle">Sound</span>
+          </button>
+          <button id="notifToggle" class="btn-icon" title="Browser Push Notifications" style="display:flex;align-items:center;gap:0.4rem;">
             <svg class="btn-icon-svg" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-            <span id="notifText">Алерты</span>
+            <span id="notifText" data-i18n="notif_toggle">Alerts</span>
           </button>
         </div>
       </header>
@@ -102,15 +108,15 @@
             <svg viewBox="0 0 24 24" style="width:2.2rem;height:2.2rem;stroke:#ffffff;fill:none;stroke-width:2.2px;stroke-linecap:round;stroke-linejoin:round;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
           </div>
           <div>
-            <div class="shutdown-alert-title">КРИТИЧЕСКИЙ ЗАРЯД БАТАРЕИ — АВТОВЫКЛЮЧЕНИЕ ПК!</div>
-            <div class="shutdown-alert-desc" id="shutdownReason">Причина: разряд АКБ ниже порога</div>
+            <div class="shutdown-alert-title" data-i18n="shutdown_alert_title">CRITICAL BATTERY LEVEL — PC SHUTDOWN INITIATED!</div>
+            <div class="shutdown-alert-desc" id="shutdownReason" data-i18n="shutdown_alert_reason">Reason: Battery discharged below threshold</div>
           </div>
         </div>
         <div class="shutdown-banner-right">
-          <div class="shutdown-timer mono" id="shutdownTimer">60с</div>
+          <div class="shutdown-timer mono" id="shutdownTimer">60s</div>
           <button id="cancelShutdownBtn" class="btn-cancel-shutdown" style="display:flex;align-items:center;gap:0.4rem;">
             <svg class="btn-icon-svg" viewBox="0 0 24 24" style="stroke:#991b1b;"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
-            Отменить выключение ПК
+            <span data-i18n="shutdown_cancel_btn">Cancel PC Shutdown</span>
           </button>
         </div>
       </div>
@@ -120,22 +126,21 @@
         <div class="status-left">
           <div class="status-indicator pulse" id="statusDot"></div>
           <div>
-            <div class="status-title" id="statusTitle">Подключение...</div>
-            <div class="status-desc" id="statusDesc">Инициализация USB</div>
+            <div class="status-title" id="statusTitle" data-i18n="status_connecting">Connecting...</div>
+            <div class="status-desc" id="statusDesc" data-i18n="status_init_usb">Initializing USB connection</div>
           </div>
         </div>
         <div class="status-time" id="statusTime">--:--:--</div>
       </div>
 
-
       <!-- Raw USB Bar -->
       <div class="raw-bar" id="rawBar">
         <div class="raw-left">
-          <span class="raw-label">Сырой USB</span>
+          <span class="raw-label" data-i18n="raw_usb_label">Raw USB</span>
           <code class="raw-frame mono" id="rawFrame">—</code>
         </div>
         <div class="raw-right">
-          <span class="freeze-badge" id="freezeBadge">LIVE DATA</span>
+          <span class="freeze-badge" id="freezeBadge" data-i18n="live_data">LIVE DATA</span>
           <span class="mono" id="freezeSec"></span>
         </div>
       </div>
@@ -163,13 +168,13 @@
               </svg>
               <div class="gauge-center">
                 <div class="gauge-value mono" id="valInV">--</div>
-                <div class="gauge-unit">В</div>
+                <div class="gauge-unit" data-i18n="unit_v">V</div>
               </div>
             </div>
             <div class="gauge-meta">
-              <div class="gauge-title">Входная сеть</div>
+              <div class="gauge-title" data-i18n="card_in_v">Mains Input</div>
               <div class="gauge-caption" id="statusInV">—</div>
-              <div class="gauge-extra"><span id="valFreq">-- Гц</span></div>
+              <div class="gauge-extra"><span id="valFreq">-- Hz</span></div>
             </div>
           </article>
 
@@ -192,11 +197,11 @@
               </svg>
               <div class="gauge-center">
                 <div class="gauge-value mono" id="valOutV">--</div>
-                <div class="gauge-unit">В</div>
+                <div class="gauge-unit" data-i18n="unit_v">V</div>
               </div>
             </div>
             <div class="gauge-meta">
-              <div class="gauge-title">Выход ИБП</div>
+              <div class="gauge-title" data-i18n="card_out_v">UPS Output</div>
               <div class="gauge-caption" id="statusOutV">—</div>
               <div class="gauge-extra"><span id="valAvrDiff">AVR: --</span></div>
             </div>
@@ -221,13 +226,13 @@
               </svg>
               <div class="gauge-center">
                 <div class="gauge-value mono" id="valBattPct">--</div>
-                <div class="gauge-unit">%</div>
+                <div class="gauge-unit" data-i18n="unit_pct">%</div>
               </div>
             </div>
             <div class="gauge-meta">
-              <div class="gauge-title">Заряд АКБ</div>
+              <div class="gauge-title" data-i18n="card_batt">Battery Charge</div>
               <div class="gauge-caption" id="valBattV">—</div>
-              <div class="gauge-extra"><span>оценка по V</span></div>
+              <div class="gauge-extra"><span data-i18n="est_by_v">estimated by V</span></div>
             </div>
           </article>
 
@@ -250,13 +255,13 @@
               </svg>
               <div class="gauge-center">
                 <div class="gauge-value mono" id="valLoadPct">--</div>
-                <div class="gauge-unit">%</div>
+                <div class="gauge-unit" data-i18n="unit_pct">%</div>
               </div>
             </div>
             <div class="gauge-meta">
-              <div class="gauge-title">Нагрузка</div>
+              <div class="gauge-title" data-i18n="card_load">Output Load</div>
               <div class="gauge-caption" id="valLoadWatts">—</div>
-              <div class="gauge-extra"><span>750 Вт max</span></div>
+              <div class="gauge-extra"><span data-i18n="max_w_caption">750 W max</span></div>
             </div>
           </article>
         </section>
@@ -264,23 +269,23 @@
         <!-- Mini stats row -->
         <section class="mini-stats">
           <div class="mini-stat">
-            <div class="mini-label">Частота</div>
-            <div class="mini-value mono" id="miniFreq">-- Гц</div>
+            <div class="mini-label" data-i18n="mini_freq">Frequency</div>
+            <div class="mini-value mono" id="miniFreq">-- Hz</div>
           </div>
           <div class="mini-stat">
-            <div class="mini-label">Температура</div>
+            <div class="mini-label" data-i18n="mini_temp">Temperature</div>
             <div class="mini-value mono" id="miniTemp">-- °C</div>
           </div>
           <div class="mini-stat">
-            <div class="mini-label">Мощность</div>
-            <div class="mini-value mono" id="miniWatts">-- Вт</div>
+            <div class="mini-label" data-i18n="mini_power">Power</div>
+            <div class="mini-value mono" id="miniWatts">-- W</div>
           </div>
           <div class="mini-stat">
-            <div class="mini-label">АКБ напряжение</div>
+            <div class="mini-label" data-i18n="mini_batt_v">Battery Voltage</div>
             <div class="mini-value mono" id="miniBattV">-- V</div>
           </div>
           <div class="mini-stat">
-            <div class="mini-label">Status bits</div>
+            <div class="mini-label" data-i18n="mini_status_bits">Status bits</div>
             <div class="mini-value mono" id="miniBits">--------</div>
           </div>
         </section>
@@ -289,8 +294,8 @@
         <div class="dashboard-sections">
           <div class="section-card">
             <div class="section-title">
-              <span>График напряжений</span>
-              <span class="section-sub">Вход vs Выход</span>
+              <span data-i18n="voltage_chart_title">Voltage Graph</span>
+              <span class="section-sub" data-i18n="voltage_chart_sub">Input vs Output</span>
             </div>
             <div class="chart-wrapper">
               <canvas id="voltageChart"></canvas>
@@ -299,13 +304,13 @@
 
           <div class="section-card">
             <div class="section-title">
-              <span>Журнал событий</span>
+              <span data-i18n="event_log_title">Event Log</span>
               <div style="display:flex;gap:0.4rem;">
-                <button id="openEventsModalBtn" class="btn-icon" style="font-size:0.75rem;padding:0.25rem 0.6rem;display:flex;align-items:center;gap:0.3rem;" title="Посмотреть полный журнал событий">
+                <button id="openEventsModalBtn" class="btn-icon" style="font-size:0.75rem;padding:0.25rem 0.6rem;display:flex;align-items:center;gap:0.3rem;" title="View full event log">
                   <svg class="btn-icon-svg" viewBox="0 0 24 24" style="width:0.85rem;height:0.85rem;"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>
-                  Развернуть
+                  <span data-i18n="btn_expand">Expand</span>
                 </button>
-                <a href="/api/download_csv" download class="btn-icon" style="text-decoration:none;font-size:0.75rem;padding:0.25rem 0.6rem;display:flex;align-items:center;gap:0.3rem;" title="Скачать CSV файл событий">
+                <a href="/api/download_csv" download class="btn-icon" style="text-decoration:none;font-size:0.75rem;padding:0.25rem 0.6rem;display:flex;align-items:center;gap:0.3rem;" title="Download CSV event log">
                   <svg class="btn-icon-svg" viewBox="0 0 24 24" style="width:0.85rem;height:0.85rem;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
                   CSV
                 </a>
@@ -315,14 +320,14 @@
               <table class="events-table">
                 <thead>
                   <tr>
-                    <th>Время</th>
-                    <th>Режим</th>
-                    <th>Вход V</th>
+                    <th data-i18n="tbl_time">Time</th>
+                    <th data-i18n="tbl_mode">Mode</th>
+                    <th data-i18n="tbl_in_v">Input V</th>
                   </tr>
                 </thead>
                 <tbody id="eventsTbody">
                   <tr>
-                    <td colspan="3" style="text-align:center;color:var(--text-muted);padding:1.5rem;">История пуста</td>
+                    <td colspan="3" style="text-align:center;color:var(--text-muted);padding:1.5rem;" data-i18n="tbl_empty">Event history is empty</td>
                   </tr>
                 </tbody>
               </table>
@@ -335,7 +340,7 @@
       <div class="tab-view" id="view-flow">
         <section class="section-card flow-card">
           <div class="section-title">
-            <span>Интерактивная схема распределения питания</span>
+            <span data-i18n="flow_title">Interactive Power Distribution Diagram</span>
             <span class="section-sub" id="flowModeLabel">—</span>
           </div>
 
@@ -349,9 +354,9 @@
                     <rect x="25" y="18" width="3" height="8" rx="1" fill="#0b0f19"/>
                   </svg>
                 </div>
-                <div class="flow-label">Сеть 220V</div>
-                <div class="flow-value" id="flowInV">-- В</div>
-                <div class="flow-sub" id="flowFreq">-- Гц</div>
+                <div class="flow-label" data-i18n="node_mains">Mains 220V</div>
+                <div class="flow-value" id="flowInV">-- V</div>
+                <div class="flow-sub" id="flowFreq">-- Hz</div>
               </div>
 
               <div class="flow-link" id="linkMainsUps">
@@ -370,8 +375,8 @@
                       <circle cx="32" cy="30" r="2" fill="#fbbf24"/>
                     </svg>
                   </div>
-                  <div class="flow-label">ИБП UNB-1200</div>
-                  <div class="flow-value" id="flowOutV">-- В</div>
+                  <div class="flow-label" data-i18n="node_ups">UPS UNB-1200</div>
+                  <div class="flow-value" id="flowOutV">-- V</div>
                   <div class="flow-sub" id="flowAvr">AVR —</div>
                 </div>
 
@@ -389,7 +394,7 @@
                       <rect x="12" y="18" width="20" height="12" rx="1" fill="#34d399" opacity=".85"/>
                     </svg>
                   </div>
-                  <div class="flow-label">АКБ 12V</div>
+                  <div class="flow-label" data-i18n="node_batt">Battery 12V</div>
                   <div class="flow-value" id="flowBatt">-- %</div>
                   <div class="flow-sub" id="flowBattV">-- V</div>
                 </div>
@@ -409,78 +414,81 @@
                     <rect x="14" y="35" width="20" height="3" rx="1" fill="currentColor"/>
                   </svg>
                 </div>
-                <div class="flow-label">Потребители</div>
+                <div class="flow-label" data-i18n="node_load">Consumers</div>
                 <div class="flow-value" id="flowLoad">-- %</div>
-                <div class="flow-sub" id="flowWatts">-- Вт</div>
+                <div class="flow-sub" id="flowWatts">-- W</div>
               </div>
+            </div>
+          </div>
+
           <!-- Interactive 4 Outlets Panel -->
           <div class="section-card sockets-card" style="margin-top:1.25rem;">
             <div class="section-title">
               <div style="display:flex;align-items:center;gap:0.65rem;">
                 <svg class="settings-title-icon" viewBox="0 0 24 24"><path d="M12 2v10"/><path d="M18.4 6.6a9 9 0 1 1-12.77 0"/></svg>
-                <span>Карта подключений розеток 220V (4× Schuko CEE 7/4)</span>
+                <span data-i18n="outlets_title">220V Outlets Map (4× Schuko CEE 7/4)</span>
               </div>
-              <span class="section-sub">Кликните на название розетки, чтобы изменить подключенное устройство</span>
+              <span class="section-sub" data-i18n="outlets_sub">Click outlet label to customize connected device name</span>
             </div>
 
             <div class="sockets-grid">
               <!-- Socket 1 -->
               <div class="socket-card active" data-socket-id="1">
                 <div class="socket-header">
-                  <span class="socket-num">РОЗЕТКА № 1</span>
+                  <span class="socket-num" data-i18n="socket_num_1">OUTLET № 1</span>
                   <span class="socket-status-dot"></span>
                 </div>
                 <div class="socket-icon-wrap">
                   <svg class="socket-icon-svg" viewBox="0 0 24 24"><rect width="18" height="12" x="3" y="4" rx="2"/><line x1="2" x2="22" y1="20" y2="20"/><line x1="12" x2="12" y1="16" y2="20"/></svg>
                 </div>
                 <div class="socket-info">
-                  <input type="text" class="socket-label-input" id="socketLabel1" value="Системный блок ПК" placeholder="Название устройства...">
-                  <div class="socket-voltage" id="socketV1">220 В · АКТИВНА</div>
+                  <input type="text" class="socket-label-input" id="socketLabel1" value="PC Tower" data-i18n-ph="socket_placeholder" placeholder="Device name...">
+                  <div class="socket-voltage" id="socketV1">220 V · ACTIVE</div>
                 </div>
               </div>
 
               <!-- Socket 2 -->
               <div class="socket-card active" data-socket-id="2">
                 <div class="socket-header">
-                  <span class="socket-num">РОЗЕТКА № 2</span>
+                  <span class="socket-num" data-i18n="socket_num_2">OUTLET № 2</span>
                   <span class="socket-status-dot"></span>
                 </div>
                 <div class="socket-icon-wrap">
                   <svg class="socket-icon-svg" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>
                 </div>
                 <div class="socket-info">
-                  <input type="text" class="socket-label-input" id="socketLabel2" value="Монитор" placeholder="Название устройства...">
-                  <div class="socket-voltage" id="socketV2">220 В · АКТИВНА</div>
+                  <input type="text" class="socket-label-input" id="socketLabel2" value="Monitor" data-i18n-ph="socket_placeholder" placeholder="Device name...">
+                  <div class="socket-voltage" id="socketV2">220 V · ACTIVE</div>
                 </div>
               </div>
 
               <!-- Socket 3 -->
               <div class="socket-card active" data-socket-id="3">
                 <div class="socket-header">
-                  <span class="socket-num">РОЗЕТКА № 3</span>
+                  <span class="socket-num" data-i18n="socket_num_3">OUTLET № 3</span>
                   <span class="socket-status-dot"></span>
                 </div>
                 <div class="socket-icon-wrap">
                   <svg class="socket-icon-svg" viewBox="0 0 24 24"><rect width="20" height="8" x="2" y="14" rx="2"/><path d="M6 14V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8"/><line x1="12" x2="12.01" y1="9" y2="9"/></svg>
                 </div>
                 <div class="socket-info">
-                  <input type="text" class="socket-label-input" id="socketLabel3" value="Wi-Fi Роутер" placeholder="Название устройства...">
-                  <div class="socket-voltage" id="socketV3">220 В · АКТИВНА</div>
+                  <input type="text" class="socket-label-input" id="socketLabel3" value="Wi-Fi Router" data-i18n-ph="socket_placeholder" placeholder="Device name...">
+                  <div class="socket-voltage" id="socketV3">220 V · ACTIVE</div>
                 </div>
               </div>
 
               <!-- Socket 4 -->
               <div class="socket-card active" data-socket-id="4">
                 <div class="socket-header">
-                  <span class="socket-num">РОЗЕТКА № 4</span>
+                  <span class="socket-num" data-i18n="socket_num_4">OUTLET № 4</span>
                   <span class="socket-status-dot"></span>
                 </div>
                 <div class="socket-icon-wrap">
                   <svg class="socket-icon-svg" viewBox="0 0 24 24"><path d="M12 22v-5"/><path d="M9 8V2"/><path d="M15 8V2"/><path d="M18 8v5a6 6 0 0 1-12 0V8Z"/></svg>
                 </div>
                 <div class="socket-info">
-                  <input type="text" class="socket-label-input" id="socketLabel4" value="Резервная розетка" placeholder="Название устройства...">
-                  <div class="socket-voltage" id="socketV4">220 В · АКТИВНА</div>
+                  <input type="text" class="socket-label-input" id="socketLabel4" value="Backup Outlet" data-i18n-ph="socket_placeholder" placeholder="Device name...">
+                  <div class="socket-voltage" id="socketV4">220 V · ACTIVE</div>
                 </div>
               </div>
             </div>
@@ -492,8 +500,8 @@
       <div class="tab-view" id="view-analytics">
         <div class="section-card">
           <div class="section-title">
-            <span>Детальный график динамики напряжений</span>
-            <span class="section-sub">Входное напряжение vs Выходное напряжение ИБП</span>
+            <span data-i18n="analytics_title">Detailed Voltage Dynamics Graph</span>
+            <span class="section-sub" data-i18n="analytics_sub">Mains Input Voltage vs UPS Output Voltage</span>
           </div>
           <div class="chart-wrapper" style="height: 420px;">
             <canvas id="voltageChartAnalytics"></canvas>
@@ -505,29 +513,29 @@
       <div class="tab-view" id="view-events">
         <div class="section-card">
           <div class="section-title">
-            <span>Полный журнал событий питания</span>
+            <span data-i18n="events_full_title">Full Power Event Log</span>
             <a href="/api/download_csv" download class="btn-icon" style="text-decoration:none;font-size:0.8rem;padding:0.35rem 0.75rem;">
-              📥 Скачать CSV
+              📥 <span data-i18n="btn_download_csv">Download CSV</span>
             </a>
           </div>
           <div class="modal-controls" style="background:transparent;padding:0 0 1rem 0;">
-            <input type="text" id="tabEventsSearch" class="modal-search" placeholder="🔍 Быстрый поиск по дате или режиму (AVR, Батарея)...">
+            <input type="text" id="tabEventsSearch" class="modal-search" data-i18n-ph="search_placeholder" placeholder="🔍 Search by date or mode (AVR, Battery)...">
           </div>
           <div class="events-table-wrapper" style="max-height: 520px; overflow-y: auto;">
             <table class="events-table">
               <thead>
                 <tr>
-                  <th>Время / Дата</th>
-                  <th>Режим работы</th>
-                  <th>Вход V</th>
-                  <th>Выход V</th>
-                  <th>Нагрузка</th>
-                  <th>АКБ V</th>
+                  <th data-i18n="tbl_time_date">Time / Date</th>
+                  <th data-i18n="tbl_mode">Mode</th>
+                  <th data-i18n="tbl_in_v">Input V</th>
+                  <th data-i18n="tbl_out_v">Output V</th>
+                  <th data-i18n="tbl_load">Load</th>
+                  <th data-i18n="tbl_batt_v">Batt V</th>
                 </tr>
               </thead>
               <tbody id="tabEventsTbody">
                 <tr>
-                  <td colspan="6" style="text-align:center;color:var(--text-muted);padding:2rem;">Загрузка событий...</td>
+                  <td colspan="6" style="text-align:center;color:var(--text-muted);padding:2rem;" data-i18n="tbl_loading">Loading events...</td>
                 </tr>
               </tbody>
             </table>
@@ -541,7 +549,7 @@
           <div class="section-title">
             <div style="display:flex;align-items:center;gap:0.65rem;">
               <svg class="settings-title-icon" viewBox="0 0 24 24" style="margin-right:0;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
-              <span>Настройки безопасного выключения и оповещений</span>
+              <span data-i18n="settings_header_title">Safe Shutdown & Alert Settings</span>
             </div>
           </div>
           <div style="display:flex;flex-direction:column;gap:1rem;padding:0.5rem 0;">
@@ -550,11 +558,11 @@
               <div class="settings-info">
                 <svg class="settings-title-icon" viewBox="0 0 24 24"><path d="M12 2v10"/><path d="M18.4 6.6a9 9 0 1 1-12.77 0"/></svg>
                 <div class="settings-text-group">
-                  <div class="settings-title">Автовыключение Windows (Graceful Shutdown)</div>
-                  <div class="settings-desc">Автоматически завершает работу ПК при разряде АКБ ниже порога</div>
+                  <div class="settings-title" data-i18n="set_auto_shutdown_title">Windows Graceful Auto Shutdown</div>
+                  <div class="settings-desc" data-i18n="set_auto_shutdown_desc">Automatically shuts down PC when battery discharges below threshold</div>
                 </div>
               </div>
-              <button id="settingsAutoShutdownBtn" class="btn-icon settings-ctrl">Включено</button>
+              <button id="settingsAutoShutdownBtn" class="btn-icon settings-ctrl" data-i18n="btn_enabled">Enabled</button>
             </div>
 
             <!-- Threshold Batt % -->
@@ -562,8 +570,8 @@
               <div class="settings-info">
                 <svg class="settings-title-icon" viewBox="0 0 24 24"><rect width="16" height="10" x="2" y="7" rx="2"/><line x1="22" x2="22" y1="11" y2="13"/><line x1="6" x2="6" y1="11" y2="13"/><line x1="10" x2="10" y1="11" y2="13"/></svg>
                 <div class="settings-text-group">
-                  <div class="settings-title">Порог разряда АКБ для выключения</div>
-                  <div class="settings-desc">При каком проценте заряда запускать завершение работы ПК</div>
+                  <div class="settings-title" data-i18n="set_batt_threshold_title">Battery Threshold for Shutdown</div>
+                  <div class="settings-desc" data-i18n="set_batt_threshold_desc">Battery charge percentage to trigger PC shutdown</div>
                 </div>
               </div>
               <select id="settingsShutdownPctSelect" class="settings-select settings-ctrl">
@@ -581,15 +589,15 @@
               <div class="settings-info">
                 <svg class="settings-title-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                 <div class="settings-text-group">
-                  <div class="settings-title">Время таймера отсчёта выключения</div>
-                  <div class="settings-desc">Задержка перед окончательным отключением ПК (для отмены)</div>
+                  <div class="settings-title" data-i18n="set_delay_title">Shutdown Countdown Timer</div>
+                  <div class="settings-desc" data-i18n="set_delay_desc">Delay before final PC power off (allows cancellation)</div>
                 </div>
               </div>
               <select id="settingsShutdownDelaySelect" class="settings-select settings-ctrl">
-                <option value="30">30 сек</option>
-                <option value="60" selected>60 сек</option>
-                <option value="90">90 сек</option>
-                <option value="120">120 сек</option>
+                <option value="30">30 sec</option>
+                <option value="60" selected>60 sec</option>
+                <option value="90">90 sec</option>
+                <option value="120">120 sec</option>
               </select>
             </div>
 
@@ -598,11 +606,11 @@
               <div class="settings-info">
                 <svg class="settings-title-icon" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
                 <div class="settings-text-group">
-                  <div class="settings-title">Нативные уведомления Windows (Toast)</div>
-                  <div class="settings-desc">Всплывающие карточки в углу экрана Windows при событиях сети</div>
+                  <div class="settings-title" data-i18n="set_toast_title">Windows Native Toast Notifications</div>
+                  <div class="settings-desc" data-i18n="set_toast_desc">Pop-up cards in Windows tray area on power events</div>
                 </div>
               </div>
-              <button id="settingsToastBtn" class="btn-icon settings-ctrl">Включено</button>
+              <button id="settingsToastBtn" class="btn-icon settings-ctrl" data-i18n="btn_enabled">Enabled</button>
             </div>
 
             <!-- Test Shutdown Trigger -->
@@ -610,13 +618,13 @@
               <div class="settings-info">
                 <svg class="settings-title-icon" viewBox="0 0 24 24" style="stroke:#f87171;"><path d="M10 2v7.527a2 2 0 0 1-.211.896L4.72 20.55A1 1 0 0 0 5.611 22h12.778a1 1 0 0 0 .89-1.45l-5.068-10.127A2 2 0 0 1 14 9.527V2"/><line x1="8.5" y1="2" x2="15.5" y2="2"/></svg>
                 <div class="settings-text-group">
-                  <div class="settings-title">Проверка автовыключения ПК</div>
-                  <div class="settings-desc">Запустит тестовый отсчёт 60 секунд. Проверьте кнопку отмены!</div>
+                  <div class="settings-title" data-i18n="set_test_title">Test PC Auto Shutdown</div>
+                  <div class="settings-desc" data-i18n="set_test_desc">Triggers a 60-second test countdown. Test the cancel button!</div>
                 </div>
               </div>
               <button id="testShutdownBtn" class="btn-icon settings-ctrl" style="background:rgba(239, 68, 68, 0.15);color:#f87171;border-color:rgba(239, 68, 68, 0.3);">
                 <svg class="btn-icon-svg" viewBox="0 0 24 24" style="stroke:#f87171;margin-right:0;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                Проверить (60с)
+                <span data-i18n="btn_test_shutdown">Test (60s)</span>
               </button>
             </div>
 
@@ -625,11 +633,17 @@
               <div class="settings-info">
                 <svg class="settings-title-icon" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
                 <div class="settings-text-group">
-                  <div class="settings-title">Звуковые алерты в браузере</div>
-                  <div class="settings-desc">Звуковое предупреждение при переходах на АКБ и сработках AVR</div>
+                  <div class="settings-title" data-i18n="set_sound_title">Audio & Beep Alerts</div>
+                  <div class="settings-desc" data-i18n="set_sound_desc">Audio alert when switching to battery or AVR mode</div>
                 </div>
               </div>
-              <button id="settingsSoundBtn" class="btn-icon settings-ctrl">Включено</button>
+              <div style="display:flex;gap:0.5rem;">
+                <button id="testSoundBtn" class="btn-icon" style="background:rgba(59, 130, 246, 0.15);color:#93c5fd;border-color:rgba(59, 130, 246, 0.3);" title="Play test sound signal">
+                  <svg class="btn-icon-svg" viewBox="0 0 24 24" style="stroke:#93c5fd;margin-right:0;"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+                  <span data-i18n="btn_test_sound">Test Sound</span>
+                </button>
+                <button id="settingsSoundBtn" class="btn-icon settings-ctrl" data-i18n="btn_enabled">Enabled</button>
+              </div>
             </div>
 
             <!-- Hardware Status -->
@@ -637,11 +651,11 @@
               <div class="settings-info">
                 <svg class="settings-title-icon" viewBox="0 0 24 24"><rect width="16" height="16" x="4" y="4" rx="2"/><rect width="6" height="6" x="9" y="9" rx="1"/><path d="M15 2v2"/><path d="M15 20v2"/><path d="M2 15h2"/><path d="M2 9h2"/><path d="M20 15h2"/><path d="M20 9h2"/><path d="M9 2v2"/><path d="M9 20v2"/></svg>
                 <div class="settings-text-group">
-                  <div class="settings-title">USB HID устройство & Трей</div>
-                  <div class="settings-desc">Vendor: 0x0665 · Product: 0x5161 (RichComm Megatec F)</div>
+                  <div class="settings-title" data-i18n="set_hw_title">USB HID Device & System Tray</div>
+                  <div class="settings-desc" data-i18n="set_hw_desc">Vendor: 0x0665 · Product: 0x5161 (RichComm Megatec F)</div>
                 </div>
               </div>
-              <span class="tag tag-green settings-ctrl">Активен (Трей)</span>
+              <span class="tag tag-green settings-ctrl" data-i18n="tag_active_tray">Active (Tray)</span>
             </div>
 
             <!-- CSV Download -->
@@ -649,20 +663,18 @@
               <div class="settings-info">
                 <svg class="settings-title-icon" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
                 <div class="settings-text-group">
-                  <div class="settings-title">Выгрузка архива событий</div>
-                  <div class="settings-desc">Скачать файл истории ups_power_events.csv</div>
+                  <div class="settings-title" data-i18n="set_csv_title">Export Event Log Archive</div>
+                  <div class="settings-desc" data-i18n="set_csv_desc">Download ups_power_events.csv history file</div>
                 </div>
               </div>
               <a href="/api/download_csv" download class="btn-icon settings-ctrl" style="text-decoration:none;">
                 <svg class="btn-icon-svg" viewBox="0 0 24 24" style="margin-right:0;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
-                Скачать CSV
+                <span data-i18n="btn_download_csv">Download CSV</span>
               </a>
             </div>
           </div>
         </div>
       </div>
-
-
 
     </main>
   </div>
@@ -672,15 +684,15 @@
     <div class="modal-card">
       <div class="modal-header">
         <div class="modal-title">
-          <span>📜 Журнал событий питания</span>
-          <span class="modal-badge" id="modalEventsCount">0 событий</span>
+          <span data-i18n="modal_log_title">📜 Power Event Log</span>
+          <span class="modal-badge" id="modalEventsCount">0 events</span>
         </div>
-        <button class="btn-icon modal-close" id="closeEventsModalBtn" title="Закрыть (Esc)">&times;</button>
+        <button class="btn-icon modal-close" id="closeEventsModalBtn" title="Close (Esc)">&times;</button>
       </div>
 
       <div class="modal-controls">
-        <input type="text" id="modalEventsSearch" class="modal-search" placeholder="🔍 Поиск по дате или режиму (напр. AVR, Батарея)...">
-        <a href="/api/download_csv" download class="btn-icon" style="text-decoration:none;font-size:0.8rem;padding:0.45rem 0.8rem;" title="Скачать CSV файл">
+        <input type="text" id="modalEventsSearch" class="modal-search" data-i18n-ph="search_placeholder" placeholder="🔍 Search by date or mode (AVR, Battery)...">
+        <a href="/api/download_csv" download class="btn-icon" style="text-decoration:none;font-size:0.8rem;padding:0.45rem 0.8rem;" title="Download CSV">
           📥 CSV
         </a>
       </div>
@@ -689,17 +701,17 @@
         <table class="events-table modal-events-table">
           <thead>
             <tr>
-              <th>Время / Дата</th>
-              <th>Режим работы</th>
-              <th>Вход V</th>
-              <th>Выход V</th>
-              <th>Нагрузка</th>
-              <th>АКБ V</th>
+              <th data-i18n="tbl_time_date">Time / Date</th>
+              <th data-i18n="tbl_mode">Mode</th>
+              <th data-i18n="tbl_in_v">Input V</th>
+              <th data-i18n="tbl_out_v">Output V</th>
+              <th data-i18n="tbl_load">Load</th>
+              <th data-i18n="tbl_batt_v">Batt V</th>
             </tr>
           </thead>
           <tbody id="modalEventsTbody">
             <tr>
-              <td colspan="6" style="text-align:center;color:var(--text-muted);padding:2rem;">Загрузка событий...</td>
+              <td colspan="6" style="text-align:center;color:var(--text-muted);padding:2rem;" data-i18n="tbl_loading">Loading events...</td>
             </tr>
           </tbody>
         </table>
@@ -707,6 +719,7 @@
     </div>
   </div>
 
+  <script src="/static/translations.js"></script>
   <script src="/static/app.js"></script>
 </body>
 </html>
