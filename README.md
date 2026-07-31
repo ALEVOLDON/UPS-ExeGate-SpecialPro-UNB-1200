@@ -14,11 +14,11 @@
 A modern web and desktop monitoring application for **ExeGate SpecialPro UNB-1200** (and compatible RichComm / Megatec `F` protocol devices over USB HID) featuring **graceful Windows auto-shutdown**, **system tray icon**, **dual-language UI (English & Russian)**, and **real-time power telemetry**.
 
 <p align="center">
-  <img src="assets/dashboard_preview.jpg" alt="Dashboard Preview" width="100%" style="border-radius: 12px;" />
+  <img src="assets/dashboard_preview_en.jpg" alt="Dashboard Preview (English)" width="100%" style="border-radius: 12px;" />
 </p>
 
 <p align="center">
-  <img src="assets/modal_preview.jpg" alt="Event Log Modal Window" width="100%" style="border-radius: 12px;" />
+  <img src="assets/modal_preview_en.jpg" alt="Event Log Modal Window (English)" width="100%" style="border-radius: 12px;" />
 </p>
 
 ---
