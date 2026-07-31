@@ -12,6 +12,7 @@ from app.config import (
 )
 from app.protocol import parse_f_response, estimate_battery_pct
 from app.notifications import send_notification
+from app.sound_manager import play_sound
 from app.shutdown_manager import ShutdownManager
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
@@ -52,8 +53,10 @@ class UPSDriver:
             "is_avr_boost": False,
             "is_avr_trim": False,
             "mode_code": "DISCONNECTED",
-            "mode_title": "Подключение...",
-            "mode_desc": "Ожидание связи с ИБП по USB",
+            "mode_title": "Connecting...",
+            "mode_title_ru": "Подключение...",
+            "mode_desc": "Waiting for USB UPS connection",
+            "mode_desc_ru": "Ожидание связи с ИБП по USB",
             "status_color": "#9ca3af"
         }
 
@@ -177,10 +180,15 @@ class UPSDriver:
                             
                             # Native Toast Notification on mode changes
                             if self.shutdown_manager.settings.get("toast_notif_enabled"):
-                                send_notification(
-                                    f"ИБП: {data['mode_title']}",
-                                    f"Входное напряжение: {data['in_v']}V -> Выходное: {data['out_v']}V (АКБ: {data['batt_pct']}%)"
+                                lang = self.shutdown_manager.settings.get("language", "en")
+                                title_mode = data.get("mode_title") if lang == "en" else data.get("mode_title_ru", data.get("mode_title"))
+                                notif_title = f"UPS: {title_mode}"
+                                notif_body = (
+                                    f"Input: {data['in_v']}V -> Output: {data['out_v']}V (Batt: {data['batt_pct']}%)"
+                                    if lang == "en"
+                                    else f"Входное напряжение: {data['in_v']}V -> Выходное: {data['out_v']}V (АКБ: {data['batt_pct']}%)"
                                 )
+                                send_notification(notif_title, notif_body)
                         self.last_mode_code = mode_code
 
                 else:
@@ -190,8 +198,10 @@ class UPSDriver:
                         "time_short": time_short,
                         "seq": seq,
                         "mode_code": "DISCONNECTED",
-                        "mode_title": "Восстановление связи...",
-                        "mode_desc": err or "Переподключение к USB ИБП...",
+                        "mode_title": "Reconnecting...",
+                        "mode_title_ru": "Восстановление связи...",
+                        "mode_desc": err or "Reconnecting to USB UPS...",
+                        "mode_desc_ru": err or "Переподключение к USB ИБП...",
                         "status_color": "#ef4444"
                     })
 

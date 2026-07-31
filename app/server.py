@@ -7,6 +7,7 @@ from fastapi.responses import HTMLResponse, FileResponse, Response
 from contextlib import asynccontextmanager
 from starlette.middleware.base import BaseHTTPMiddleware
 
+from app.sound_manager import play_sound
 from app.ups_driver import UPSDriver
 
 ups_driver = UPSDriver()
@@ -23,6 +24,17 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="ExeGate UPS SpecialPro UNB-1200 Dashboard", lifespan=lifespan)
+
+
+@app.post("/api/play_sound")
+async def api_play_sound(request: Request):
+    try:
+        data = await request.json()
+        sound_type = data.get("type", "test")
+    except Exception:
+        sound_type = "test"
+    play_sound(sound_type)
+    return {"ok": True, "type": sound_type}
 
 static_dir = os.path.join(os.path.dirname(__file__), "static")
 os.makedirs(static_dir, exist_ok=True)
@@ -100,14 +112,20 @@ async def update_settings(request: Request):
 
 @app.post("/api/cancel_shutdown")
 async def cancel_shutdown():
-    ok = ups_driver.shutdown_manager.cancel_shutdown(reason="Отмена из веб-интерфейса")
-    return {"ok": ok, "message": "Автовыключение отменено"}
+    lang = ups_driver.shutdown_manager.settings.get("language", "en")
+    reason = "Canceled from web dashboard" if lang == "en" else "Отмена из веб-интерфейса"
+    msg = "Auto shutdown canceled" if lang == "en" else "Автовыключение отменено"
+    ok = ups_driver.shutdown_manager.cancel_shutdown(reason=reason)
+    return {"ok": ok, "message": msg}
 
 
 @app.post("/api/trigger_shutdown")
 async def trigger_shutdown():
-    ok = ups_driver.shutdown_manager.trigger_shutdown(reason="Тестовая проверка из настроек")
-    return {"ok": ok, "message": "Запущено тестовое выключение (60 сек)"}
+    lang = ups_driver.shutdown_manager.settings.get("language", "en")
+    reason = "Test shutdown from settings" if lang == "en" else "Тестовая проверка из настроек"
+    msg = "Test shutdown started (60 sec)" if lang == "en" else "Запущено тестовое выключение (60 сек)"
+    ok = ups_driver.shutdown_manager.trigger_shutdown(reason=reason)
+    return {"ok": ok, "message": msg}
 
 
 

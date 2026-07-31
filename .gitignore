@@ -41,4 +41,5 @@ env/
 # Project logs and runtime output
 ups_power_events.csv
 unplug_test_log.txt
+app_settings.json
 *.log

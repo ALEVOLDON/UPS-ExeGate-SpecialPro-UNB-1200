@@ -11,7 +11,7 @@ def port_in_use(host: str = DEFAULT_HOST, port: int = DEFAULT_PORT) -> bool:
 
 def port_busy_message(host: str = DEFAULT_HOST, port: int = DEFAULT_PORT) -> str:
     return (
-        f"Порт {port} уже занят (http://{host}:{port}).\n\n"
-        "Закройте другую копию UPS Monitor (desktop_app / main.py / ярлык) "
-        "и запустите снова."
+        f"Port {port} is already in use (http://{host}:{port}).\n"
+        "Please close other instances of UPS Monitor (desktop_app / main.py) and try again.\n"
+        f"(Порт {port} уже занят. Закройте другую копию приложения)."
     )
