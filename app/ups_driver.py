@@ -218,13 +218,15 @@ class UPSDriver:
                 return None, "USB ИБП не найден (0665:5161)"
 
         try:
-            # Drain old packets
-            for _ in range(16):
+            # Полностью вычитываем все старые пакеты из буфера Windows (чтобы не было "лагов" и зависаний данных)
+            for _ in range(1024):
                 if not self.dev.read(64):
                     break
 
-            cmd = b'F\r'.ljust(8, b'\x00')
-            self.dev.write(b'\x00' + cmd)
+            # Send exactly 65 bytes padded with spaces to bypass hidapi's zero-padding
+            # This prevents the Cypress chip UART from crashing on the 0x00 bytes
+            cmd = b'\x00' + b'F\r'.ljust(64, b' ')
+            self.dev.write(cmd)
         except Exception as e:
             logging.warning(f"USB Write error (reconnecting): {e}")
             self._connect_usb()
@@ -246,7 +248,7 @@ class UPSDriver:
                 self._connect_usb()
                 break
             time.sleep(0.02)
-
+            
         if not full_res:
             self._connect_usb()
             return None, "Нет ответа на команду F"
