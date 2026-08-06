@@ -539,19 +539,27 @@ header {
 @media (max-width: 1100px) { .gauges-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 560px) { .gauges-grid { grid-template-columns: 1fr; } }
 
-.gauge-card { background: var(--panel-bg); backdrop-filter: blur(14px); border: 1px solid var(--panel-border); border-radius: 20px; padding: 1.1rem 1rem 1rem; display: flex; flex-direction: column; align-items: center; transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s; }
+.gauge-card { background: var(--panel-bg); backdrop-filter: blur(14px); border: 1px solid var(--panel-border); border-radius: 20px; padding: 1.1rem 1rem 1rem; display: flex; flex-direction: column; align-items: center; transition: border-color 0.4s ease, box-shadow 0.4s ease, transform 0.3s ease; }
 .gauge-card:hover { transform: translateY(-2px); border-color: rgba(255, 255, 255, 0.14); }
 
 .gauge-wrap { position: relative; width: 150px; height: 150px; margin-bottom: 0.65rem; }
 .gauge-svg { width: 100%; height: 100%; transform: rotate(-90deg); }
 .gauge-track { fill: none; stroke: rgba(255, 255, 255, 0.09); stroke-width: 10; stroke-dasharray: 11.59 6; }
-.gauge-arc { fill: none; stroke-width: 10; stroke-dasharray: 11.59 6; stroke-linecap: butt; filter: drop-shadow(0 0 6px rgba(59, 130, 246, 0.35)); }
+.gauge-arc { fill: none; stroke-width: 10; stroke-dasharray: 11.59 6; stroke-linecap: butt; filter: drop-shadow(0 0 6px rgba(59, 130, 246, 0.35)); transition: stroke-dashoffset 0.8s cubic-bezier(0.34, 1.15, 0.64, 1), stroke 0.4s ease, filter 0.4s ease; will-change: stroke-dashoffset; }
 #arcOut { filter: drop-shadow(0 0 6px rgba(16, 185, 129, 0.35)); }
 #arcBatt { filter: drop-shadow(0 0 6px rgba(16, 185, 129, 0.35)); }
 #arcLoad { filter: drop-shadow(0 0 6px rgba(99, 102, 241, 0.35)); }
 
+#arcInMask,
+#arcOutMask,
+#arcBattMask,
+#arcLoadMask {
+  transition: stroke-dashoffset 0.8s cubic-bezier(0.34, 1.15, 0.64, 1);
+  will-change: stroke-dashoffset;
+}
+
 .gauge-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
-.gauge-value { font-size: 1.85rem; font-weight: 800; letter-spacing: -0.03em; line-height: 1; font-variant-numeric: tabular-nums; }
+.gauge-value { font-size: 1.85rem; font-weight: 800; letter-spacing: -0.03em; line-height: 1; font-variant-numeric: tabular-nums; transition: color 0.4s ease, opacity 0.4s ease; }
 .gauge-unit { font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-top: 0.2rem; }
 .gauge-meta { width: 100%; text-align: center; }
 .gauge-title { font-size: 0.88rem; font-weight: 700; margin-bottom: 0.2rem; }

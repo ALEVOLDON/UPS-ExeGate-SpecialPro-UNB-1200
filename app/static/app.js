@@ -409,6 +409,73 @@ function renderModalEvents() {
   }
 }
 
+const animGaugeStates = {};
+
+function animateGaugeNumber(id, targetVal, decimals = 1, showDashIfDisconnected = false, isConnected = true, prefix = '', suffix = '') {
+  const el = document.getElementById(id);
+  if (!el) return;
+
+  if (!animGaugeStates[id]) {
+    animGaugeStates[id] = { current: null, animId: null, target: null };
+  }
+  const state = animGaugeStates[id];
+
+  const isValidNumber = targetVal !== null && targetVal !== undefined && !isNaN(targetVal);
+  const numTarget = (isConnected && isValidNumber) ? parseFloat(targetVal) : 0.0;
+
+  // Determine starting value for animation
+  let startVal = state.current;
+  if (startVal === null || startVal === undefined || isNaN(startVal)) {
+    const rawText = el.textContent ? el.textContent.replace(/[^0-9.-]/g, '') : '';
+    const parsedVal = parseFloat(rawText);
+    startVal = isNaN(parsedVal) ? 0.0 : parsedVal;
+  }
+
+  // If already at target
+  if (Math.abs(startVal - numTarget) < 0.001 && state.target === numTarget) {
+    if (!isConnected && showDashIfDisconnected && numTarget === 0) {
+      el.textContent = prefix + '--' + suffix;
+    } else {
+      el.textContent = prefix + numTarget.toFixed(decimals) + suffix;
+    }
+    state.current = numTarget;
+    return;
+  }
+
+  state.target = numTarget;
+  if (state.animId) {
+    cancelAnimationFrame(state.animId);
+    state.animId = null;
+  }
+
+  const startTime = performance.now();
+  const duration = 800; // 0.8s matching CSS strokeDashoffset transition
+
+  function step(now) {
+    const elapsed = now - startTime;
+    const progress = Math.min(1, elapsed / duration);
+    const ease = 1 - Math.pow(1 - progress, 3);
+    const curVal = startVal + (numTarget - startVal) * ease;
+
+    state.current = curVal;
+    el.textContent = prefix + curVal.toFixed(decimals) + suffix;
+
+    if (progress < 1) {
+      state.animId = requestAnimationFrame(step);
+    } else {
+      state.current = numTarget;
+      state.animId = null;
+      if (!isConnected && showDashIfDisconnected && numTarget === 0) {
+        el.textContent = prefix + '--' + suffix;
+      } else {
+        el.textContent = prefix + numTarget.toFixed(decimals) + suffix;
+      }
+    }
+  }
+
+  state.animId = requestAnimationFrame(step);
+}
+
 function updateUI(snapshot) {
   if (!snapshot || !snapshot.status) return;
   latestSnapshot = snapshot;
@@ -478,38 +545,40 @@ function updateUI(snapshot) {
     lastModeCode = status.mode_code;
   }
 
-  // Gauges / Cards values
-  setText('valInV', status.in_v ? status.in_v.toFixed(1) : '--');
-  setText('valOutV', status.out_v ? status.out_v.toFixed(1) : '--');
-  setText('valBattPct', status.batt_pct !== undefined ? status.batt_pct : '--');
-  setText('valLoadPct', status.load_pct !== undefined ? status.load_pct : '--');
-  setText('valBattV', `${t('mini_batt_v')}: ${status.batt_v ? status.batt_v.toFixed(1) : '--'} V`);
-  setText('valLoadWatts', `~${status.load_watts || 0} ${t('unit_w')}`);
-  setText('valFreq', status.connected && status.freq ? `${status.freq.toFixed(1)} ${t('unit_hz')}` : `-- ${t('unit_hz')}`);
+  // Gauges / Cards values with smooth number interpolation
+  animateGaugeNumber('valInV', status.in_v, 1, true, status.connected);
+  animateGaugeNumber('valOutV', status.out_v, 1, true, status.connected);
+  animateGaugeNumber('valBattPct', status.batt_pct, 0, true, status.connected);
+  animateGaugeNumber('valLoadPct', status.load_pct, 0, true, status.connected);
+  animateGaugeNumber('valBattV', status.batt_v, 1, true, status.connected, `${t('mini_batt_v')}: `, ' V');
+  animateGaugeNumber('valLoadWatts', status.load_watts, 0, false, status.connected, '~', ` ${t('unit_w')}`);
+  animateGaugeNumber('valFreq', status.freq, 1, true, status.connected, '', ` ${t('unit_hz')}`);
+  
   setText('statusInV', status.connected ? (status.in_v > 0 ? t('status_grid_ok') : t('status_grid_no')) : '—');
   setText('statusOutV', status.connected ? (status.is_battery ? t('status_batt_mode') : t('status_normal')) : '—');
 
-  const diff = status.out_v - status.in_v;
-  setText('valAvrDiff', `AVR: ${diff >= 0 ? '+' : ''}${diff.toFixed(1)}V`);
+  const diff = (status.connected && status.out_v !== undefined && status.in_v !== undefined) ? (status.out_v - status.in_v) : 0;
+  const avrSign = diff > 0 ? '+' : '';
+  animateGaugeNumber('valAvrDiff', diff, 1, true, status.connected, `AVR: ${avrSign}`, 'V');
 
   // Power flow diagram
   setText('flowModeLabel', modeTitleText || '—');
-  setText('flowInV', status.connected ? `${status.in_v.toFixed(1)} ${t('unit_v')}` : `-- ${t('unit_v')}`);
-  setText('flowOutV', status.connected ? `${status.out_v.toFixed(1)} ${t('unit_v')}` : `-- ${t('unit_v')}`);
-  setText('flowLoad', status.connected ? `${status.load_pct} %` : '-- %');
-  setText('flowWatts', status.connected ? `${status.load_watts} ${t('unit_w')}` : `-- ${t('unit_w')}`);
-  setText('flowBatt', status.connected ? `${status.batt_pct} %` : '-- %');
-  setText('flowBattV', status.connected ? `${status.batt_v.toFixed(1)} V` : '-- V');
-  setText('flowFreq', status.connected ? `${status.freq.toFixed(1)} ${t('unit_hz')}` : `-- ${t('unit_hz')}`);
-  setText('flowAvr', `AVR ${diff >= 0 ? '+' : ''}${diff.toFixed(1)} V`);
+  animateGaugeNumber('flowInV', status.in_v, 1, true, status.connected, '', ` ${t('unit_v')}`);
+  animateGaugeNumber('flowOutV', status.out_v, 1, true, status.connected, '', ` ${t('unit_v')}`);
+  animateGaugeNumber('flowLoad', status.load_pct, 0, true, status.connected, '', ' %');
+  animateGaugeNumber('flowWatts', status.load_watts, 0, true, status.connected, '', ` ${t('unit_w')}`);
+  animateGaugeNumber('flowBatt', status.batt_pct, 0, true, status.connected, '', ' %');
+  animateGaugeNumber('flowBattV', status.batt_v, 1, true, status.connected, '', ' V');
+  animateGaugeNumber('flowFreq', status.freq, 1, true, status.connected, '', ` ${t('unit_hz')}`);
+  animateGaugeNumber('flowAvr', diff, 1, true, status.connected, `AVR ${avrSign}`, ' V');
   updatePowerFlow(status);
   updateOutletsUI(status);
 
   // Mini stats row
-  setText('miniFreq', status.connected && status.freq !== undefined ? `${status.freq.toFixed(1)} ${t('unit_hz')}` : `-- ${t('unit_hz')}`);
-  setText('miniTemp', status.connected && status.temp !== undefined ? `${status.temp.toFixed(1)} °C` : '-- °C');
-  setText('miniWatts', status.connected && status.load_watts !== undefined ? `${status.load_watts} ${t('unit_w')}` : `-- ${t('unit_w')}`);
-  setText('miniBattV', status.connected && status.batt_v !== undefined ? `${status.batt_v.toFixed(1)} V` : '-- V');
+  animateGaugeNumber('miniFreq', status.freq, 1, true, status.connected, '', ` ${t('unit_hz')}`);
+  animateGaugeNumber('miniTemp', status.temp, 1, true, status.connected, '', ' °C');
+  animateGaugeNumber('miniWatts', status.load_watts, 0, true, status.connected, '', ` ${t('unit_w')}`);
+  animateGaugeNumber('miniBattV', status.batt_v, 1, true, status.connected, '', ' V');
   setText('miniBits', status.connected && status.status_bits ? status.status_bits : '--------');
 
   // Freeze badge status
@@ -534,8 +603,8 @@ function updateUI(snapshot) {
     }
   };
 
-  const inRatio = status.connected ? Math.max(0, Math.min(1, (status.in_v - 140) / 130)) : 0;
-  const outRatio = status.connected ? Math.max(0, Math.min(1, (status.out_v - 140) / 130)) : 0;
+  const inRatio = (status.connected && status.in_v > 0) ? Math.max(0, Math.min(1, (status.in_v - 140) / 130)) : 0;
+  const outRatio = (status.connected && status.out_v > 0) ? Math.max(0, Math.min(1, (status.out_v - 140) / 130)) : 0;
   setArc('arcIn', inRatio);
   setArc('arcOut', outRatio);
   setArc('arcBatt', status.connected ? status.batt_pct / 100 : 0);
