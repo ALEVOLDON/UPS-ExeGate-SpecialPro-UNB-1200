@@ -25,6 +25,9 @@ A modern web and desktop monitoring application for **ExeGate SpecialPro UNB-120
 
 ## ✨ Features
 
+- 💡 **Energy Consumption & Electricity Cost Calculator**: Real-time total grid power calculation ($P_{\text{load}} + P_{\text{self\_consumption}}$), cost rate estimator per hour, per 24h, and projected monthly cost with customizable electricity tariff (руб/kWh).
+- 🔋 **Session kWh & Cost Tracker**: Millisecond-accurate accumulated energy consumption tracker (kWh) and total cost with 1-click counter reset.
+- 🛡️ **USB Telemetry Resilience & Grace Period**: 4-second telemetry hold buffer (`FROZEN` badge) preventing metrics dropouts during temporary USB HID Cypress UART polling delays.
 - 🌐 **Dual-Language Support (EN / RU)**: Full internationalization with real-time language switching button and persistent language settings.
 - ⚡ **Real-Time Telemetry**: Live monitoring of Input/Output voltage, grid frequency, internal temperature, load percentage (%), and power consumption (Watts).
 - 🛑 **Graceful Windows Auto-Shutdown**: Automatic safe PC shutdown (`shutdown.exe`) when battery drops below threshold, with countdown timer and 1-click cancel button.
