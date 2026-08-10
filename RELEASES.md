@@ -7,7 +7,7 @@ This document contains formatted release notes in **English** for GitHub Release
 ## ⚡ Release v1.3.0 — Energy Consumption & Electricity Cost Calculator
 
 ### 💡 Energy Metering & Real-Time Cost Estimator
-- **Grid Power Calculation**: Calculates total power draw from the wall outlet ($P_{\text{total}} = P_{\text{connected\_devices}} + P_{\text{ups\_internal}}$) combining active device load and UPS self-consumption.
+- **Grid Power Calculation**: Calculates total power draw from the wall outlet (P_total = P_connected_devices + P_ups_internal) combining active device load and UPS self-consumption.
 - **Real-Time Cost Rates**: Real-time calculation of electricity expenses: **Cost per Hour**, **Cost per 24h**, and **Projected Monthly Cost** based on custom tariff rates.
 - **Session Energy Tracker**: Millisecond-accurate accumulated energy consumption counter (kWh) and total session cost (руб) with 1-click counter reset.
 - **Flexible Settings Integration**: Added input fields in Settings view for electricity tariff rate (руб/kWh) and UPS internal self-consumption (Watts), automatically persisted in `app_settings.json`.
