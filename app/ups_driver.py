@@ -64,6 +64,25 @@ class UPSDriver:
         self.events = deque(maxlen=MAX_EVENTS)
         self.last_mode_code = None
 
+        self.last_successful_read_time = time.monotonic()
+        self.last_valid_data = None
+
+        self.last_poll_time = time.monotonic()
+        self.accumulated_kwh = float(self.shutdown_manager.settings.get("accumulated_kwh", 0.0))
+        self.last_save_kwh_time = time.monotonic()
+
+        self.energy_status = {
+            "load_watts": 0.0,
+            "self_watts": float(self.shutdown_manager.settings.get("self_consumption_watts", 15)),
+            "total_watts": 0.0,
+            "tariff": float(self.shutdown_manager.settings.get("electricity_tariff", 5.5)),
+            "cost_per_hour": 0.0,
+            "cost_per_day": 0.0,
+            "cost_per_month": 0.0,
+            "accumulated_kwh": self.accumulated_kwh,
+            "accumulated_cost": 0.0,
+        }
+
         self._init_csv()
         self._load_recent_events()
 
@@ -145,8 +164,12 @@ class UPSDriver:
                 seq = self._seq
 
                 if data:
+                    self.last_successful_read_time = time.monotonic()
+                    self.last_valid_data = data
                     self.current_status = {
                         "connected": True,
+                        "telemetry_frozen": False,
+                        "freeze_sec": 0.0,
                         "timestamp": now_str,
                         "time_short": time_short,
                         "seq": seq,
@@ -192,25 +215,84 @@ class UPSDriver:
                         self.last_mode_code = mode_code
 
                 else:
-                    self.current_status.update({
-                        "connected": False,
-                        "timestamp": now_str,
-                        "time_short": time_short,
-                        "seq": seq,
-                        "mode_code": "DISCONNECTED",
-                        "mode_title": "Reconnecting...",
-                        "mode_title_ru": "Восстановление связи...",
-                        "mode_desc": err or "Reconnecting to USB UPS...",
-                        "mode_desc_ru": err or "Переподключение к USB ИБП...",
-                        "status_color": "#ef4444"
-                    })
+                    unresponsive_sec = time.monotonic() - self.last_successful_read_time
+                    if unresponsive_sec <= 4.0 and self.last_valid_data:
+                        # Grace period: keep last valid values visible during brief USB glitches
+                        self.current_status.update({
+                            "connected": True,
+                            "telemetry_frozen": True,
+                            "freeze_sec": round(unresponsive_sec, 1),
+                            "timestamp": now_str,
+                            "time_short": time_short,
+                            "seq": seq
+                        })
+                    else:
+                        self.current_status.update({
+                            "connected": False,
+                            "telemetry_frozen": False,
+                            "freeze_sec": 0.0,
+                            "timestamp": now_str,
+                            "time_short": time_short,
+                            "seq": seq,
+                            "mode_code": "DISCONNECTED",
+                            "mode_title": "Reconnecting...",
+                            "mode_title_ru": "Восстановление связи...",
+                            "mode_desc": err or "Reconnecting to USB UPS...",
+                            "mode_desc_ru": err or "Переподключение к USB ИБП...",
+                            "status_color": "#ef4444"
+                        })
 
                 # Update Shutdown Manager
                 self.shutdown_manager.update_status(self.current_status)
 
+                # Update Energy & Cost calculations
+                now_mono = time.monotonic()
+                dt = now_mono - self.last_poll_time
+                self.last_poll_time = now_mono
+
+                settings = self.shutdown_manager.settings
+                self_watts = float(settings.get("self_consumption_watts", 15))
+                tariff = float(settings.get("electricity_tariff", 5.5))
+
+                connected = self.current_status.get("connected", False)
+                load_watts = float(self.current_status.get("load_watts", 0)) if connected else 0.0
+                total_watts = (load_watts + self_watts) if connected else 0.0
+
+                if connected and 0 < dt < 10.0:
+                    kwh_delta = (total_watts * dt) / 3600000.0
+                    self.accumulated_kwh += kwh_delta
+
+                    if now_mono - self.last_save_kwh_time > 30.0:
+                        self.last_save_kwh_time = now_mono
+                        self.shutdown_manager.save_settings({"accumulated_kwh": round(self.accumulated_kwh, 4)})
+
+                cost_per_hour = (total_watts / 1000.0) * tariff
+                cost_per_day = cost_per_hour * 24.0
+                cost_per_month = cost_per_day * 30.0
+                accumulated_cost = self.accumulated_kwh * tariff
+
+                self.energy_status = {
+                    "load_watts": round(load_watts, 1),
+                    "self_watts": round(self_watts, 1),
+                    "total_watts": round(total_watts, 1),
+                    "tariff": round(tariff, 2),
+                    "cost_per_hour": round(cost_per_hour, 2),
+                    "cost_per_day": round(cost_per_day, 2),
+                    "cost_per_month": round(cost_per_month, 2),
+                    "accumulated_kwh": round(self.accumulated_kwh, 4),
+                    "accumulated_cost": round(accumulated_cost, 2),
+                }
 
             elapsed = time.monotonic() - t0
             time.sleep(max(0.1, POLL_INTERVAL_SEC - elapsed))
+
+    def reset_accumulated_kwh(self):
+        with self.lock:
+            self.accumulated_kwh = 0.0
+            self.shutdown_manager.save_settings({"accumulated_kwh": 0.0})
+            if hasattr(self, "energy_status"):
+                self.energy_status["accumulated_kwh"] = 0.0
+                self.energy_status["accumulated_cost"] = 0.0
 
     def _read_telemetry(self):
         if not self.dev:
@@ -286,6 +368,7 @@ class UPSDriver:
                 "status": dict(self.current_status),
                 "history": list(self.history),
                 "events": list(self.events),
-                "shutdown": self.shutdown_manager.get_status_dict()
+                "shutdown": self.shutdown_manager.get_status_dict(),
+                "energy": dict(getattr(self, "energy_status", {}))
             }
 

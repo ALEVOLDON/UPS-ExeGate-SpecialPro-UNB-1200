@@ -141,6 +141,26 @@ const TRANSLATIONS = {
     btn_disabled: "Disabled",
     sec_unit: "sec",
 
+    // Energy & Cost Calculator
+    card_energy_title: "Energy & Electricity Costs",
+    card_energy_sub: "Real-Time Power & Cost Estimator",
+    energy_total_grid: "Total Grid Draw",
+    energy_load_power: "Connected Devices",
+    energy_self_power: "UPS Internal Draw",
+    energy_cost_hour: "Cost / Hour",
+    energy_cost_day: "Cost / 24h",
+    energy_cost_month: "Est. / Month",
+    energy_session_kwh: "Total Consumed",
+    energy_session_cost: "Total Cost",
+    btn_reset_energy: "Reset Counter",
+    set_tariff_title: "Electricity Tariff (RUB / kWh)",
+    set_tariff_desc: "Price per 1 kWh used for cost calculations",
+    set_self_watts_title: "UPS Internal Draw (Watts)",
+    set_self_watts_desc: "Power consumed by UPS control board & charging circuit",
+    currency_rub: "₽",
+    unit_kwh: "kWh",
+    rub_per_kwh: "₽/kWh",
+
     // Modal
     modal_log_title: "📜 Power Event Log",
     events_count_fmt: "{filtered} of {total} events",
@@ -301,6 +321,26 @@ const TRANSLATIONS = {
     btn_enabled: "Включено",
     btn_disabled: "Выключено",
     sec_unit: "сек",
+
+    // Energy & Cost Calculator
+    card_energy_title: "Энергопотребление и расходы",
+    card_energy_sub: "Расчет мощности сети и стоимости электроэнергии",
+    energy_total_grid: "Мощность из сети",
+    energy_load_power: "Нагрузка приборов",
+    energy_self_power: "Собственное потребление ИБП",
+    energy_cost_hour: "Стоимость / час",
+    energy_cost_day: "Стоимость / сутки",
+    energy_cost_month: "Прогноз / месяц",
+    energy_session_kwh: "Израсходовано энергии",
+    energy_session_cost: "Суммарная стоимость",
+    btn_reset_energy: "Сбросить счетчик",
+    set_tariff_title: "Тариф на электроэнергию (руб / кВт⋅ч)",
+    set_tariff_desc: "Цена за 1 кВт⋅ч для калькулятора расходов",
+    set_self_watts_title: "Собственное потребление ИБП (Вт)",
+    set_self_watts_desc: "Мощность платы управления ИБП и схемы зарядки АКБ",
+    currency_rub: "руб",
+    unit_kwh: "кВт⋅ч",
+    rub_per_kwh: "руб/кВт⋅ч",
 
     // Modal
     modal_log_title: "📜 Журнал событий питания",

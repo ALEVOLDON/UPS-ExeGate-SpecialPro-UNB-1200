@@ -423,23 +423,27 @@ function animateGaugeNumber(id, targetVal, decimals = 1, showDashIfDisconnected 
   const isValidNumber = targetVal !== null && targetVal !== undefined && !isNaN(targetVal);
   const numTarget = (isConnected && isValidNumber) ? parseFloat(targetVal) : 0.0;
 
+  const targetText = (!isConnected && showDashIfDisconnected && numTarget === 0)
+    ? (prefix + '--' + suffix)
+    : (prefix + numTarget.toFixed(decimals) + suffix);
+
+  // If sub-precision change (e.g., tiny energy accumulation), update cleanly without re-animating
+  const stepThreshold = Math.pow(10, -decimals) * 0.5;
+  if (state.target !== null && Math.abs(state.target - numTarget) < stepThreshold) {
+    state.target = numTarget;
+    state.current = numTarget;
+    if (el.textContent !== targetText) {
+      el.textContent = targetText;
+    }
+    return;
+  }
+
   // Determine starting value for animation
   let startVal = state.current;
   if (startVal === null || startVal === undefined || isNaN(startVal)) {
     const rawText = el.textContent ? el.textContent.replace(/[^0-9.-]/g, '') : '';
     const parsedVal = parseFloat(rawText);
     startVal = isNaN(parsedVal) ? 0.0 : parsedVal;
-  }
-
-  // If already at target
-  if (Math.abs(startVal - numTarget) < 0.001 && state.target === numTarget) {
-    if (!isConnected && showDashIfDisconnected && numTarget === 0) {
-      el.textContent = prefix + '--' + suffix;
-    } else {
-      el.textContent = prefix + numTarget.toFixed(decimals) + suffix;
-    }
-    state.current = numTarget;
-    return;
   }
 
   state.target = numTarget;
@@ -449,7 +453,7 @@ function animateGaugeNumber(id, targetVal, decimals = 1, showDashIfDisconnected 
   }
 
   const startTime = performance.now();
-  const duration = 800; // 0.8s matching CSS strokeDashoffset transition
+  const duration = 600;
 
   function step(now) {
     const elapsed = now - startTime;
@@ -465,11 +469,7 @@ function animateGaugeNumber(id, targetVal, decimals = 1, showDashIfDisconnected 
     } else {
       state.current = numTarget;
       state.animId = null;
-      if (!isConnected && showDashIfDisconnected && numTarget === 0) {
-        el.textContent = prefix + '--' + suffix;
-      } else {
-        el.textContent = prefix + numTarget.toFixed(decimals) + suffix;
-      }
+      el.textContent = targetText;
     }
   }
 
@@ -635,11 +635,32 @@ function updateUI(snapshot) {
     renderEventsTable(events);
   }
 
+  // Energy & Cost Section
+  if (snapshot.energy) {
+    updateEnergyUI(snapshot.energy);
+  }
+
   // Graceful Shutdown Banner Update
   if (snapshot.shutdown) {
     updateShutdownBanner(snapshot.shutdown);
     syncSettingsUI(snapshot.shutdown.settings);
   }
+}
+
+function updateEnergyUI(energy) {
+  if (!energy) return;
+  const rubSymbol = t('currency_rub');
+
+  animateGaugeNumber('energyTotalWatts', energy.total_watts || 0, 0, false, true);
+  animateGaugeNumber('energyLoadWatts', energy.load_watts || 0, 0, false, true, '', ' W');
+  animateGaugeNumber('energySelfWatts', energy.self_watts || 0, 0, false, true, '', ' W');
+
+  animateGaugeNumber('costHour', energy.cost_per_hour || 0, 2, false, true, '', ` ${rubSymbol}`);
+  animateGaugeNumber('costDay', energy.cost_per_day || 0, 2, false, true, '', ` ${rubSymbol}`);
+  animateGaugeNumber('costMonth', energy.cost_per_month || 0, 1, false, true, '', ` ${rubSymbol}`);
+
+  animateGaugeNumber('sessionKwh', energy.accumulated_kwh || 0, 3, false, true);
+  animateGaugeNumber('sessionCost', energy.accumulated_cost || 0, 2, false, true, '', ` ${rubSymbol}`);
 }
 
 function updateShutdownBanner(shutdownData) {
@@ -698,6 +719,16 @@ function syncSettingsUI(settings) {
   if (settings.sound_enabled !== undefined && settings.sound_enabled !== soundEnabled) {
     soundEnabled = !!settings.sound_enabled;
     updateSoundButtons(soundEnabled);
+  }
+
+  const tariffInput = document.getElementById('settingsTariffInput');
+  if (tariffInput && document.activeElement !== tariffInput && settings.electricity_tariff !== undefined) {
+    tariffInput.value = settings.electricity_tariff;
+  }
+
+  const selfWattsInput = document.getElementById('settingsSelfWattsInput');
+  if (selfWattsInput && document.activeElement !== selfWattsInput && settings.self_consumption_watts !== undefined) {
+    selfWattsInput.value = settings.self_consumption_watts;
   }
 }
 
@@ -1026,6 +1057,43 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (err) {
           console.error("Error triggering test shutdown:", err);
         }
+      }
+    });
+  }
+
+  // Energy & Cost handlers
+  const btnResetEnergy = document.getElementById('btnResetEnergy');
+  if (btnResetEnergy) {
+    btnResetEnergy.addEventListener('click', async () => {
+      const confirmMsg = getLanguage() === 'ru'
+        ? "Сбросить накопительный счетчик израсходованной энергии кВт⋅ч?"
+        : "Reset accumulated kWh energy counter?";
+      if (confirm(confirmMsg)) {
+        try {
+          await fetch('/api/reset_energy', { method: 'POST' });
+        } catch (err) {
+          console.error("Error resetting energy counter:", err);
+        }
+      }
+    });
+  }
+
+  const tariffInput = document.getElementById('settingsTariffInput');
+  if (tariffInput) {
+    tariffInput.addEventListener('change', () => {
+      const val = parseFloat(tariffInput.value);
+      if (!isNaN(val) && val >= 0) {
+        saveSettingPatch({ electricity_tariff: val });
+      }
+    });
+  }
+
+  const selfWattsInput = document.getElementById('settingsSelfWattsInput');
+  if (selfWattsInput) {
+    selfWattsInput.addEventListener('change', () => {
+      const val = parseFloat(selfWattsInput.value);
+      if (!isNaN(val) && val >= 0) {
+        saveSettingPatch({ self_consumption_watts: val });
       }
     });
   }

@@ -16,7 +16,10 @@ DEFAULT_SETTINGS = {
     "shutdown_delay_sec": 60,
     "toast_notif_enabled": True,
     "sound_enabled": True,
-    "language": "en"
+    "language": "en",
+    "electricity_tariff": 5.5,
+    "self_consumption_watts": 15,
+    "accumulated_kwh": 0.0
 }
 
 

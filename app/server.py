@@ -128,6 +128,12 @@ async def trigger_shutdown():
     return {"ok": ok, "message": msg}
 
 
+@app.post("/api/reset_energy")
+async def reset_energy():
+    ups_driver.reset_accumulated_kwh()
+    return {"ok": True}
+
+
 
 
 @app.websocket("/ws")
