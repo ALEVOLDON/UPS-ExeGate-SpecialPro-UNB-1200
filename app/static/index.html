@@ -728,9 +728,9 @@
                   <div class="settings-desc" data-i18n="set_tariff_desc">Price per 1 kWh used for cost calculations</div>
                 </div>
               </div>
-              <div style="display:flex;align-items:center;gap:0.5rem;">
-                <input type="number" id="settingsTariffInput" class="settings-input settings-ctrl" step="0.1" min="0" max="100" value="5.5" style="width:90px;padding:0.4rem 0.6rem;background:var(--bg-card);border:1px solid var(--border-color);border-radius:6px;color:var(--text-main);font-family:monospace;font-weight:600;">
-                <span style="font-size:0.85rem;color:var(--text-muted);" data-i18n="rub_per_kwh">руб/кВт⋅ч</span>
+              <div style="display:flex;align-items:center;gap:0.55rem;">
+                <input type="number" id="settingsTariffInput" class="settings-input settings-ctrl" step="any" min="0" max="1000" value="5.5">
+                <span style="font-size:0.85rem;color:var(--text-muted);font-weight:600;" data-i18n="rub_per_kwh">руб/кВт⋅ч</span>
               </div>
             </div>
 
@@ -743,9 +743,9 @@
                   <div class="settings-desc" data-i18n="set_self_watts_desc">Power consumed by UPS control board & charging circuit</div>
                 </div>
               </div>
-              <div style="display:flex;align-items:center;gap:0.5rem;">
-                <input type="number" id="settingsSelfWattsInput" class="settings-input settings-ctrl" step="1" min="0" max="150" value="15" style="width:90px;padding:0.4rem 0.6rem;background:var(--bg-card);border:1px solid var(--border-color);border-radius:6px;color:var(--text-main);font-family:monospace;font-weight:600;">
-                <span style="font-size:0.85rem;color:var(--text-muted);" data-i18n="unit_w">W</span>
+              <div style="display:flex;align-items:center;gap:0.55rem;">
+                <input type="number" id="settingsSelfWattsInput" class="settings-input settings-ctrl" step="any" min="0" max="500" value="15">
+                <span style="font-size:0.85rem;color:var(--text-muted);font-weight:600;" data-i18n="unit_w">W</span>
               </div>
             </div>
 

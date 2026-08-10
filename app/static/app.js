@@ -94,6 +94,7 @@ function initLanguage() {
 
 function applyLanguage(lang) {
   setLanguage(lang);
+  document.documentElement.lang = lang;
 
   // 1. Update text of elements with data-i18n
   document.querySelectorAll('[data-i18n]').forEach(el => {
