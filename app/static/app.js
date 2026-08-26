@@ -2,6 +2,11 @@ let soundEnabled = true;
 let notifEnabled = true;
 let chartDashboard = null;
 let chartAnalytics = null;
+let chartIncidentsDaily = null;
+let chartModesRatio = null;
+let chartHourlyDisturbances = null;
+let currentAnalyticsPeriod = '7d';
+let latestAnalyticsData = null;
 let lastModeCode = null;
 let allEvents = [];
 let latestSnapshot = null;
@@ -144,6 +149,22 @@ function applyLanguage(lang) {
     chartAnalytics.data.datasets[1].label = `${t('chart_out_v')}`;
     chartAnalytics.update('none');
   }
+  if (chartIncidentsDaily && chartIncidentsDaily.data.datasets.length >= 2) {
+    chartIncidentsDaily.data.datasets[0].label = t('chart_legend_blackout');
+    chartIncidentsDaily.data.datasets[1].label = t('chart_legend_avr');
+    chartIncidentsDaily.update('none');
+  }
+  if (chartModesRatio) {
+    chartModesRatio.data.labels = [t('chart_legend_blackout'), t('chart_legend_avr'), t('chart_legend_online')];
+    chartModesRatio.update('none');
+  }
+  if (chartHourlyDisturbances && chartHourlyDisturbances.data.datasets.length >= 1) {
+    chartHourlyDisturbances.data.datasets[0].label = t('chart_disturbances_lbl');
+    chartHourlyDisturbances.update('none');
+  }
+  if (latestAnalyticsData) {
+    renderAnalytics(latestAnalyticsData);
+  }
 
   // 7. Update button states & latest telemetry UI
   updateSoundButtons(soundEnabled);
@@ -272,6 +293,224 @@ function initCharts() {
   if (canvas2) {
     chartAnalytics = new Chart(canvas2.getContext('2d'), createChartConfig());
   }
+  initAnalyticsCharts();
+}
+
+function initAnalyticsCharts() {
+  if (typeof Chart === 'undefined') return;
+
+  const canvasDaily = document.getElementById('chartIncidentsDaily');
+  if (canvasDaily) {
+    chartIncidentsDaily = new Chart(canvasDaily.getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: [],
+        datasets: [
+          {
+            label: t('chart_legend_blackout'),
+            data: [],
+            backgroundColor: 'rgba(245, 158, 11, 0.85)',
+            borderColor: '#f59e0b',
+            borderWidth: 1,
+            borderRadius: 4,
+            stack: 'combined'
+          },
+          {
+            label: t('chart_legend_avr'),
+            data: [],
+            backgroundColor: 'rgba(59, 130, 246, 0.85)',
+            borderColor: '#3b82f6',
+            borderWidth: 1,
+            borderRadius: 4,
+            stack: 'combined'
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: { duration: 350 },
+        scales: {
+          x: {
+            stacked: true,
+            grid: { color: 'rgba(255,255,255,0.04)' },
+            ticks: { color: '#94a3b8', font: { size: 10 } }
+          },
+          y: {
+            stacked: true,
+            beginAtZero: true,
+            grid: { color: 'rgba(255,255,255,0.04)' },
+            ticks: { color: '#94a3b8', font: { size: 10 }, stepSize: 1 }
+          }
+        },
+        plugins: {
+          legend: {
+            labels: { color: '#e2e8f0', font: { size: 11, family: 'Inter' } }
+          }
+        }
+      }
+    });
+  }
+
+  const canvasModes = document.getElementById('chartModesRatio');
+  if (canvasModes) {
+    chartModesRatio = new Chart(canvasModes.getContext('2d'), {
+      type: 'doughnut',
+      data: {
+        labels: [t('chart_legend_blackout'), t('chart_legend_avr'), t('chart_legend_online')],
+        datasets: [{
+          data: [0, 0, 100],
+          backgroundColor: [
+            'rgba(245, 158, 11, 0.9)',
+            'rgba(59, 130, 246, 0.9)',
+            'rgba(16, 185, 129, 0.9)'
+          ],
+          borderColor: '#0e1524',
+          borderWidth: 3,
+          hoverOffset: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: { duration: 400 },
+        cutout: '70%',
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: { color: '#e2e8f0', font: { size: 11, family: 'Inter' }, padding: 12 }
+          }
+        }
+      }
+    });
+  }
+
+  const canvasHourly = document.getElementById('chartHourlyDisturbances');
+  if (canvasHourly) {
+    const hours = Array.from({ length: 24 }, (_, i) => `${String(i).padStart(2, '0')}:00`);
+    chartHourlyDisturbances = new Chart(canvasHourly.getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: hours,
+        datasets: [{
+          label: t('chart_disturbances_lbl'),
+          data: new Array(24).fill(0),
+          backgroundColor: 'rgba(6, 182, 212, 0.75)',
+          borderColor: '#06b6d4',
+          borderWidth: 1,
+          borderRadius: 4
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: { duration: 350 },
+        scales: {
+          x: {
+            grid: { color: 'rgba(255,255,255,0.03)' },
+            ticks: { color: '#94a3b8', font: { size: 10 }, maxRotation: 0, autoSkip: true, maxTicksLimit: 12 }
+          },
+          y: {
+            beginAtZero: true,
+            grid: { color: 'rgba(255,255,255,0.04)' },
+            ticks: { color: '#94a3b8', font: { size: 10 }, stepSize: 1 }
+          }
+        },
+        plugins: {
+          legend: {
+            display: false
+          }
+        }
+      }
+    });
+  }
+}
+
+async function fetchAnalytics(period = currentAnalyticsPeriod) {
+  try {
+    const res = await fetch(`/api/analytics?period=${encodeURIComponent(period)}&_t=${Date.now()}`);
+    if (!res.ok) return;
+    const data = await res.json();
+    latestAnalyticsData = data;
+    renderAnalytics(data);
+  } catch (e) {
+    console.error('Error fetching analytics:', e);
+  }
+}
+
+function renderAnalytics(data) {
+  if (!data || !data.summary) return;
+  const lang = getLanguage();
+  const sum = data.summary;
+
+  // 1. KPI Cards
+  const sec = sum.battery_duration_sec || 0;
+  const mins = Math.floor(sec / 60);
+  const remSec = sec % 60;
+  let battDurStr = '';
+  if (lang === 'ru') {
+    battDurStr = mins < 60 ? `${mins} мин ${remSec} сек` : `${Math.floor(mins / 60)} ч ${mins % 60} мин`;
+  } else {
+    battDurStr = mins < 60 ? `${mins}m ${remSec}s` : `${Math.floor(mins / 60)}h ${mins % 60}m`;
+  }
+
+  setText('kpiBattTime', battDurStr);
+  setText('kpiOutagesCount', String(sum.battery_events));
+  setText('kpiStability', `${sum.stability_score}%`);
+  setText('kpiAvrCount', String(sum.avr_events));
+  setText('kpiAvrDetails', `Boost: ${sum.avr_boost_events} · Trim: ${sum.avr_trim_events}`);
+  setText('kpiAvgV', `${sum.avg_in_v} V`);
+  setText('kpiMinMaxV', `Min: ${sum.min_in_v} V · Max: ${sum.max_in_v} V`);
+
+  // 2. Daily Timeline Bar Chart
+  if (chartIncidentsDaily && data.daily_timeline) {
+    const labels = data.daily_timeline.map(d => d.label);
+    const battData = data.daily_timeline.map(d => d.battery);
+    const avrData = data.daily_timeline.map(d => d.avr);
+
+    chartIncidentsDaily.data.labels = labels;
+    chartIncidentsDaily.data.datasets[0].data = battData;
+    chartIncidentsDaily.data.datasets[1].data = avrData;
+    chartIncidentsDaily.data.datasets[0].label = t('chart_legend_blackout');
+    chartIncidentsDaily.data.datasets[1].label = t('chart_legend_avr');
+    chartIncidentsDaily.update();
+  }
+
+  // 3. Modes Ratio Doughnut Chart
+  if (chartModesRatio && data.modes_distribution) {
+    const md = data.modes_distribution;
+    chartModesRatio.data.labels = [t('chart_legend_blackout'), t('chart_legend_avr'), t('chart_legend_online')];
+    chartModesRatio.data.datasets[0].data = [
+      md.battery,
+      md.avr,
+      Math.max(1, md.online)
+    ];
+    chartModesRatio.update();
+  }
+
+  // 4. Hourly Disturbances Bar Chart
+  if (chartHourlyDisturbances && data.hourly_distribution) {
+    chartHourlyDisturbances.data.datasets[0].data = data.hourly_distribution;
+    chartHourlyDisturbances.data.datasets[0].label = t('chart_disturbances_lbl');
+    chartHourlyDisturbances.update();
+  }
+}
+
+function initAnalyticsPeriodSelector() {
+  const container = document.getElementById('analyticsPeriodSelector');
+  if (!container) return;
+  const pills = container.querySelectorAll('.period-pill');
+  pills.forEach(pill => {
+    pill.addEventListener('click', () => {
+      pills.forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      const pVal = pill.getAttribute('data-period');
+      if (pVal) {
+        currentAnalyticsPeriod = pVal;
+        fetchAnalytics(currentAnalyticsPeriod);
+      }
+    });
+  });
 }
 
 function setText(id, text) {
@@ -907,8 +1146,14 @@ function initTabNavigation() {
       }
 
       // Trigger chart resize if navigating to analytics
-      if (tab === 'analytics' && chartAnalytics) {
-        setTimeout(() => chartAnalytics.resize(), 50);
+      if (tab === 'analytics') {
+        setTimeout(() => {
+          if (chartAnalytics) chartAnalytics.resize();
+          if (chartIncidentsDaily) chartIncidentsDaily.resize();
+          if (chartModesRatio) chartModesRatio.resize();
+          if (chartHourlyDisturbances) chartHourlyDisturbances.resize();
+        }, 50);
+        fetchAnalytics(currentAnalyticsPeriod);
       }
     });
   });
@@ -917,6 +1162,8 @@ function initTabNavigation() {
 document.addEventListener('DOMContentLoaded', () => {
   initLanguage();
   initCharts();
+  initAnalyticsPeriodSelector();
+  fetchAnalytics(currentAnalyticsPeriod);
   initTabNavigation();
   initOutletsManager();
   connectWebSocket();

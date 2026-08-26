@@ -4,6 +4,28 @@ This document contains formatted release notes in **English** for GitHub Release
 
 ---
 
+## 📊 Release v1.4.0 — Power Grid Historical Analytics, Incident Diagrams & Protocol Fix
+
+### 📈 Historical Analytics & Stability Dashboard
+- **Interactive Period Selector**: Instant statistics filtering for **24 Hours**, **7 Days (Week)**, **30 Days (Month)**, and **All Time** powered by a new high-performance `/api/analytics` backend engine.
+- **4 Key Performance Indicator (KPI) Cards**:
+  - 🔋 **Time on Battery & Blackout Count**: Accurate sum of runtime on backup battery power with total incident counts.
+  - ⚡ **Grid Stability Index**: Dynamic power grid reliability score (e.g. $99.97\%$).
+  - 🔄 **AVR Activations**: Total voltage stabilization interventions (Boost & Trim counts).
+  - 📉 **Mains Voltage Extremes**: Real-time calculated Minimum, Average, and Maximum recorded grid input voltages.
+
+### 🎨 Visual Incident Diagrams (`Chart.js`)
+- **Daily Events & Incidents Timeline**: Stacked bar chart visualizing daily blackout outages vs AVR voltage stabilizations across the selected timeframe.
+- **Operating Modes Ratio**: Sleek glowing doughnut chart presenting the percentage breakdown of power conditions (Normal Grid vs AVR vs Battery).
+- **Peak Disturbance Hours (00:00 — 23:00)**: 24-hour histogram mapping out the exact times of day when voltage sags, surges, and blackouts most frequently occur.
+
+### 🛠️ Megatec Protocol Parser Fix
+- **Status Bit Disambiguation**: Resolved a bug in `protocol.py` where bit 4 (device type: Line-Interactive) was incorrectly flagged as permanent AVR Boost.
+- **Accurate State Tracking**: Restored transitions between `ONLINE` (normal grid pass-through), `AVR BOOST`, `AVR TRIM`, and `BATTERY`.
+- **Event Log Consistency**: All intermediate voltage stabilization events and returns to normal voltage are now recorded in `ups_power_events.csv`.
+
+---
+
 ## ⚡ Release v1.3.0 — Energy Consumption & Electricity Cost Calculator
 
 ### 💡 Energy Metering & Real-Time Cost Estimator

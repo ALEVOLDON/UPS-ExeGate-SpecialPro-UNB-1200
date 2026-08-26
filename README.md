@@ -25,6 +25,7 @@ A modern web and desktop monitoring application for **ExeGate SpecialPro UNB-120
 
 ## ✨ Features
 
+- 📊 **Power Grid Historical Analytics & Incident Diagrams**: Interactive analytics dashboard with time-range selector (**24 Hours**, **7 Days**, **30 Days**, **All Time**), 4 KPI summary cards (Battery Runtime & Outages, Grid Stability Index, AVR Activations, Voltage Extremes), Daily Incidents Bar Chart, Modes Distribution Doughnut Chart, and 24-Hour Peak Disturbance Histogram.
 - 💡 **Energy Consumption & Electricity Cost Calculator**: Real-time total grid power calculation (P_total = P_connected_load + P_ups_internal), cost rate estimator per hour, per 24h, and projected monthly cost with customizable electricity tariff (руб/kWh).
 - 🔋 **Session kWh & Cost Tracker**: Millisecond-accurate accumulated energy consumption tracker (kWh) and total cost with 1-click counter reset.
 - 🛡️ **USB Telemetry Resilience & Grace Period**: 4-second telemetry hold buffer (`FROZEN` badge) preventing metrics dropouts during temporary USB HID Cypress UART polling delays.
@@ -37,7 +38,7 @@ A modern web and desktop monitoring application for **ExeGate SpecialPro UNB-120
 - 🎯 **Segmented Radial Gauges**: 20-segment arc scales with neon gradient styling.
 - 🔋 **Smart Battery Percentage Calculation**: Intelligent battery level estimation based on voltage discharge curves and operating mode.
 - 🔄 **Interactive Power Flow Diagram**: Dynamic energy flow scheme (Mains $\rightarrow$ UPS $\rightarrow$ Load / Battery) with animated current pulse indicators.
-- 📊 **Live Voltage Charting**: Built-in real-time Input vs Output voltage trend graphs using `Chart.js`.
+- 📈 **Live Voltage Dynamics & Historical Charting**: Built-in real-time and historical graphs powered by `Chart.js`.
 - 🔔 **Audio & Push Alerts**: Dual-layer sound chime alerts and browser push support.
 - 📜 **Event Logging & CSV Export**: Automatic recording of power events with 1-click CSV file export and dynamic historical log translation.
 - 💻 **Desktop & Web Modes**: Launch as a native Windows desktop app (`pywebview` + `pystray`) or a standalone Web Server.

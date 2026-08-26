@@ -69,10 +69,14 @@ def parse_f_response(raw_text: str):
 
         is_battery = status_bits[0] == '1' if len(status_bits) >= 1 else False
         is_batt_low = status_bits[1] == '1' if len(status_bits) >= 2 else False
-        is_avr_trim = status_bits[2] == '1' if len(status_bits) >= 3 else False
-        is_avr_boost = status_bits[4] == '1' if len(status_bits) >= 5 else False
+        avr_bit = status_bits[2] == '1' if len(status_bits) >= 3 else False
 
-        is_avr = is_avr_boost or is_avr_trim or (in_v > 0 and abs(in_v - out_v) > 15)
+        # AVR is active if flagged by hardware bit or if output voltage deviates significantly from input while on mains
+        v_diff = out_v - in_v
+        is_avr_boost = (not is_battery) and (avr_bit or v_diff >= 12 or (in_v > 0 and in_v <= 210 and out_v > in_v + 6))
+        is_avr_trim = (not is_battery) and ((avr_bit and v_diff <= -12) or (in_v >= 245 and v_diff <= -8))
+        is_avr = is_avr_boost or is_avr_trim
+
         batt_pct = estimate_battery_pct(batt_v, is_battery, is_batt_low)
         load_watts = int(750 * (load_pct / 100.0))
 

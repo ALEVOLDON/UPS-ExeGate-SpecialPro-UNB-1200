@@ -498,6 +498,112 @@
 
       <!-- Tab View 3: ANALYTICS -->
       <div class="tab-view" id="view-analytics">
+        <!-- Analytics Toolbar & Period Selector -->
+        <div class="section-card analytics-toolbar-card">
+          <div class="analytics-toolbar">
+            <div class="toolbar-title-group">
+              <div style="display:flex;align-items:center;gap:0.65rem;">
+                <svg class="settings-title-icon" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                <span class="section-title-text" data-i18n="an_main_title">Power Grid & UPS Statistics</span>
+              </div>
+              <div class="section-sub" data-i18n="an_main_sub">Historical telemetry analysis & stability reports</div>
+            </div>
+            <div class="period-pills" id="analyticsPeriodSelector">
+              <button class="period-pill" data-period="24h" data-i18n="period_24h">24 Hours</button>
+              <button class="period-pill active" data-period="7d" data-i18n="period_7d">7 Days</button>
+              <button class="period-pill" data-period="30d" data-i18n="period_30d">30 Days</button>
+              <button class="period-pill" data-period="all" data-i18n="period_all">All Time</button>
+            </div>
+          </div>
+
+          <!-- KPI Summary Cards -->
+          <div class="analytics-kpi-grid">
+            <!-- KPI 1: Battery Runtime & Outages -->
+            <div class="kpi-card">
+              <div class="kpi-icon-wrap kpi-amber">
+                <svg viewBox="0 0 24 24" class="kpi-svg"><rect x="6" y="7" width="12" height="14" rx="2"/><line x1="10" y1="3" x2="14" y2="3"/><line x1="10" y1="12" x2="14" y2="12"/><line x1="12" y1="10" x2="12" y2="14"/></svg>
+              </div>
+              <div class="kpi-body">
+                <div class="kpi-label" data-i18n="kpi_batt_time">Time on Battery</div>
+                <div class="kpi-value mono" id="kpiBattTime">--</div>
+                <div class="kpi-sub"><strong id="kpiOutagesCount" class="mono">--</strong> <span data-i18n="kpi_outages_lbl">blackouts</span></div>
+              </div>
+            </div>
+
+            <!-- KPI 2: Grid Stability Score -->
+            <div class="kpi-card">
+              <div class="kpi-icon-wrap kpi-green">
+                <svg viewBox="0 0 24 24" class="kpi-svg"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+              </div>
+              <div class="kpi-body">
+                <div class="kpi-label" data-i18n="kpi_stability">Grid Stability Index</div>
+                <div class="kpi-value mono" id="kpiStability">-- %</div>
+                <div class="kpi-sub" data-i18n="kpi_stability_desc">Mains power reliability</div>
+              </div>
+            </div>
+
+            <!-- KPI 3: AVR Stabilizations -->
+            <div class="kpi-card">
+              <div class="kpi-icon-wrap kpi-blue">
+                <svg viewBox="0 0 24 24" class="kpi-svg"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+              </div>
+              <div class="kpi-body">
+                <div class="kpi-label" data-i18n="kpi_avr_count">AVR Activations</div>
+                <div class="kpi-value mono" id="kpiAvrCount">--</div>
+                <div class="kpi-sub" id="kpiAvrDetails">Boost: -- · Trim: --</div>
+              </div>
+            </div>
+
+            <!-- KPI 4: Voltage Range -->
+            <div class="kpi-card">
+              <div class="kpi-icon-wrap kpi-cyan">
+                <svg viewBox="0 0 24 24" class="kpi-svg"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+              </div>
+              <div class="kpi-body">
+                <div class="kpi-label" data-i18n="kpi_voltage_avg">Avg Input Voltage</div>
+                <div class="kpi-value mono" id="kpiAvgV">-- V</div>
+                <div class="kpi-sub" id="kpiMinMaxV">Min: -- V · Max: -- V</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Historical Diagrams Grid -->
+        <div class="analytics-charts-grid">
+          <!-- Daily Timeline Bar Chart -->
+          <div class="section-card">
+            <div class="section-title">
+              <span data-i18n="chart_daily_title">Daily Events & Incidents Timeline</span>
+              <span class="section-sub" data-i18n="chart_daily_sub">Blackout outages vs AVR voltage stabilizations</span>
+            </div>
+            <div class="chart-wrapper" style="height: 300px;">
+              <canvas id="chartIncidentsDaily"></canvas>
+            </div>
+          </div>
+
+          <!-- Operating Modes Doughnut Chart -->
+          <div class="section-card">
+            <div class="section-title">
+              <span data-i18n="chart_modes_title">Operating Modes Ratio</span>
+              <span class="section-sub" data-i18n="chart_modes_sub">Percentage breakdown of power conditions</span>
+            </div>
+            <div class="chart-wrapper" style="height: 300px;">
+              <canvas id="chartModesRatio"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- 24-Hour Peak Disturbance Histogram -->
+        <div class="section-card">
+          <div class="section-title">
+            <span data-i18n="chart_hourly_title">Peak Disturbance Hours (00:00 — 23:00)</span>
+            <span class="section-sub" data-i18n="chart_hourly_sub">Frequency of power drops and surges by time of day</span>
+          </div>
+          <div class="chart-wrapper" style="height: 260px;">
+            <canvas id="chartHourlyDisturbances"></canvas>
+          </div>
+        </div>
+
         <!-- Energy & Electricity Cost Section -->
         <section class="energy-card section-card">
           <div class="energy-header">
@@ -559,12 +665,13 @@
           </div>
         </section>
 
+        <!-- Live Voltage Dynamics -->
         <div class="section-card">
           <div class="section-title">
             <span data-i18n="analytics_title">Detailed Voltage Dynamics Graph</span>
-            <span class="section-sub" data-i18n="analytics_sub">Mains Input Voltage vs UPS Output Voltage</span>
+            <span class="section-sub" data-i18n="analytics_sub">Mains Input Voltage vs UPS Output Voltage (Real-Time)</span>
           </div>
-          <div class="chart-wrapper" style="height: 420px;">
+          <div class="chart-wrapper" style="height: 380px;">
             <canvas id="voltageChartAnalytics"></canvas>
           </div>
         </div>
