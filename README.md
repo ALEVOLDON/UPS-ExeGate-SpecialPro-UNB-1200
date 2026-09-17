@@ -64,6 +64,7 @@ UPS ExeGate SpecialPro UNB-1200/
 ├── tools/                  # USB HID diagnostic scripts & protocol tests
 ├── desktop_app.py          # Native desktop application (pywebview + tray)
 ├── main.py                 # Standalone web server launcher (uvicorn)
+├── install.bat             # 1-Click installer (dependencies + desktop shortcut)
 ├── Run_UPS_Monitor.bat     # Quick launcher batch script
 ├── Run_UPS_Monitor.vbs     # Silent background launcher (no console window)
 ├── create_shortcut.ps1     # PowerShell script to generate Desktop shortcut
@@ -74,8 +75,16 @@ UPS ExeGate SpecialPro UNB-1200/
 
 ## 🚀 Quick Start
 
-### 1. Install Dependencies
-Ensure **Python 3.9+** is installed on your system.
+### Option 1: 1-Click Installer (Recommended)
+Simply double-click **`install.bat`**.  
+The script automatically verifies your Python installation, installs dependencies from `requirements.txt`, and generates a desktop shortcut.
+
+---
+
+### Option 2: Manual Installation
+
+#### 1. Install Dependencies
+Ensure **Python 3.9+** is installed on your system (with *Add Python to PATH* enabled).
 
 ```bash
 pip install -r requirements.txt
