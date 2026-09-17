@@ -41,8 +41,10 @@ A modern web and desktop monitoring application for **ExeGate SpecialPro** serie
 - 📈 **Live Voltage Dynamics & Historical Charting**: Built-in real-time and historical graphs powered by `Chart.js`.
 - 🔔 **Audio & Push Alerts**: Dual-layer sound chime alerts and browser push support.
 - 🔌 **Multi-Model UPS Support (UNB-1200, Smart LLB-2200, etc.)**: Built-in presets with automatic rated wattage scaling (360W, 480W, 750W, 900W, 1200W, 1800W, or Custom) and intelligent auto-detection of multi-battery voltage banks (12V / 24V / 48V).
+- ℹ️ **Dedicated "About" View**: Information dashboard displaying version badges, developer info (`@ALEVOLDON`), MIT license, and direct GitHub links.
 - 📜 **Event Logging & CSV Export**: Automatic recording of power events with 1-click CSV file export and dynamic historical log translation.
 - 💻 **Desktop & Web Modes**: Launch as a native Windows desktop app (`pywebview` + `pystray`) or a standalone Web Server.
+- 🚀 **1-Click Windows Setup (`install.bat`)**: Automatic Python check, dependency installation, and desktop shortcut creation in a single click.
 
 ---
 
@@ -73,47 +75,53 @@ UPS ExeGate SpecialPro UNB-1200/
 
 ---
 
-## 🚀 Quick Start
+## 🚀 Quick Start & Installation
+
+### 0. Prerequisites
+Ensure **Python 3.10+** is installed on your computer (download from [python.org](https://www.python.org/downloads/)).  
+⚠️ **IMPORTANT:** Be sure to check the box **"Add python.exe to PATH"** during installation!
+
+---
 
 ### Option 1: 1-Click Installer (Recommended)
 Simply double-click **`install.bat`**.  
-The script automatically verifies your Python installation, installs dependencies from `requirements.txt`, and generates a desktop shortcut.
+The script automatically verifies your Python installation, installs all dependencies from `requirements.txt`, creates the **"ExeGate UPS Monitor"** shortcut on your Desktop, and asks if you'd like to launch right away!
 
 ---
 
 ### Option 2: Manual Installation
 
 #### 1. Install Dependencies
-Ensure **Python 3.9+** is installed on your system (with *Add Python to PATH* enabled).
-
 ```bash
 pip install -r requirements.txt
 ```
 
-### 2. Run the Application
+#### 2. Run the Application
+- **Desktop Window (Recommended)**: double-click `Run_UPS_Monitor.vbs` (runs silently without a console window) or:
+  ```bash
+  python desktop_app.py
+  ```
+- **Standalone Web Server**:
+  ```bash
+  python main.py
+  ```
+  Open your browser at `http://127.0.0.1:8000`.
 
-#### Option A: Desktop Window (Recommended)
-Double-click `Run_UPS_Monitor.vbs` (runs silently without a console window) or launch via command line:
-
-```bash
-python desktop_app.py
-```
-
-#### Option B: Standalone Web Server
-```bash
-python main.py
-```
-Open your browser at `http://127.0.0.1:8000`
+- **Manual Desktop Shortcut Creation**:
+  ```powershell
+  powershell -ExecutionPolicy Bypass -File .\create_shortcut.ps1
+  ```
 
 ---
 
-## 📌 Desktop Shortcut Creation
+## ⚙️ Configuring Your UPS Model (UNB-1200 / Smart LLB-2200 / etc.)
 
-To create a shortcut on your Windows Desktop:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\create_shortcut.ps1
-```
+The default configuration is tailored for **ExeGate SpecialPro UNB-1200 (750 W)**.  
+If you are using a different model from the lineup:
+1. Launch the application and click the **"Settings"** tab in the sidebar.
+2. Under **"UPS Model & Rated Power"**, choose your model (e.g. `Smart LLB-2200 (1200W)` or Custom).
+3. Under **"Battery Configuration"**, keep `Auto-detect (12V / 24V / 48V)` (or specify manually).
+4. Click **"Save Settings"**. Gauges, percentages, and labels will immediately adjust!
 
 ---
 
