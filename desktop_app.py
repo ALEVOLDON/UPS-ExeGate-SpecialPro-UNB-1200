@@ -91,7 +91,7 @@ def wait_for_server(timeout: float = 8.0) -> bool:
 def open_window():
     import webview
 
-    title = "ExeGate SpecialPro UNB-1200 — UPS Monitor"
+    title = "ExeGate SpecialPro — UPS Monitor"
     icon_path = os.path.join(APP_DIR, "assets", "app_icon.ico")
     set_windows_taskbar_icon(title, icon_path)
 
@@ -128,7 +128,7 @@ def start_tray_updater(tray_icon, ups_driver_inst):
 
 def main():
     print("=" * 65)
-    print(" ExeGate SpecialPro UNB-1200 Desktop Application")
+    print(" ExeGate SpecialPro Desktop Application (UNB & Smart LLB)")
     print("=" * 65)
 
     try:

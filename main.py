@@ -28,7 +28,7 @@ def open_browser():
 
 def main():
     print("=" * 65)
-    print(" ExeGate SpecialPro UNB-1200 Web Dashboard Server")
+    print(" ExeGate SpecialPro Web Dashboard Server (UNB & Smart LLB)")
     print("=" * 65)
     print(f" [URL] http://{DEFAULT_HOST}:{DEFAULT_PORT}")
     print(" [Log] ups_power_events.csv\n")

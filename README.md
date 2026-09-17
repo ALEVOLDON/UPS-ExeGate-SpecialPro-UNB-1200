@@ -1,4 +1,4 @@
-# ExeGate SpecialPro UNB-1200 — UPS Monitor
+# ExeGate SpecialPro — UPS Monitor (UNB & Smart LLB Series)
 
 <p align="center">
   <b>Language / Язык:</b> 
@@ -11,7 +11,7 @@
 [![Windows Tray](https://img.shields.io/badge/Windows-System_Tray-0078D6?style=for-the-badge&logo=windows&logoColor=white)](#)
 [![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
 
-A modern web and desktop monitoring application for **ExeGate SpecialPro UNB-1200** (and compatible RichComm / Megatec `F` protocol devices over USB HID) featuring **graceful Windows auto-shutdown**, **system tray icon**, **dual-language UI (English & Russian)**, and **real-time power telemetry**.
+A modern web and desktop monitoring application for **ExeGate SpecialPro** series (**UNB-1200**, **Smart LLB-2200**, **UNB-600/800/1500**, **LLB-3000**, and compatible RichComm / Megatec F protocol devices over USB HID) featuring **graceful Windows auto-shutdown**, **system tray icon**, **dual-language UI (English & Russian)**, **power grid analytics**, and **real-time telemetry**.
 
 <p align="center">
   <img src="assets/dashboard_preview_en.jpg" alt="Dashboard Preview (English)" width="100%" style="border-radius: 12px;" />

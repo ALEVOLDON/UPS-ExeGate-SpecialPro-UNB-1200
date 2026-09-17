@@ -1,8 +1,8 @@
-# ExeGate SpecialPro UNB-1200 — Мониторинг ИБП (UPS Monitor)
+# ExeGate SpecialPro — Мониторинг ИБП (серии UNB и Smart LLB)
 
 <p align="center">
   <b>Язык / Language:</b> 
-  <a href="README.md">English</a> | <b>Русский</b>
+  <b>Русский</b> | <a href="README.md">English</a>
 </p>
 
 [![Python](https://img.shields.io/badge/Python-3.9+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
@@ -11,7 +11,7 @@
 [![Windows Tray](https://img.shields.io/badge/Windows-System_Tray-0078D6?style=for-the-badge&logo=windows&logoColor=white)](#)
 [![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
 
-Современное веб- и десктоп-приложение для мониторинга состояния ИБП **ExeGate SpecialPro UNB-1200** (и совместимых устройств на протоколе RichComm / Megatec `F` через USB HID) с поддержкой **двух языков (английский и русский)**, **безопасного автовыключения Windows** и **системного трея**.
+Современное веб- и десктоп-приложение для мониторинга состояния ИБП линейки **ExeGate SpecialPro** (**UNB-1200**, **Smart LLB-2200**, **UNB-600/800/1500**, **LLB-3000** и совместимых устройств на протоколе RichComm / Megatec F через USB HID) с поддержкой **двух языков (английский и русский)**, **безопасного автовыключения Windows**, **аналитики электросети** и **системного трея**.
 
 <p align="center">
   <img src="assets/dashboard_preview.jpg" alt="Dashboard Preview" width="100%" style="border-radius: 12px;" />

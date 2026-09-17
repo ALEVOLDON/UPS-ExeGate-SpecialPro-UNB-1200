@@ -1,6 +1,6 @@
 @echo off
 setlocal
-title ExeGate UNB-1200 UPS Monitor
+title ExeGate SpecialPro UPS Monitor
 
 rem Always use the folder where this .bat lives (portable)
 cd /d "%~dp0"

@@ -49,7 +49,7 @@ $Shortcut = $WshShell.CreateShortcut($ShortcutPath)
 $Shortcut.TargetPath = $pyInfo.Exe
 $Shortcut.Arguments = $pyInfo.Args
 $Shortcut.WorkingDirectory = $WorkDir
-$Shortcut.Description = "ExeGate UNB-1200 UPS Monitoring Application"
+$Shortcut.Description = "ExeGate SpecialPro UPS Monitoring Application"
 $IconPath = Join-Path $WorkDir "assets\app_icon.ico"
 if (Test-Path $IconPath) {
     $Shortcut.IconLocation = "$IconPath,0"

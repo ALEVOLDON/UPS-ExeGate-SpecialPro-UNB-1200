@@ -1,8 +1,8 @@
 const TRANSLATIONS = {
   en: {
-    app_title: "ExeGate SpecialPro UNB-1200 — UPS Monitor",
+    app_title: "ExeGate SpecialPro — UPS Monitor",
     brand_name: "ExeGate Pro",
-    brand_sub: "UNB-1200 · USB HID",
+    brand_sub: "SpecialPro · USB HID",
 
     // Navigation
     nav_overview: "Overview",
@@ -238,9 +238,9 @@ const TRANSLATIONS = {
   },
 
   ru: {
-    app_title: "ExeGate SpecialPro UNB-1200 — Мониторинг ИБП",
+    app_title: "ExeGate SpecialPro — Мониторинг ИБП",
     brand_name: "ExeGate Pro",
-    brand_sub: "UNB-1200 · USB HID",
+    brand_sub: "SpecialPro · USB HID",
 
     // Navigation
     nav_overview: "Обзор",

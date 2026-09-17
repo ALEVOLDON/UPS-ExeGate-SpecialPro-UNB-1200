@@ -25,7 +25,7 @@ async def lifespan(app: FastAPI):
     ups_driver.stop()
 
 
-app = FastAPI(title="ExeGate UPS SpecialPro UNB-1200 Dashboard", lifespan=lifespan)
+app = FastAPI(title="ExeGate SpecialPro UPS Dashboard", lifespan=lifespan)
 
 
 @app.post("/api/play_sound")
