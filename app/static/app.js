@@ -147,7 +147,8 @@ function applyLanguage(lang) {
       flow: 'view_flow',
       analytics: 'view_analytics',
       events: 'view_events',
-      settings: 'view_settings'
+      settings: 'view_settings',
+      about: 'view_about'
     };
     if (titles[activeTab]) {
       viewTitle.textContent = t(titles[activeTab]);
@@ -1180,7 +1181,8 @@ function initTabNavigation() {
     flow: 'view_flow',
     analytics: 'view_analytics',
     events: 'view_events',
-    settings: 'view_settings'
+    settings: 'view_settings',
+    about: 'view_about'
   };
 
   navItems.forEach(item => {

@@ -19,6 +19,9 @@ This document contains formatted release notes in **English** for GitHub Release
 - **Dynamic Tray Tooltip**: System tray icon tooltip now shows the active UPS model name (e.g., `ExeGate LLB-2200: ONLINE`).
 - **Resilient USB HID Detection**: Added automatic fallback to alternative Megatec VID/PID pairs.
 
+### ℹ️ Dedicated "About" Dashboard View
+- **Application Overview**: Added a modern, dedicated **About / О программе** tab in the sidebar featuring app version badges, full developer info (`@ALEVOLDON`), MIT license, feature highlights, and direct quick-links to the GitHub repository, releases, and issue tracker.
+
 ---
 
 ## 📊 Release v1.4.0 — Power Grid Historical Analytics, Incident Diagrams & Protocol Fix

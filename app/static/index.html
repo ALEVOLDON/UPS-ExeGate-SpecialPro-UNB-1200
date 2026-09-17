@@ -59,6 +59,12 @@
           </span>
           <span class="nav-label" data-i18n="nav_settings">Settings</span>
         </button>
+        <button class="nav-item" data-tab="about" title="About Application">
+          <span class="nav-icon">
+            <svg class="nav-icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="16" y2="12"/><line x1="12" x2="12.01" y1="8" y2="8"/></svg>
+          </span>
+          <span class="nav-label" data-i18n="nav_about">About</span>
+        </button>
       </nav>
 
       <div class="sidebar-footer">
@@ -914,6 +920,95 @@
                 <span data-i18n="btn_download_csv">Download CSV</span>
               </a>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab View 6: ABOUT -->
+      <div class="tab-view" id="view-about">
+        <!-- Hero Card -->
+        <div class="about-hero">
+          <div class="about-icon-lg">
+            <svg viewBox="0 0 24 24" style="width:2.4rem;height:2.4rem;stroke:#ffffff;fill:none;stroke-width:2.2px;stroke-linecap:round;stroke-linejoin:round;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          </div>
+          <div class="about-hero-body">
+            <div class="about-app-title">
+              <span>ExeGate Pro UPS Monitor</span>
+              <span class="about-version-badge">v1.5.0 Latest</span>
+            </div>
+            <p class="about-app-desc" data-i18n="about_app_desc">Professional Real-Time Telemetry, Safety & Power Analytics for ExeGate SpecialPro Series</p>
+            <div class="about-pills-row">
+              <span class="about-pill">👨‍💻 <strong data-i18n="about_author_label">Author</strong>: @ALEVOLDON</span>
+              <span class="about-pill">📄 <strong data-i18n="about_license_label">License</strong>: MIT</span>
+              <span class="about-pill">⚡ Python 3.9+ · FastAPI · WebSockets</span>
+              <span class="about-pill">🖥️ Windows 10 / 11</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Features Grid -->
+        <div class="about-features-grid">
+          <div class="about-feat-card">
+            <div class="about-feat-header">
+              <div class="about-feat-icon" style="background:rgba(59, 130, 246, 0.15);color:#3b82f6;">
+                <svg class="kpi-svg" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              </div>
+              <div class="about-feat-title" data-i18n="about_feat_telemetry_title">Real-Time Telemetry & AVR</div>
+            </div>
+            <div class="about-feat-desc" data-i18n="about_feat_telemetry_desc">Direct USB HID communication via Megatec F protocol with accurate AVR Boost / Trim state tracking and 4-second freeze buffer protection.</div>
+          </div>
+
+          <div class="about-feat-card">
+            <div class="about-feat-header">
+              <div class="about-feat-icon" style="background:rgba(16, 185, 129, 0.15);color:#10b981;">
+                <svg class="kpi-svg" viewBox="0 0 24 24"><rect width="16" height="10" x="2" y="7" rx="2"/><line x1="22" x2="22" y1="11" y2="13"/></svg>
+              </div>
+              <div class="about-feat-title" data-i18n="about_feat_models_title">Multi-Model & Smart Battery</div>
+            </div>
+            <div class="about-feat-desc" data-i18n="about_feat_models_desc">Built-in presets for SpecialPro UNB-1200, Smart LLB-2200, UNB-600/800/1500, LLB-3000 and custom models with smart 12V/24V/48V auto-detection.</div>
+          </div>
+
+          <div class="about-feat-card">
+            <div class="about-feat-header">
+              <div class="about-feat-icon" style="background:rgba(239, 68, 68, 0.15);color:#ef4444;">
+                <svg class="kpi-svg" viewBox="0 0 24 24"><path d="M12 2v10"/><path d="M18.4 6.6a9 9 0 1 1-12.77 0"/></svg>
+              </div>
+              <div class="about-feat-title" data-i18n="about_feat_shutdown_title">Graceful Windows Auto-Shutdown</div>
+            </div>
+            <div class="about-feat-desc" data-i18n="about_feat_shutdown_desc">Configurable automatic shutdown when battery discharges below threshold, with 1-click cancellation, Tray icon and native Toast alerts.</div>
+          </div>
+
+          <div class="about-feat-card">
+            <div class="about-feat-header">
+              <div class="about-feat-icon" style="background:rgba(245, 158, 11, 0.15);color:#f59e0b;">
+                <svg class="kpi-svg" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+              </div>
+              <div class="about-feat-title" data-i18n="about_feat_analytics_title">Power Grid Analytics & Costs</div>
+            </div>
+            <div class="about-feat-desc" data-i18n="about_feat_analytics_desc">Historical incident breakdown, grid stability index, peak disturbance hour histogram, and real-time electricity tariff cost tracker.</div>
+          </div>
+        </div>
+
+        <!-- Hardware & Project Links Card -->
+        <div class="section-card">
+          <div class="section-title">
+            <div style="display:flex;align-items:center;gap:0.65rem;">
+              <svg class="settings-title-icon" viewBox="0 0 24 24" style="margin-right:0;"><rect width="16" height="16" x="4" y="4" rx="2"/><rect width="6" height="6" x="9" y="9" rx="1"/><path d="M15 2v2"/><path d="M15 20v2"/><path d="M2 15h2"/><path d="M2 9h2"/><path d="M20 15h2"/><path d="M20 9h2"/><path d="M9 2v2"/><path d="M9 20v2"/></svg>
+              <span data-i18n="about_hw_title">Supported Hardware & Architecture</span>
+            </div>
+          </div>
+          <p style="font-size:0.9rem;color:var(--text-muted);line-height:1.6;margin-bottom:1.25rem;" data-i18n="about_hw_desc">ExeGate SpecialPro UNB and Smart LLB series (USB HID 0665:5161). Space-padded frame architecture preventing Cypress UART driver crashes.</p>
+          
+          <div class="about-actions-row">
+            <a href="https://github.com/ALEVOLDON/UPS-ExeGate-SpecialPro-UNB-1200" target="_blank" rel="noopener noreferrer" class="btn-icon" style="text-decoration:none;padding:0.6rem 1.1rem;font-size:0.88rem;background:rgba(59,130,246,0.18);border-color:rgba(59,130,246,0.4);color:#93c5fd;">
+              ⭐ <span data-i18n="about_btn_github">GitHub Repository</span>
+            </a>
+            <a href="https://github.com/ALEVOLDON/UPS-ExeGate-SpecialPro-UNB-1200/releases" target="_blank" rel="noopener noreferrer" class="btn-icon" style="text-decoration:none;padding:0.6rem 1.1rem;font-size:0.88rem;">
+              🚀 <span data-i18n="about_btn_releases">Releases & Updates</span>
+            </a>
+            <a href="https://github.com/ALEVOLDON/UPS-ExeGate-SpecialPro-UNB-1200/issues" target="_blank" rel="noopener noreferrer" class="btn-icon" style="text-decoration:none;padding:0.6rem 1.1rem;font-size:0.88rem;">
+              🐛 <span data-i18n="about_btn_issues">Report Issue / Feedback</span>
+            </a>
           </div>
         </div>
       </div>

@@ -10,6 +10,7 @@ const TRANSLATIONS = {
     nav_analytics: "Analytics",
     nav_events: "Event Log",
     nav_settings: "Settings",
+    nav_about: "About",
 
     sidebar_connected: "CONNECTED",
     sidebar_disconnected: "DISCONNECTED",
@@ -20,6 +21,7 @@ const TRANSLATIONS = {
     view_analytics: "Analytics & Voltage Dynamics",
     view_events: "Power Event Log",
     view_settings: "Alerts & System Settings",
+    view_about: "About ExeGate Pro",
 
     // Controls
     sound_toggle: "Sound",
@@ -196,6 +198,26 @@ const TRANSLATIONS = {
     unit_kwh: "kWh",
     rub_per_kwh: "₽/kWh",
 
+    // About Section
+    about_app_desc: "Professional Real-Time Telemetry, Safety & Power Analytics for ExeGate SpecialPro Series",
+    about_version_label: "Version",
+    about_release_label: "Release",
+    about_license_label: "License",
+    about_author_label: "Author / Developer",
+    about_btn_github: "GitHub Repository",
+    about_btn_releases: "Releases & Updates",
+    about_btn_issues: "Report Issue / Feedback",
+    about_feat_telemetry_title: "Real-Time Telemetry & AVR",
+    about_feat_telemetry_desc: "Direct USB HID communication via Megatec F protocol with accurate AVR Boost / Trim state tracking and 4-second freeze buffer protection.",
+    about_feat_models_title: "Multi-Model & Smart Battery",
+    about_feat_models_desc: "Built-in presets for SpecialPro UNB-1200, Smart LLB-2200, UNB-600/800/1500, LLB-3000 and custom models with smart 12V/24V/48V auto-detection.",
+    about_feat_shutdown_title: "Graceful Windows Auto-Shutdown",
+    about_feat_shutdown_desc: "Configurable automatic shutdown when battery discharges below threshold, with 1-click cancellation, Tray icon and native Toast alerts.",
+    about_feat_analytics_title: "Power Grid Analytics & Costs",
+    about_feat_analytics_desc: "Historical incident breakdown, grid stability index, peak disturbance hour histogram, and real-time electricity tariff cost tracker.",
+    about_hw_title: "Supported Hardware & Architecture",
+    about_hw_desc: "ExeGate SpecialPro UNB and Smart LLB series (USB HID 0665:5161). Space-padded frame architecture preventing Cypress UART driver crashes.",
+
     // Modal
     modal_log_title: "📜 Power Event Log",
     events_count_fmt: "{filtered} of {total} events",
@@ -226,6 +248,7 @@ const TRANSLATIONS = {
     nav_analytics: "Аналитика",
     nav_events: "Журнал",
     nav_settings: "Настройки",
+    nav_about: "О программе",
 
     sidebar_connected: "ПОДКЛЮЧЕНО",
     sidebar_disconnected: "НЕТ СВЯЗИ",
@@ -236,6 +259,7 @@ const TRANSLATIONS = {
     view_analytics: "Аналитика и динамика напряжений",
     view_events: "Журнал событий питания",
     view_settings: "Настройки оповещений и системы",
+    view_about: "О программе",
 
     // Controls
     sound_toggle: "Звук",
@@ -411,6 +435,26 @@ const TRANSLATIONS = {
     currency_rub: "руб",
     unit_kwh: "кВт⋅ч",
     rub_per_kwh: "руб/кВт⋅ч",
+
+    // About Section
+    about_app_desc: "Профессиональный мониторинг в реальном времени, защита и аналитика электросети для ИБП ExeGate SpecialPro",
+    about_version_label: "Версия",
+    about_release_label: "Релиз",
+    about_license_label: "Лицензия",
+    about_author_label: "Разработчик",
+    about_btn_github: "Репозиторий на GitHub",
+    about_btn_releases: "Релизы и обновления",
+    about_btn_issues: "Сообщить об ошибке",
+    about_feat_telemetry_title: "Телеметрия сети и AVR",
+    about_feat_telemetry_desc: "Прямой опрос USB HID по протоколу Megatec F, точное отслеживание ступеней стабилизации AVR (Boost / Trim) и защита от лагов (Grace Period).",
+    about_feat_models_title: "Поддержка любых моделей ИБП",
+    about_feat_models_desc: "Готовые пресеты для SpecialPro UNB-1200, Smart LLB-2200, UNB-600/800/1500, LLB-3000 и Custom с автоопределением вольтажа АКБ (12V / 24V / 48V).",
+    about_feat_shutdown_title: "Безопасное автовыключение Windows",
+    about_feat_shutdown_desc: "Автоматическое корректное выключение ПК при разряде батареи с настраиваемым таймером, отменой в 1 клик, треем и Toast-уведомлениями.",
+    about_feat_analytics_title: "Аналитика электросети и расходы",
+    about_feat_analytics_desc: "Исторические графики, индекс стабильности сети, гистограмма пиковых часов просадок и расчет стоимости электроэнергии по тарифу.",
+    about_hw_title: "Поддерживаемое оборудование и стек",
+    about_hw_desc: "Линейка ExeGate SpecialPro UNB и Smart LLB (USB HID 0665:5161). Архитектура 65-байтных пакетов с защитой от зависаний чипа Cypress USB-Serial.",
 
     // Modal
     modal_log_title: "📜 Журнал событий питания",
