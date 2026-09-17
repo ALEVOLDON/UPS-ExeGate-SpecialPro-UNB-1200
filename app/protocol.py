@@ -1,11 +1,39 @@
-"""Megatec F protocol parser and battery percentage estimation for ExeGate UNB-1200."""
+"""Megatec F protocol parser and battery percentage estimation for ExeGate and compatible UPSes."""
 
-def estimate_battery_pct(batt_v: float, on_battery: bool, is_batt_low: bool) -> int:
-    """Estimate battery percentage based on battery voltage and state."""
+def normalize_battery_voltage(batt_v: float, batt_mode: str = "auto") -> tuple:
+    """
+    Normalize battery voltage to single 12V block equivalent.
+    Returns (normalized_voltage, divisor).
+    """
     try:
         v = float(batt_v)
     except (TypeError, ValueError):
-        return 0
+        return 0.0, 1.0
+
+    mode = (batt_mode or "auto").lower()
+    if mode == "24v":
+        divisor = 2.0
+    elif mode == "36v":
+        divisor = 3.0
+    elif mode == "48v":
+        divisor = 4.0
+    elif mode == "12v":
+        divisor = 1.0
+    else:  # "auto"
+        if v > 36.0:
+            divisor = 4.0
+        elif v > 18.0:
+            divisor = 2.0
+        else:
+            divisor = 1.0
+
+    return (v / divisor if divisor > 0 else v), divisor
+
+
+def estimate_battery_pct(batt_v: float, on_battery: bool, is_batt_low: bool, batt_mode: str = "auto") -> int:
+    """Estimate battery percentage based on battery voltage (normalized to 12V scale) and state."""
+    norm_v, _ = normalize_battery_voltage(batt_v, batt_mode)
+    v = norm_v
 
     if is_batt_low:
         return max(0, min(10, int(round((v - 10.0) * 8))))
@@ -38,7 +66,7 @@ def estimate_battery_pct(batt_v: float, on_battery: bool, is_batt_low: bool) -> 
     return 0
 
 
-def parse_f_response(raw_text: str):
+def parse_f_response(raw_text: str, rated_watts: int = 750, batt_mode: str = "auto"):
     """
     Parse Megatec F protocol telemetry string.
     Format: F(MMM.M NNN.N PPP.P QQQ RR.R S.SS TT.T b7b6b5b4b3b2b1b0
@@ -77,8 +105,10 @@ def parse_f_response(raw_text: str):
         is_avr_trim = (not is_battery) and ((avr_bit and v_diff <= -12) or (in_v >= 245 and v_diff <= -8))
         is_avr = is_avr_boost or is_avr_trim
 
-        batt_pct = estimate_battery_pct(batt_v, is_battery, is_batt_low)
-        load_watts = int(750 * (load_pct / 100.0))
+        norm_batt_v, batt_divisor = normalize_battery_voltage(batt_v, batt_mode)
+        batt_pct = estimate_battery_pct(norm_batt_v, is_battery, is_batt_low)
+        watts_rating = int(rated_watts) if rated_watts and int(rated_watts) > 0 else 750
+        load_watts = int(watts_rating * (load_pct / 100.0))
 
         if is_battery:
             mode_code = "BATTERY"
@@ -122,8 +152,11 @@ def parse_f_response(raw_text: str):
             "out_v": out_v,
             "load_pct": load_pct,
             "load_watts": load_watts,
+            "rated_watts": watts_rating,
             "freq": freq,
             "batt_v": batt_v,
+            "norm_batt_v": round(norm_batt_v, 2),
+            "batt_divisor": batt_divisor,
             "batt_pct": batt_pct,
             "temp": temp,
             "status_bits": status_bits,

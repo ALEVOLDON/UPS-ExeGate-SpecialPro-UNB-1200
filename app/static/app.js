@@ -117,6 +117,22 @@ function applyLanguage(lang) {
     }
   });
 
+  // Dynamic model and power captions
+  const curRatedWatts = lastSyncedSettings.ups_rated_watts || 750;
+  const maxWEl = document.getElementById('gaugeMaxWatts');
+  if (maxWEl) {
+    maxWEl.textContent = t('max_w_fmt', { watts: curRatedWatts });
+  }
+  const curModel = lastSyncedSettings.ups_model || 'UNB-1200';
+  const brandSubEl = document.getElementById('brandSubText');
+  if (brandSubEl) {
+    brandSubEl.textContent = `${curModel} · USB HID`;
+  }
+  const flowUpsEl = document.getElementById('flowUpsLabel');
+  if (flowUpsEl) {
+    flowUpsEl.textContent = `UPS ${curModel}`;
+  }
+
   // 3. Document title
   document.title = t('app_title');
 
@@ -970,6 +986,48 @@ function syncSettingsUI(settings) {
   if (selfWattsInput && document.activeElement !== selfWattsInput && settings.self_consumption_watts !== undefined) {
     selfWattsInput.value = settings.self_consumption_watts;
   }
+
+  // Model & Rated Watts Sync
+  const modelSel = document.getElementById('settingsUpsModelSelect');
+  const wattsInput = document.getElementById('settingsRatedWattsInput');
+  const customWrap = document.getElementById('settingsCustomWattsWrap');
+  const battModeSel = document.getElementById('settingsBattModeSelect');
+
+  if (modelSel && settings.ups_model !== undefined) {
+    if (modelSel.value !== settings.ups_model) {
+      modelSel.value = settings.ups_model;
+    }
+    if (customWrap) {
+      customWrap.style.display = modelSel.value === 'custom' ? 'flex' : 'none';
+    }
+  }
+
+  if (wattsInput && document.activeElement !== wattsInput && settings.ups_rated_watts !== undefined) {
+    wattsInput.value = settings.ups_rated_watts;
+  }
+
+  if (battModeSel && settings.ups_battery_mode !== undefined) {
+    if (battModeSel.value !== settings.ups_battery_mode) {
+      battModeSel.value = settings.ups_battery_mode;
+    }
+  }
+
+  // Reactive UI Labels Update
+  const ratedW = settings.ups_rated_watts || 750;
+  const maxWEl = document.getElementById('gaugeMaxWatts');
+  if (maxWEl) {
+    maxWEl.textContent = t('max_w_fmt', { watts: ratedW });
+  }
+
+  const modelShort = settings.ups_model || 'UNB-1200';
+  const brandSubEl = document.getElementById('brandSubText');
+  if (brandSubEl) {
+    brandSubEl.textContent = `${modelShort} · USB HID`;
+  }
+  const flowUpsEl = document.getElementById('flowUpsLabel');
+  if (flowUpsEl) {
+    flowUpsEl.textContent = `UPS ${modelShort}`;
+  }
 }
 
 function updatePowerFlow(status) {
@@ -1343,6 +1401,67 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!isNaN(val) && val >= 0) {
         saveSettingPatch({ self_consumption_watts: val });
       }
+    });
+  }
+
+  // Model & Rated Power Handlers
+  const MODEL_PRESETS = {
+    'UNB-1200': { name: 'ExeGate SpecialPro UNB-1200', watts: 750 },
+    'LLB-2200': { name: 'ExeGate SpecialPro Smart LLB-2200', watts: 1200 },
+    'UNB-600':  { name: 'ExeGate SpecialPro UNB-600', watts: 360 },
+    'UNB-800':  { name: 'ExeGate SpecialPro UNB-800', watts: 480 },
+    'UNB-1500': { name: 'ExeGate SpecialPro UNB-1500', watts: 900 },
+    'LLB-3000': { name: 'ExeGate SpecialPro Smart LLB-3000', watts: 1800 },
+  };
+
+  const modelSel = document.getElementById('settingsUpsModelSelect');
+  const wattsInput = document.getElementById('settingsRatedWattsInput');
+  const customWrap = document.getElementById('settingsCustomWattsWrap');
+  const battModeSel = document.getElementById('settingsBattModeSelect');
+
+  if (modelSel) {
+    modelSel.addEventListener('change', () => {
+      const val = modelSel.value;
+      if (val === 'custom') {
+        if (customWrap) customWrap.style.display = 'flex';
+        const curWatts = parseInt(wattsInput ? wattsInput.value : 750, 10) || 750;
+        saveSettingPatch({
+          ups_model: 'custom',
+          ups_model_name: `Custom UPS (${curWatts}W)`,
+          ups_rated_watts: curWatts
+        });
+      } else if (MODEL_PRESETS[val]) {
+        if (customWrap) customWrap.style.display = 'none';
+        const preset = MODEL_PRESETS[val];
+        if (wattsInput) wattsInput.value = preset.watts;
+        saveSettingPatch({
+          ups_model: val,
+          ups_model_name: preset.name,
+          ups_rated_watts: preset.watts
+        });
+      }
+    });
+  }
+
+  if (wattsInput) {
+    wattsInput.addEventListener('change', () => {
+      const val = parseInt(wattsInput.value, 10);
+      if (!isNaN(val) && val > 0) {
+        saveSettingPatch({
+          ups_rated_watts: val,
+          ups_model_name: modelSel && modelSel.value === 'custom'
+            ? `Custom UPS (${val}W)`
+            : (MODEL_PRESETS[modelSel ? modelSel.value : '']?.name || `UPS (${val}W)`)
+        });
+      }
+    });
+  }
+
+  if (battModeSel) {
+    battModeSel.addEventListener('change', () => {
+      saveSettingPatch({
+        ups_battery_mode: battModeSel.value
+      });
     });
   }
 });

@@ -19,7 +19,13 @@ DEFAULT_SETTINGS = {
     "language": "en",
     "electricity_tariff": 5.5,
     "self_consumption_watts": 15,
-    "accumulated_kwh": 0.0
+    "accumulated_kwh": 0.0,
+    "ups_model": "UNB-1200",
+    "ups_model_name": "ExeGate SpecialPro UNB-1200",
+    "ups_rated_watts": 750,
+    "ups_battery_mode": "auto",
+    "usb_vendor_id": 0x0665,
+    "usb_product_id": 0x5161
 }
 
 

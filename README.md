@@ -40,6 +40,7 @@ A modern web and desktop monitoring application for **ExeGate SpecialPro UNB-120
 - 🔄 **Interactive Power Flow Diagram**: Dynamic energy flow scheme (Mains $\rightarrow$ UPS $\rightarrow$ Load / Battery) with animated current pulse indicators.
 - 📈 **Live Voltage Dynamics & Historical Charting**: Built-in real-time and historical graphs powered by `Chart.js`.
 - 🔔 **Audio & Push Alerts**: Dual-layer sound chime alerts and browser push support.
+- 🔌 **Multi-Model UPS Support (UNB-1200, Smart LLB-2200, etc.)**: Built-in presets with automatic rated wattage scaling (360W, 480W, 750W, 900W, 1200W, 1800W, or Custom) and intelligent auto-detection of multi-battery voltage banks (12V / 24V / 48V).
 - 📜 **Event Logging & CSV Export**: Automatic recording of power events with 1-click CSV file export and dynamic historical log translation.
 - 💻 **Desktop & Web Modes**: Launch as a native Windows desktop app (`pywebview` + `pystray`) or a standalone Web Server.
 

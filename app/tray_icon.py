@@ -102,6 +102,12 @@ class UPSTrayIcon:
         in_v = ups_status.get("in_v", 0.0)
         batt_pct = ups_status.get("batt_pct", 0)
         
+        model_name = self.driver.shutdown_manager.settings.get("ups_model", "SpecialPro")
+        if not model_name:
+            model_name = "SpecialPro"
+        elif "ExeGate" in model_name:
+            model_name = model_name.replace("ExeGate", "").strip()
+
         if shutdown_status and shutdown_status.get("shutdown_active"):
             color = "#ef4444"
             sec = shutdown_status.get("seconds_left", 0)
@@ -112,12 +118,12 @@ class UPSTrayIcon:
                 tooltip = f"⚠️ ВЫКЛЮЧЕНИЕ ПК ЧЕРЕЗ {sec}с!\nПричина: {reason}"
         elif ups_status.get("connected"):
             if lang == "en":
-                tooltip = f"ExeGate UNB-1200: {mode_title}\nInput: {in_v}V | Batt: {batt_pct}%"
+                tooltip = f"ExeGate {model_name}: {mode_title}\nInput: {in_v}V | Batt: {batt_pct}%"
             else:
-                tooltip = f"ExeGate UNB-1200: {mode_title}\nВход: {in_v}V | АКБ: {batt_pct}%"
+                tooltip = f"ExeGate {model_name}: {mode_title}\nВход: {in_v}V | АКБ: {batt_pct}%"
         else:
             color = "#ef4444"
-            tooltip = "ExeGate UPS — USB Disconnected" if lang == "en" else "ExeGate ИБП — Нет связи по USB"
+            tooltip = f"ExeGate {model_name} — USB Disconnected" if lang == "en" else f"ExeGate {model_name} — Нет связи по USB"
 
         self.current_title = tooltip
 

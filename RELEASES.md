@@ -4,6 +4,23 @@ This document contains formatted release notes in **English** for GitHub Release
 
 ---
 
+## 🔌 Release v1.5.0 — Multi-Model UPS Support (SpecialPro Smart LLB-2200 & More)
+
+### ⚙️ Multi-Model Presets & Dynamic Load Rating
+- **Model Presets**: Added built-in presets for **ExeGate SpecialPro Smart LLB-2200 (1200 W)**, **UNB-1200 (750 W)**, **UNB-600 (360 W)**, **UNB-800 (480 W)**, **UNB-1500 (900 W)**, **LLB-3000 (1800 W)**, and **Custom UPS**.
+- **Active Wattage Scaling**: Active wattage calculations now dynamically scale based on configured model rating rather than hardcoded 750W.
+- **Dynamic UI Indicators**: Load gauge caption (`1200 W max`), sidebar badges, and Power Flow diagram automatically reflect the active model in real time.
+
+### 🔋 Intelligent Multi-Battery Auto-Detection
+- **Auto-Detection (12V / 24V / 48V)**: Automatically detects 24V battery banks (e.g. LLB-2200 dual-battery setup) and 48V banks, normalizing voltage curves to ensure 100% accurate battery percentage display across all models.
+- **Manual Mode Option**: Allows explicit selection of 12V, 24V, 36V, or 48V battery systems.
+
+### 🖥️ Enhanced System Tray & USB Connection
+- **Dynamic Tray Tooltip**: System tray icon tooltip now shows the active UPS model name (e.g., `ExeGate LLB-2200: ONLINE`).
+- **Resilient USB HID Detection**: Added automatic fallback to alternative Megatec VID/PID pairs.
+
+---
+
 ## 📊 Release v1.4.0 — Power Grid Historical Analytics, Incident Diagrams & Protocol Fix
 
 ### 📈 Historical Analytics & Stability Dashboard

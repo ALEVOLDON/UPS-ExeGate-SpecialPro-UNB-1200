@@ -24,7 +24,7 @@
         </div>
         <div class="brand-info">
           <h1 class="brand-name" data-i18n="brand_name">ExeGate Pro</h1>
-          <p class="brand-sub" data-i18n="brand_sub">UNB-1200 · USB HID</p>
+          <p class="brand-sub" id="brandSubText" data-i18n="brand_sub">UNB-1200 · USB HID</p>
         </div>
       </div>
 
@@ -261,7 +261,7 @@
             <div class="gauge-meta">
               <div class="gauge-title" data-i18n="card_load">Output Load</div>
               <div class="gauge-caption" id="valLoadWatts">—</div>
-              <div class="gauge-extra"><span data-i18n="max_w_caption">750 W max</span></div>
+              <div class="gauge-extra"><span id="gaugeMaxWatts" data-i18n="max_w_caption">750 W max</span></div>
             </div>
           </article>
         </section>
@@ -375,7 +375,7 @@
                       <circle cx="32" cy="30" r="2" fill="#fbbf24"/>
                     </svg>
                   </div>
-                  <div class="flow-label" data-i18n="node_ups">UPS UNB-1200</div>
+                  <div class="flow-label" id="flowUpsLabel" data-i18n="node_ups">UPS UNB-1200</div>
                   <div class="flow-value" id="flowOutV">-- V</div>
                   <div class="flow-sub" id="flowAvr">AVR —</div>
                 </div>
@@ -824,6 +824,50 @@
                 </div>
               </div>
               <span class="tag tag-green settings-ctrl" data-i18n="tag_active_tray">Active (Tray)</span>
+            </div>
+
+            <!-- UPS Model & Rated Power -->
+            <div class="settings-row">
+              <div class="settings-info">
+                <svg class="settings-title-icon" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                <div class="settings-text-group">
+                  <div class="settings-title" data-i18n="set_model_title">UPS Model & Rated Power</div>
+                  <div class="settings-desc" data-i18n="set_model_desc">Select your UPS model or configure nominal load rating</div>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;gap:0.55rem;flex-wrap:wrap;justify-content:flex-end;">
+                <select id="settingsUpsModelSelect" class="settings-select settings-ctrl" style="min-width:230px;">
+                  <option value="UNB-1200" selected>ExeGate UNB-1200 (750 W)</option>
+                  <option value="LLB-2200">ExeGate Smart LLB-2200 (1200 W)</option>
+                  <option value="UNB-600">ExeGate UNB-600 / 650 (360 W)</option>
+                  <option value="UNB-800">ExeGate UNB-800 / 850 (480 W)</option>
+                  <option value="UNB-1500">ExeGate UNB-1500 / LLB-1500 (900 W)</option>
+                  <option value="LLB-3000">ExeGate LLB-3000 (1800 W)</option>
+                  <option value="custom" data-i18n="set_model_custom">Custom Model...</option>
+                </select>
+                <div id="settingsCustomWattsWrap" style="display:none;align-items:center;gap:0.35rem;">
+                  <input type="number" id="settingsRatedWattsInput" class="settings-input settings-ctrl" style="width:90px;" min="50" max="10000" step="10" value="750">
+                  <span style="font-size:0.85rem;color:var(--text-muted);font-weight:600;" data-i18n="unit_w">W</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Battery Configuration -->
+            <div class="settings-row">
+              <div class="settings-info">
+                <svg class="settings-title-icon" viewBox="0 0 24 24"><rect width="16" height="10" x="2" y="7" rx="2"/><line x1="22" x2="22" y1="11" y2="13"/></svg>
+                <div class="settings-text-group">
+                  <div class="settings-title" data-i18n="set_batt_mode_title">Battery Voltage System</div>
+                  <div class="settings-desc" data-i18n="set_batt_mode_desc">Nominal battery bank voltage for accurate percentage curve</div>
+                </div>
+              </div>
+              <select id="settingsBattModeSelect" class="settings-select settings-ctrl">
+                <option value="auto" selected data-i18n="batt_mode_auto">Auto-detect (12V / 24V / 48V)</option>
+                <option value="12v" data-i18n="batt_mode_12v">12V (1 Battery)</option>
+                <option value="24v" data-i18n="batt_mode_24v">24V (2 Batteries)</option>
+                <option value="36v" data-i18n="batt_mode_36v">36V (3 Batteries)</option>
+                <option value="48v" data-i18n="batt_mode_48v">48V (4 Batteries)</option>
+              </select>
             </div>
 
             <!-- Electricity Tariff -->

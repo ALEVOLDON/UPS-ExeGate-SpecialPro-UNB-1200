@@ -18,6 +18,20 @@ from app.shutdown_manager import ShutdownManager
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 
 
+def _parse_int_id(val, default):
+    if val is None:
+        return default
+    if isinstance(val, int):
+        return val
+    try:
+        s = str(val).strip()
+        if s.lower().startswith("0x"):
+            return int(s, 16)
+        return int(s)
+    except Exception:
+        return default
+
+
 class UPSDriver:
     def __init__(self):
         self.dev = None
@@ -25,9 +39,13 @@ class UPSDriver:
         self.thread = None
         self.lock = threading.Lock()
         self._seq = 0
+        self.active_vid = VENDOR_ID
+        self.active_pid = PRODUCT_ID
 
         self.shutdown_manager = ShutdownManager(notification_callback=send_notification)
 
+        model_name = self.shutdown_manager.settings.get("ups_model_name", "ExeGate SpecialPro UNB-1200")
+        rated_w = int(self.shutdown_manager.settings.get("ups_rated_watts", 750) or 750)
 
         self.current_status = {
             "connected": False,
@@ -39,6 +57,8 @@ class UPSDriver:
             "out_v": 0.0,
             "load_pct": 0,
             "load_watts": 0,
+            "rated_watts": rated_w,
+            "ups_model_name": model_name,
             "freq": 0.0,
             "batt_v": 0.0,
             "batt_pct": 0,
@@ -140,16 +160,30 @@ class UPSDriver:
 
     def _connect_usb(self):
         self._close_usb()
-        try:
-            d = hid.device()
-            d.open(VENDOR_ID, PRODUCT_ID)
-            d.set_nonblocking(True)
-            self.dev = d
-            logging.info(f"Opened HID device {hex(VENDOR_ID)}:{hex(PRODUCT_ID)} (non-blocking)")
-            return True
-        except Exception as e:
-            self.dev = None
-            return False
+        vid = _parse_int_id(self.shutdown_manager.settings.get("usb_vendor_id"), VENDOR_ID)
+        pid = _parse_int_id(self.shutdown_manager.settings.get("usb_product_id"), PRODUCT_ID)
+
+        candidates = [(vid, pid)]
+        if (VENDOR_ID, PRODUCT_ID) not in candidates:
+            candidates.append((VENDOR_ID, PRODUCT_ID))
+        if (0x0001, 0x0000) not in candidates:
+            candidates.append((0x0001, 0x0000))
+
+        for v, p in candidates:
+            try:
+                d = hid.device()
+                d.open(v, p)
+                d.set_nonblocking(True)
+                self.dev = d
+                self.active_vid = v
+                self.active_pid = p
+                logging.info(f"Opened HID device {hex(v)}:{hex(p)} (non-blocking)")
+                return True
+            except Exception:
+                continue
+
+        self.dev = None
+        return False
 
     def _poll_loop(self):
         while self.running:
@@ -297,7 +331,9 @@ class UPSDriver:
     def _read_telemetry(self):
         if not self.dev:
             if not self._connect_usb():
-                return None, "USB ИБП не найден (0665:5161)"
+                vid = _parse_int_id(self.shutdown_manager.settings.get("usb_vendor_id"), VENDOR_ID)
+                pid = _parse_int_id(self.shutdown_manager.settings.get("usb_product_id"), PRODUCT_ID)
+                return None, f"USB ИБП не найден ({hex(vid)}:{hex(pid)})"
 
         try:
             # Полностью вычитываем все старые пакеты из буфера Windows (чтобы не было "лагов" и зависаний данных)
@@ -337,9 +373,14 @@ class UPSDriver:
 
         try:
             text = full_res.decode('ascii', errors='ignore')
-            parsed = parse_f_response(text)
+            rated_w = int(self.shutdown_manager.settings.get("ups_rated_watts", 750) or 750)
+            batt_m = str(self.shutdown_manager.settings.get("ups_battery_mode", "auto") or "auto")
+            parsed = parse_f_response(text, rated_watts=rated_w, batt_mode=batt_m)
             if not parsed:
                 return None, f"Формат ответа не распознан: '{text.strip()}'"
+            parsed["active_vid"] = hex(self.active_vid)
+            parsed["active_pid"] = hex(self.active_pid)
+            parsed["ups_model_name"] = self.shutdown_manager.settings.get("ups_model_name", "ExeGate SpecialPro")
             return parsed, None
         except Exception as e:
             return None, f"Ошибка декодирования: {e}"
