@@ -38,6 +38,10 @@ env/
 *.swp
 *.swo
 
+# Video generation scratch caches
+scratch_audio/
+scratch_video/
+
 # Project logs and runtime output
 ups_power_events.csv
 unplug_test_log.txt
