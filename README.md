@@ -13,12 +13,10 @@
 
 A modern web and desktop monitoring application for **ExeGate SpecialPro** series (**UNB-1200**, **Smart LLB-2200**, **UNB-600/800/1500**, **LLB-3000**, and compatible RichComm / Megatec F protocol devices over USB HID) featuring **graceful Windows auto-shutdown**, **system tray icon**, **dual-language UI (English & Russian)**, **power grid analytics**, and **real-time telemetry**.
 
+https://github.com/user-attachments/assets/33988bf8-d3be-4140-a914-0b54a2f4d72b
+
 <p align="center">
-  <a href="assets/ups_monitor_showcase.mp4">
-    <img src="assets/ups_monitor_demo.gif" alt="ExeGate SpecialPro UPS Monitor Showcase Demo" width="100%" style="border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.35);" />
-  </a>
-  <br>
-  <sub>🎬 <b>Watch Full Video Showcase (1080p, EN Voiceover + RU Subtitles)</b>: Click the preview or open <a href="assets/ups_monitor_showcase.mp4"><code>assets/ups_monitor_showcase.mp4</code></a></sub>
+  <sub>🎬 <b>Full 1080p Video Showcase (87s)</b>: English Voiceover with Synchronized Russian Subtitles. Unmute audio in player & expand to Full HD!</sub>
 </p>
 
 

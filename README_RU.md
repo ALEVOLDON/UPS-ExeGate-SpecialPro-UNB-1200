@@ -13,12 +13,10 @@
 
 Современное веб- и десктоп-приложение для мониторинга состояния ИБП линейки **ExeGate SpecialPro** (**UNB-1200**, **Smart LLB-2200**, **UNB-600/800/1500**, **LLB-3000** и совместимых устройств на протоколе RichComm / Megatec F через USB HID) с поддержкой **двух языков (английский и русский)**, **безопасного автовыключения Windows**, **аналитики электросети** и **системного трея**.
 
+https://github.com/user-attachments/assets/33988bf8-d3be-4140-a914-0b54a2f4d72b
+
 <p align="center">
-  <a href="assets/ups_monitor_showcase.mp4">
-    <img src="assets/ups_monitor_demo.gif" alt="Видеопрезентация ExeGate SpecialPro UPS Monitor" width="100%" style="border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.35);" />
-  </a>
-  <br>
-  <sub>🎬 <b>Смотреть видеопрезентацию (1080p, английская озвучка + русские субтитры)</b>: нажмите на превью или откройте <a href="assets/ups_monitor_showcase.mp4"><code>assets/ups_monitor_showcase.mp4</code></a></sub>
+  <sub>🎬 <b>Видеопрезентация 1080p (87 сек)</b>: Английская озвучка и синхронизированные русские субтитры. Включите звук в плеере и разверните на весь экран!</sub>
 </p>
 
 
