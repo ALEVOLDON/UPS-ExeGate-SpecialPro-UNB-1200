@@ -21,13 +21,17 @@ A modern web and desktop monitoring application for **ExeGate SpecialPro** serie
   <sub>🎬 <b>Watch Full Video Showcase (1080p, EN Voiceover + RU Subtitles)</b>: Click the preview or open <a href="assets/ups_monitor_showcase.mp4"><code>assets/ups_monitor_showcase.mp4</code></a></sub>
 </p>
 
-<p align="center">
-  <img src="assets/dashboard_preview_en.jpg" alt="Dashboard Preview (English)" width="100%" style="border-radius: 12px;" />
-</p>
 
-<p align="center">
-  <img src="assets/modal_preview_en.jpg" alt="Event Log Modal Window (English)" width="100%" style="border-radius: 12px;" />
-</p>
+<details>
+  <summary>📸 <b>Static UI Screenshots (Click to expand)</b></summary>
+  <br>
+  <p align="center">
+    <img src="assets/dashboard_preview_en.jpg" alt="Dashboard Preview (English)" width="100%" style="border-radius: 12px;" />
+  </p>
+  <p align="center">
+    <img src="assets/modal_preview_en.jpg" alt="Event Log Modal Window (English)" width="100%" style="border-radius: 12px;" />
+  </p>
+</details>
 
 ---
 

@@ -21,13 +21,17 @@
   <sub>🎬 <b>Смотреть видеопрезентацию (1080p, английская озвучка + русские субтитры)</b>: нажмите на превью или откройте <a href="assets/ups_monitor_showcase.mp4"><code>assets/ups_monitor_showcase.mp4</code></a></sub>
 </p>
 
-<p align="center">
-  <img src="assets/dashboard_preview.jpg" alt="Dashboard Preview" width="100%" style="border-radius: 12px;" />
-</p>
 
-<p align="center">
-  <img src="assets/modal_preview.jpg" alt="Event Log Modal Window" width="100%" style="border-radius: 12px;" />
-</p>
+<details>
+  <summary>📸 <b>Статичные скриншоты интерфейса (нажмите, чтобы развернуть)</b></summary>
+  <br>
+  <p align="center">
+    <img src="assets/dashboard_preview.jpg" alt="Главный экран" width="100%" style="border-radius: 12px;" />
+  </p>
+  <p align="center">
+    <img src="assets/modal_preview.jpg" alt="Журнал событий" width="100%" style="border-radius: 12px;" />
+  </p>
+</details>
 
 ---
 
