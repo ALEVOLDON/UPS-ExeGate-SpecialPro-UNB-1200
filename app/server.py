@@ -190,7 +190,7 @@ def compute_analytics(period: str = "7d"):
         elif "ONLINE" in m or "НОРМ" in m:
             online_events += 1
 
-        if r["in_v"] > 50.0:
+        if 50.0 < r["in_v"] <= 350.0:
             valid_voltages.append(r["in_v"])
 
     mins = int(batt_duration_sec // 60)
