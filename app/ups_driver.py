@@ -360,6 +360,7 @@ class UPSDriver:
                 if buf:
                     full_res += bytes(buf)
                     if b'\r' in full_res:
+                        full_res = full_res[:full_res.find(b'\r') + 1]
                         break
             except Exception as e:
                 logging.warning(f"USB Read error (reconnecting): {e}")

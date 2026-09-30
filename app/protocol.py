@@ -80,6 +80,11 @@ def parse_f_response(raw_text: str, rated_watts: int = 750, batt_mode: str = "au
     else:
         return None
 
+    # Truncate at frame delimiters (\r, \n, \0, or ')') to prevent buffer tail concatenation
+    for end_char in ('\r', '\n', '\0', ')'):
+        if end_char in text:
+            text = text[:text.find(end_char)]
+
     clean_text = "".join(ch for ch in text if ch.isdigit() or ch in '. ')
     parts = clean_text.split()
     if len(parts) < 8:
@@ -93,7 +98,15 @@ def parse_f_response(raw_text: str, rated_watts: int = 750, batt_mode: str = "au
         freq = float(parts[4])
         batt_v = float(parts[5])
         temp = float(parts[6])
-        status_bits = parts[7]
+
+        # Status bits must be strictly 8 binary digits ('0' or '1')
+        raw_bits = parts[7]
+        clean_bits = "".join(c for c in raw_bits if c in '01')
+        status_bits = clean_bits[:8].ljust(8, '0')
+
+        # Sanity check: discard obviously corrupted/malformed frames (e.g. 4211V or negative/unrealistic values)
+        if in_v > 350.0 or out_v > 350.0 or freq > 75.0 or batt_v > 65.0:
+            return None
 
         is_battery = status_bits[0] == '1' if len(status_bits) >= 1 else False
         is_batt_low = status_bits[1] == '1' if len(status_bits) >= 2 else False
@@ -160,7 +173,7 @@ def parse_f_response(raw_text: str, rated_watts: int = 750, batt_mode: str = "au
             "batt_pct": batt_pct,
             "temp": temp,
             "status_bits": status_bits,
-            "raw_frame": f"F({' '.join(parts[:8])})",
+            "raw_frame": f"F({' '.join(parts[:7])} {status_bits})",
             "is_battery": is_battery,
             "is_batt_low": is_batt_low,
             "is_avr": is_avr,
