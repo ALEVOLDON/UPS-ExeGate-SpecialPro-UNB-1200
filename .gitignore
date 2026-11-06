@@ -47,3 +47,10 @@ ups_power_events.csv
 unplug_test_log.txt
 app_settings.json
 *.log
+
+# Sensitive credentials & environment variables
+*.env
+lan.env
+bot_config.json
+telegram_chats.json
+

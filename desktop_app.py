@@ -1,6 +1,7 @@
 import sys
 import os
 import time
+import socket
 import threading
 import traceback
 
@@ -21,7 +22,8 @@ if sys.platform == "win32":
     except Exception:
         pass
 
-from app.netutil import DEFAULT_HOST, DEFAULT_PORT, port_in_use
+from app.config import DEFAULT_HOST, DEFAULT_PORT, BOX_HOST, BOX_PORT
+from app.netutil import port_in_use
 
 
 def show_error(title: str, message: str) -> None:
@@ -88,16 +90,27 @@ def wait_for_server(timeout: float = 8.0) -> bool:
     return False
 
 
-def open_window():
+def is_box_available(host: str = "192.168.0.103", port: int = 8089, timeout: float = 0.8) -> bool:
+    try:
+        with socket.create_connection((host, port), timeout=timeout):
+            return True
+    except Exception:
+        return False
+
+
+def open_window(target_url: str = None):
     import webview
 
     title = "ExeGate SpecialPro — UPS Monitor"
     icon_path = os.path.join(APP_DIR, "assets", "app_icon.ico")
     set_windows_taskbar_icon(title, icon_path)
 
+    if not target_url:
+        target_url = f"http://{DEFAULT_HOST}:{DEFAULT_PORT}/?v={int(time.time())}"
+
     window = webview.create_window(
         title=title,
-        url=f"http://{DEFAULT_HOST}:{DEFAULT_PORT}/?v={int(time.time())}",
+        url=target_url,
         width=1220,
         height=820,
         min_size=(940, 640),
@@ -105,7 +118,7 @@ def open_window():
         resizable=True,
         text_select=False,
     )
-    print(f"[+] Desktop window -> http://{DEFAULT_HOST}:{DEFAULT_PORT}")
+    print(f"[+] Desktop window -> {target_url}")
     webview.start()
     return window
 
@@ -142,13 +155,30 @@ def main():
         )
         sys.exit(1)
 
-    already_running = port_in_use()
+    # 1. Primary: 24/7 TV Box Server
+    BOX_HOST = "192.168.0.103"
+    BOX_PORT = 8089
+    if is_box_available(BOX_HOST, BOX_PORT):
+        print(f"[*] Connecting to 24/7 TV Box Monitor at http://{BOX_HOST}:{BOX_PORT}")
+        try:
+            open_window(f"http://{BOX_HOST}:{BOX_PORT}/?v={int(time.time())}")
+            return
+        except Exception as e:
+            show_error(
+                "UPS Monitor — ошибка окна",
+                f"{e}\n\n{traceback.format_exc()}",
+            )
+            sys.exit(1)
+
+    # 2. Fallback: Local Server (if UPS is connected directly to PC)
+    LOCAL_HOST = "127.0.0.1"
+    LOCAL_PORT = 8000
+    already_running = port_in_use(LOCAL_HOST, LOCAL_PORT)
 
     if already_running:
-        # Attach to the already running dashboard instead of failing
-        print(f"[*] Port {DEFAULT_PORT} busy — opening window on existing server.")
+        print(f"[*] Port {LOCAL_PORT} busy — opening window on existing local server.")
         try:
-            open_window()
+            open_window(f"http://{LOCAL_HOST}:{LOCAL_PORT}/?v={int(time.time())}")
         except Exception as e:
             show_error(
                 "UPS Monitor — ошибка окна",

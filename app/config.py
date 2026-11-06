@@ -6,9 +6,13 @@ import os
 VENDOR_ID = 0x0665
 PRODUCT_ID = 0x5161
 
-# Network & Server defaults
+# Local PC Server defaults (fallback if UPS plugged directly into PC)
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 8000
+
+# 24/7 TV Box Home Server defaults
+BOX_HOST = "192.168.0.103"
+BOX_PORT = 8089
 
 # File paths & limits
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
