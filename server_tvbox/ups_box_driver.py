@@ -296,15 +296,33 @@ class BoxUPSDriver:
 
         self.accumulated_kwh = 0.0
 
+        self.ui_settings_file = os.path.join(self.data_dir, "ui_settings.json")
+
+        self.ui_settings = {
+            "electricity_tariff": 1.94,
+            "self_consumption_watts": 15.0,
+            "language": "ru",
+            "ups_rated_watts": 750,
+            "ups_model_name": "ExeGate SpecialPro UNB-1200",
+        }
+        try:
+            if os.path.exists(self.ui_settings_file):
+                with open(self.ui_settings_file, "r", encoding="utf-8") as f:
+                    loaded = json.load(f)
+                    if isinstance(loaded, dict):
+                        self.ui_settings.update(loaded)
+        except Exception:
+            pass
+
         self.energy_status = {
 
             "load_watts": 0.0,
 
-            "self_watts": 15.0,
+            "self_watts": float(self.ui_settings.get("self_consumption_watts", 15.0)),
 
             "total_watts": 0.0,
 
-            "tariff": 1.94,
+            "tariff": float(self.ui_settings.get("electricity_tariff", 1.94)),
 
             "cost_per_hour": 0.0,
 
@@ -1205,7 +1223,10 @@ class BoxUPSDriver:
 
                 load_w = float(self.current_status.get("load_watts", 0)) if self.current_status.get("connected") else 0.0
 
-                total_w = load_w + 15.0
+                cur_self_w = float(self.energy_status.get("self_watts", 15.0))
+                cur_tariff = float(self.energy_status.get("tariff", 1.94))
+
+                total_w = load_w + cur_self_w
 
                 if self.current_status.get("connected") and 0 < dt < 10.0:
 
@@ -1213,17 +1234,17 @@ class BoxUPSDriver:
 
 
 
-                cost_hr = (total_w / 1000.0) * 1.94
+                cost_hr = (total_w / 1000.0) * cur_tariff
 
                 self.energy_status = {
 
                     "load_watts": round(load_w, 1),
 
-                    "self_watts": 15.0,
+                    "self_watts": cur_self_w,
 
                     "total_watts": round(total_w, 1),
 
-                    "tariff": 1.94,
+                    "tariff": cur_tariff,
 
                     "cost_per_hour": round(cost_hr, 2),
 
@@ -1233,7 +1254,7 @@ class BoxUPSDriver:
 
                     "accumulated_kwh": round(self.accumulated_kwh, 4),
 
-                    "accumulated_cost": round(self.accumulated_kwh * 1.94, 2)
+                    "accumulated_cost": round(self.accumulated_kwh * cur_tariff, 2)
 
                 }
 
@@ -1309,13 +1330,15 @@ class BoxUPSDriver:
 
                         "shutdown_action": "hibernate",
 
-                        "ups_model_name": "ExeGate SpecialPro UNB-1200",
+                        "ups_model_name": self.ui_settings.get("ups_model_name", "ExeGate SpecialPro UNB-1200"),
 
-                        "ups_rated_watts": 750,
+                        "ups_rated_watts": int(self.ui_settings.get("ups_rated_watts", 750)),
 
-                        "electricity_tariff": 1.94,
+                        "electricity_tariff": float(self.energy_status.get("tariff", 1.94)),
 
-                        "language": "ru"
+                        "self_consumption_watts": float(self.energy_status.get("self_watts", 15.0)),
+
+                        "language": self.ui_settings.get("language", "ru")
 
                     }
 
