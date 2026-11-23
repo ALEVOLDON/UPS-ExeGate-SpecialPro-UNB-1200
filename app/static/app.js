@@ -2,6 +2,9 @@ let soundEnabled = true;
 let notifEnabled = true;
 let chartDashboard = null;
 let chartAnalytics = null;
+let chartDashboard3D = null;
+let chartAnalytics3D = null;
+let voltageChartMode = localStorage.getItem('ups_chart_mode') || '2d';
 let chartIncidentsDaily = null;
 let chartModesRatio = null;
 let chartHourlyDisturbances = null;
@@ -116,6 +119,12 @@ function applyLanguage(lang) {
       el.placeholder = t(key);
     }
   });
+  document.querySelectorAll('[data-i18n-title]').forEach(el => {
+    const key = el.getAttribute('data-i18n-title');
+    if (key) {
+      el.title = t(key);
+    }
+  });
 
   // Dynamic model and power captions
   const curRatedWatts = lastSyncedSettings.ups_rated_watts || 750;
@@ -166,6 +175,8 @@ function applyLanguage(lang) {
     chartAnalytics.data.datasets[1].label = `${t('chart_out_v')}`;
     chartAnalytics.update('none');
   }
+  if (chartDashboard3D) chartDashboard3D.updateLanguage();
+  if (chartAnalytics3D) chartAnalytics3D.updateLanguage();
   if (chartIncidentsDaily && chartIncidentsDaily.data.datasets.length >= 2) {
     chartIncidentsDaily.data.datasets[0].label = t('chart_legend_blackout');
     chartIncidentsDaily.data.datasets[1].label = t('chart_legend_avr');
@@ -302,15 +313,77 @@ function createChartConfig() {
 function initCharts() {
   const canvas1 = document.getElementById('voltageChart');
   const canvas2 = document.getElementById('voltageChartAnalytics');
-  if (typeof Chart === 'undefined') return;
+  if (typeof Chart !== 'undefined') {
+    if (canvas1) {
+      chartDashboard = new Chart(canvas1.getContext('2d'), createChartConfig());
+    }
+    if (canvas2) {
+      chartAnalytics = new Chart(canvas2.getContext('2d'), createChartConfig());
+    }
+  }
 
-  if (canvas1) {
-    chartDashboard = new Chart(canvas1.getContext('2d'), createChartConfig());
+  if (typeof VoltageChart3D !== 'undefined' && typeof THREE !== 'undefined') {
+    const c3d1 = document.getElementById('voltageChart3D');
+    const c3d2 = document.getElementById('voltageChartAnalytics3D');
+    if (c3d1) chartDashboard3D = new VoltageChart3D(c3d1);
+    if (c3d2) chartAnalytics3D = new VoltageChart3D(c3d2);
   }
-  if (canvas2) {
-    chartAnalytics = new Chart(canvas2.getContext('2d'), createChartConfig());
-  }
+
+  initVoltageChartModeToggle();
   initAnalyticsCharts();
+}
+
+function setVoltageChartMode(mode) {
+  const is3D = mode === '3d' && (chartDashboard3D || chartAnalytics3D);
+  voltageChartMode = is3D ? '3d' : '2d';
+  localStorage.setItem('ups_chart_mode', voltageChartMode);
+
+  document.querySelectorAll('.chart-mode-btn').forEach((btn) => {
+    btn.classList.toggle('active', btn.dataset.mode === voltageChartMode);
+  });
+
+  document.querySelectorAll('[data-chart-reset]').forEach((btn) => {
+    btn.classList.toggle('hidden', !is3D);
+  });
+
+  const c2d1 = document.getElementById('voltageChart');
+  const c3d1 = document.getElementById('voltageChart3D');
+  const c2d2 = document.getElementById('voltageChartAnalytics');
+  const c3d2 = document.getElementById('voltageChartAnalytics3D');
+
+  if (c2d1) c2d1.classList.toggle('hidden', is3D);
+  if (c3d1) c3d1.classList.toggle('hidden', !is3D);
+  if (c2d2) c2d2.classList.toggle('hidden', is3D);
+  if (c3d2) c3d2.classList.toggle('hidden', !is3D);
+
+  if (chartDashboard3D) {
+    chartDashboard3D.setActive(is3D && activeTab === 'dashboard');
+  }
+  if (chartAnalytics3D) {
+    chartAnalytics3D.setActive(is3D && activeTab === 'analytics');
+  }
+  if (!is3D) {
+    if (chartDashboard) chartDashboard.resize();
+    if (chartAnalytics) chartAnalytics.resize();
+  }
+}
+
+function initVoltageChartModeToggle() {
+  document.querySelectorAll('[data-chart-toggle] .chart-mode-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      setVoltageChartMode(btn.dataset.mode);
+    });
+  });
+
+  document.querySelectorAll('[data-chart-reset]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const target = btn.dataset.chartReset;
+      if (target === 'dashboard' && chartDashboard3D) chartDashboard3D.resetView();
+      if (target === 'analytics' && chartAnalytics3D) chartAnalytics3D.resetView();
+    });
+  });
+
+  setVoltageChartMode(voltageChartMode);
 }
 
 function initAnalyticsCharts() {
@@ -885,6 +958,12 @@ function updateUI(snapshot) {
       chartAnalytics.data.datasets[1].data = outData;
       chartAnalytics.update('none');
     }
+    if (chartDashboard3D) {
+      chartDashboard3D.updateData(labels, inData, outData);
+    }
+    if (chartAnalytics3D) {
+      chartAnalytics3D.updateData(labels, inData, outData);
+    }
   }
 
   // Events Tables
@@ -941,8 +1020,8 @@ function syncSettingsUI(settings) {
   if (!settings) return;
   lastSyncedSettings = settings;
 
-  // Sync language if backend has a saved setting
-  if (settings.language && settings.language !== getLanguage()) {
+  // Sync language from backend only if user has not chosen one locally yet
+  if (settings.language && !localStorage.getItem('ups_language') && settings.language !== getLanguage()) {
     applyLanguage(settings.language);
     localStorage.setItem('ups_language', settings.language);
   }
@@ -1205,10 +1284,17 @@ function initTabNavigation() {
         viewTitle.textContent = t(titles[tab]);
       }
 
-      // Trigger chart resize if navigating to analytics
+      // Trigger chart resize / 3D active state on tab switch
+      if (chartDashboard3D) {
+        chartDashboard3D.setActive(voltageChartMode === '3d' && tab === 'dashboard');
+      }
+      if (chartAnalytics3D) {
+        chartAnalytics3D.setActive(voltageChartMode === '3d' && tab === 'analytics');
+      }
       if (tab === 'analytics') {
         setTimeout(() => {
           if (chartAnalytics) chartAnalytics.resize();
+          if (chartAnalytics3D && voltageChartMode === '3d') chartAnalytics3D.resize();
           if (chartIncidentsDaily) chartIncidentsDaily.resize();
           if (chartModesRatio) chartModesRatio.resize();
           if (chartHourlyDisturbances) chartHourlyDisturbances.resize();

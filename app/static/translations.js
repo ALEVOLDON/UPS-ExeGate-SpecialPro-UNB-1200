@@ -72,6 +72,9 @@ const TRANSLATIONS = {
     voltage_chart_sub: "Input vs Output",
     chart_in_v: "Input (V)",
     chart_out_v: "Output (V)",
+    chart_reset_3d: "Reset 3D camera",
+    chart_3d_hint: "Drag to rotate · Scroll to zoom · Dbl-click to reset",
+    chart_3d_avr_diff: "AVR Delta",
     event_log_title: "Event Log",
     btn_expand: "Expand",
 
@@ -310,6 +313,9 @@ const TRANSLATIONS = {
     voltage_chart_sub: "Вход vs Выход",
     chart_in_v: "Вход (В)",
     chart_out_v: "Выход (В)",
+    chart_reset_3d: "Сбросить ракурс 3D",
+    chart_3d_hint: "Мышь: вращение · Колесо: зум · Двойной клик: сброс",
+    chart_3d_avr_diff: "Разница AVR",
     event_log_title: "Журнал событий",
     btn_expand: "Развернуть",
 

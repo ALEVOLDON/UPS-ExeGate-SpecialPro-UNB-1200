@@ -10,6 +10,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="/static/chart.umd.min.js"></script>
+  <script src="/static/three.min.js"></script>
+  <script src="/static/voltage3d.js"></script>
   <link rel="stylesheet" href="/static/styles.css">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 </head>
@@ -301,10 +303,18 @@
           <div class="section-card">
             <div class="section-title">
               <span data-i18n="voltage_chart_title">Voltage Graph</span>
-              <span class="section-sub" data-i18n="voltage_chart_sub">Input vs Output</span>
+              <div class="chart-header-controls">
+                <span class="section-sub" data-i18n="voltage_chart_sub">Input vs Output</span>
+                <div class="chart-mode-toggle" data-chart-toggle>
+                  <button type="button" class="chart-mode-btn active" data-mode="2d">2D</button>
+                  <button type="button" class="chart-mode-btn" data-mode="3d">3D</button>
+                </div>
+                <button type="button" class="chart-reset-btn hidden" data-chart-reset="dashboard" title="Reset 3D view" data-i18n-title="chart_reset_3d">↺</button>
+              </div>
             </div>
             <div class="chart-wrapper">
               <canvas id="voltageChart"></canvas>
+              <div id="voltageChart3D" class="chart-3d-container hidden"></div>
             </div>
           </div>
 
@@ -675,10 +685,18 @@
         <div class="section-card">
           <div class="section-title">
             <span data-i18n="analytics_title">Detailed Voltage Dynamics Graph</span>
-            <span class="section-sub" data-i18n="analytics_sub">Mains Input Voltage vs UPS Output Voltage (Real-Time)</span>
+            <div class="chart-header-controls">
+              <span class="section-sub" data-i18n="analytics_sub">Mains Input Voltage vs UPS Output Voltage (Real-Time)</span>
+              <div class="chart-mode-toggle" data-chart-toggle>
+                <button type="button" class="chart-mode-btn active" data-mode="2d">2D</button>
+                <button type="button" class="chart-mode-btn" data-mode="3d">3D</button>
+              </div>
+              <button type="button" class="chart-reset-btn hidden" data-chart-reset="analytics" title="Reset 3D view" data-i18n-title="chart_reset_3d">↺</button>
+            </div>
           </div>
           <div class="chart-wrapper" style="height: 380px;">
             <canvas id="voltageChartAnalytics"></canvas>
+            <div id="voltageChartAnalytics3D" class="chart-3d-container hidden"></div>
           </div>
         </div>
       </div>
