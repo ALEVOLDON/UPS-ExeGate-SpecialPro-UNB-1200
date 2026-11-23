@@ -4,6 +4,27 @@ This document contains formatted release notes in **English** for GitHub Release
 
 ---
 
+## 🚀 Release v1.6.0 — 3D Voltage Analytics, Full PWA, Compact Mobile UI & 24/7 TV Box Server
+
+### 📱 Progressive Web App (PWA) & Compact Mobile Redesign
+- **Full PWA Support**: Added `manifest.json`, Service Worker (`sw.js`) with offline shell caching, adaptive maskable icons (`192px` / `512px` / Apple Touch Icon), and a one-click **Install** button in the header.
+- **Compact Overview Dashboard**: Redesigned the Overview header, status banner, raw USB strip, 2×2 circular gauge cards, and 3-column mini-stats grid so all core metrics fit cleanly above the fold on mobile screens without scrolling.
+- **Tidy Settings & Cross-Tab Polish**: Aligned all right-side controls (toggles, dropdowns, numeric input+unit groups) into a clean column, added responsive 50/50 button grids on narrow screens, and eliminated horizontal overflow across all 6 tabs.
+- **Fullscreen Mode**: Added a header fullscreen toggle button for dedicated wall-mount or tablet/phone display monitoring.
+
+### 🌐 Interactive 3D Voltage Chart (`Three.js`)
+- **2D / 3D Mode Switcher**: Added a live `2D / 3D` toggle on the Voltage Graph (with camera reset button) for an interactive 3D visualization of mains input vs. UPS output voltage over time.
+
+### 📺 24/7 Android TV Box Backend & Telegram Bot (`server_tvbox/`)
+- **Standalone Termux Server**: Added a lightweight Flask + WebSocket backend (`server_tvbox/server.py`, `ups_box_driver.py`) for 24/7 low-power UPS monitoring on Android TV boxes.
+- **Telegram Alerts & Persistence**: Added dedicated Telegram notification support and persistent storage for electricity tariff, UPS internal draw, and UI language settings.
+
+### 🛡️ Protocol & Analytics Fixes
+- **Telemetry Sanitization**: Hardened Megatec protocol parsing to prevent buffer tail concatenation glitches.
+- **Analytics Voltage Bounds**: Clamped valid recorded voltage upper bound to `350 V` to filter out rare sensor spikes from historical stats.
+
+---
+
 ## 🔌 Release v1.5.0 — Multi-Model UPS Support (SpecialPro Smart LLB-2200 & More)
 
 ### ⚙️ Multi-Model Presets & Dynamic Load Rating

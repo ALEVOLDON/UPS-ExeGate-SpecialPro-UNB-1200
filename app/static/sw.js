@@ -1,8 +1,8 @@
-const CACHE_NAME = 'ups-monitor-v14';
+const CACHE_NAME = 'ups-monitor-v15';
 const APP_SHELL = [
   '/',
   '/manifest.json',
-  '/static/styles.css?v=14',
+  '/static/styles.css?v=15',
   '/static/app.js',
   '/static/translations.js',
   '/static/chart.umd.min.js',
