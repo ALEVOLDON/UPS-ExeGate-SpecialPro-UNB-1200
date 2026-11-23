@@ -35,6 +35,9 @@ https://github.com/user-attachments/assets/33988bf8-d3be-4140-a914-0b54a2f4d72b
 
 ## ✨ Features
 
+- 📱 **Progressive Web App (PWA) & Compact Mobile UI**: Installable web app (`manifest.json`, Service Worker `sw.js`, adaptive icons, 1-click Install button) with a compact responsive dashboard, bottom navigation bar, aligned Settings layout, and header **Fullscreen** toggle.
+- 🌐 **Interactive 3D Voltage Chart (`Three.js`)**: Switch live between classic `2D` (`Chart.js`) and interactive `3D` voltage graphs with camera controls and 1-click reset.
+- 📺 **24/7 Android TV Box Server & Telegram Bot (`server_tvbox/`)**: Lightweight standalone Flask + WebSocket backend for 24/7 low-power UPS monitoring on Android TV boxes (Termux) with Telegram notifications and persistent settings.
 - 📊 **Power Grid Historical Analytics & Incident Diagrams**: Interactive analytics dashboard with time-range selector (**24 Hours**, **7 Days**, **30 Days**, **All Time**), 4 KPI summary cards (Battery Runtime & Outages, Grid Stability Index, AVR Activations, Voltage Extremes), Daily Incidents Bar Chart, Modes Distribution Doughnut Chart, and 24-Hour Peak Disturbance Histogram.
 - 💡 **Energy Consumption & Electricity Cost Calculator**: Real-time total grid power calculation (P_total = P_connected_load + P_ups_internal), cost rate estimator per hour, per 24h, and projected monthly cost with customizable electricity tariff (руб/kWh).
 - 🔋 **Session kWh & Cost Tracker**: Millisecond-accurate accumulated energy consumption tracker (kWh) and total cost with 1-click counter reset.
@@ -72,7 +75,8 @@ UPS ExeGate SpecialPro UNB-1200/
 │   ├── sound_manager.py    # Async native Windows sound alert player
 │   ├── tray_icon.py        # Windows system tray icon (pystray)
 │   ├── ups_driver.py       # USB HID background polling thread & state tracking
-│   └── static/             # Web UI assets (translations.js, app.js, styles.css)
+│   └── static/             # Web UI assets (index.html, app.js, styles.css, voltage3d.js, sw.js, manifest.json)
+├── server_tvbox/           # 24/7 Android TV Box (Termux) Flask + WebSocket server & Telegram bot
 ├── tools/                  # USB HID diagnostic scripts & protocol tests
 ├── desktop_app.py          # Native desktop application (pywebview + tray)
 ├── main.py                 # Standalone web server launcher (uvicorn)
