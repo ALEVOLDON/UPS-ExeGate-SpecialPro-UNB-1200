@@ -374,8 +374,8 @@ header {
 
 .flow-node {
   display: flex; flex-direction: column; align-items: center; gap: 0.3rem;
-  padding: 0.85rem 1rem; border-radius: 16px; background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.07); min-width: 118px;
+  padding: 0.95rem 1.1rem; border-radius: 16px; background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08); min-width: 142px;
   transition: border-color 0.25s, box-shadow 0.25s, transform 0.2s;
 }
 .flow-node.active { border-color: rgba(59, 130, 246, 0.45); box-shadow: 0 0 24px rgba(59, 130, 246, 0.12); }
@@ -397,7 +397,7 @@ header {
 .flow-value { font-size: 1.15rem; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
 .flow-sub { font-size: 0.75rem; color: var(--text-muted); }
 
-.flow-link { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.15rem; width: 64px; align-self: center; margin-top: 2.2rem; }
+.flow-link { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.15rem; width: 76px; align-self: flex-start; margin-top: 64px; }
 .flow-wire { position: relative; width: 100%; height: 3px; border-radius: 999px; background: rgba(255, 255, 255, 0.1); overflow: hidden; }
 .flow-wire.vertical { width: 3px; height: 28px; margin: 0 auto; }
 .flow-pulse { position: absolute; inset: 0; background: linear-gradient(90deg, transparent, #60a5fa, transparent); transform: translateX(-100%); opacity: 0; }
@@ -424,8 +424,52 @@ header {
   gap: 1rem;
   margin-top: 0.85rem;
 }
-@media (max-width: 1050px) { .sockets-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 540px) { .sockets-grid { grid-template-columns: 1fr; } }
+@media (max-width: 1050px) { .sockets-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 540px) {
+  .sockets-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.65rem; }
+  .socket-card { padding: 0.75rem; gap: 0.5rem; border-radius: 14px; min-width: 0; }
+  .socket-num { font-size: 0.66rem; }
+  .socket-status-badge { font-size: 0.6rem; padding: 0.12rem 0.35rem; }
+  .socket-input { font-size: 0.8rem; padding: 0.35rem 0.45rem; }
+}
+
+@media (max-width: 720px) {
+  .power-flow-row {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.2rem;
+  }
+  .flow-node,
+  .flow-node-ups,
+  .flow-node-batt {
+    width: 100%;
+    max-width: 240px;
+  }
+  .flow-center {
+    width: 100%;
+    align-items: center;
+  }
+  .flow-link {
+    align-self: center;
+    margin-top: 0;
+    width: auto;
+    height: 36px;
+  }
+  .flow-link .flow-wire {
+    width: 3px;
+    height: 22px;
+  }
+  .flow-link .flow-pulse {
+    background: linear-gradient(180deg, transparent, #60a5fa, transparent);
+    animation-name: flow-move-v;
+  }
+  .flow-link.active-green .flow-pulse {
+    background: linear-gradient(180deg, transparent, #34d399, transparent);
+  }
+  .flow-link .flow-arrow {
+    transform: rotate(90deg);
+  }
+}
 
 .socket-card {
   background: rgba(15, 23, 42, 0.75);
