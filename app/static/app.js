@@ -1351,6 +1351,39 @@ function initPWA() {
     deferredInstallPrompt = null;
     if (installBtn) installBtn.classList.add('hidden');
   });
+
+  // 4. Fullscreen toggle button (hides mobile browser address bar over HTTP)
+  const fsBtn = document.getElementById('fullscreenToggle');
+  const fsExpand = document.getElementById('fullscreenIconExpand');
+  const fsExit = document.getElementById('fullscreenIconExit');
+  const docEl = document.documentElement;
+  const canFullscreen = !!(docEl.requestFullscreen || docEl.webkitRequestFullscreen);
+
+  if (fsBtn) {
+    if (!canFullscreen || isStandalone) {
+      fsBtn.classList.add('hidden');
+    } else {
+      const syncFsIcon = () => {
+        const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement);
+        fsBtn.classList.toggle('active', isFs);
+        if (fsExpand) fsExpand.classList.toggle('hidden', isFs);
+        if (fsExit) fsExit.classList.toggle('hidden', !isFs);
+      };
+      fsBtn.addEventListener('click', () => {
+        const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement);
+        if (!isFs) {
+          const req = docEl.requestFullscreen || docEl.webkitRequestFullscreen;
+          if (req) Promise.resolve(req.call(docEl)).catch(() => {});
+        } else {
+          const exit = document.exitFullscreen || document.webkitExitFullscreen;
+          if (exit) Promise.resolve(exit.call(document)).catch(() => {});
+        }
+      });
+      document.addEventListener('fullscreenchange', syncFsIcon);
+      document.addEventListener('webkitfullscreenchange', syncFsIcon);
+      syncFsIcon();
+    }
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
