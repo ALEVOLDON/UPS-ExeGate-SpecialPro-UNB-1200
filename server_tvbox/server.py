@@ -16,6 +16,17 @@ driver.start()
 def index():
     return send_from_directory("static", "index.html")
 
+@app.route("/manifest.json")
+def manifest():
+    return send_from_directory("static", "manifest.json", mimetype="application/manifest+json")
+
+@app.route("/sw.js")
+def service_worker():
+    resp = send_from_directory("static", "sw.js", mimetype="application/javascript")
+    resp.headers["Cache-Control"] = "no-cache"
+    resp.headers["Service-Worker-Allowed"] = "/"
+    return resp
+
 @app.route("/static/<path:path>")
 def static_files(path):
     return send_from_directory("static", path)

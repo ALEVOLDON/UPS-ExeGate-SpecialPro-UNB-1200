@@ -1306,12 +1306,60 @@ function initTabNavigation() {
   });
 }
 
+function initPWA() {
+  // 1. Register Service Worker for PWA offline shell & installability
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(() => {});
+  }
+
+  // 2. Support PWA manifest shortcuts (#dashboard, #flow, #analytics, etc.)
+  const applyHashTab = () => {
+    const hashTab = (window.location.hash || '').replace('#', '').trim();
+    if (!hashTab) return;
+    const btn = document.querySelector(`.nav-item[data-tab="${hashTab}"]`);
+    if (btn) btn.click();
+  };
+  applyHashTab();
+  window.addEventListener('hashchange', applyHashTab);
+
+  // 3. Handle PWA install prompt button
+  let deferredInstallPrompt = null;
+  const installBtn = document.getElementById('pwaInstallBtn');
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredInstallPrompt = e;
+    if (installBtn && !isStandalone) {
+      installBtn.classList.remove('hidden');
+    }
+  });
+
+  if (installBtn) {
+    installBtn.addEventListener('click', async () => {
+      if (!deferredInstallPrompt) return;
+      deferredInstallPrompt.prompt();
+      try {
+        await deferredInstallPrompt.userChoice;
+      } catch (e) {}
+      deferredInstallPrompt = null;
+      installBtn.classList.add('hidden');
+    });
+  }
+
+  window.addEventListener('appinstalled', () => {
+    deferredInstallPrompt = null;
+    if (installBtn) installBtn.classList.add('hidden');
+  });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   initLanguage();
   initCharts();
   initAnalyticsPeriodSelector();
   fetchAnalytics(currentAnalyticsPeriod);
   initTabNavigation();
+  initPWA();
   initOutletsManager();
   connectWebSocket();
 

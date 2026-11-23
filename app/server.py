@@ -56,6 +56,29 @@ app.add_middleware(NoCacheMiddleware)
 app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
 
+@app.get("/manifest.json")
+async def get_manifest():
+    manifest_path = os.path.join(static_dir, "manifest.json")
+    return FileResponse(
+        manifest_path,
+        media_type="application/manifest+json",
+        headers={"Cache-Control": "no-cache"},
+    )
+
+
+@app.get("/sw.js")
+async def get_service_worker():
+    sw_path = os.path.join(static_dir, "sw.js")
+    return FileResponse(
+        sw_path,
+        media_type="application/javascript",
+        headers={
+            "Cache-Control": "no-cache",
+            "Service-Worker-Allowed": "/",
+        },
+    )
+
+
 @app.get("/")
 async def get_dashboard():
     index_path = os.path.join(static_dir, "index.html")

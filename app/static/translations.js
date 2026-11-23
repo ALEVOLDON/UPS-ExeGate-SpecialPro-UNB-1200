@@ -28,6 +28,7 @@ const TRANSLATIONS = {
     notif_toggle: "Alerts",
     sound_off: "Muted",
     notif_off: "Off",
+    pwa_install: "Install",
 
     // Emergency Shutdown Banner
     shutdown_alert_title: "CRITICAL BATTERY LEVEL — PC SHUTDOWN INITIATED!",
@@ -269,6 +270,7 @@ const TRANSLATIONS = {
     notif_toggle: "Алерты",
     sound_off: "Выкл",
     notif_off: "Выкл",
+    pwa_install: "Установить",
 
     // Emergency Shutdown Banner
     shutdown_alert_title: "КРИТИЧЕСКИЙ ЗАРЯД БАТАРЕИ — АВТОВЫКЛЮЧЕНИЕ ПК!",
