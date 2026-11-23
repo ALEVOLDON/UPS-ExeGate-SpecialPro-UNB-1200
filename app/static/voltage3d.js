@@ -20,7 +20,8 @@ class VoltageChart3D {
     this.Z_IN = 1.35;
     this.Z_OUT = -1.35;
 
-    this.defaultCam = { theta: 0.30, phi: 1.18, radius: 11.4 };
+    const isNarrow = this.container.clientWidth > 0 && this.container.clientWidth < 460;
+    this.defaultCam = { theta: 0.28, phi: 1.18, radius: isNarrow ? 13.0 : 11.4 };
     this.camState = { ...this.defaultCam };
     this.camTarget = { ...this.defaultCam };
     this.lookAt = new THREE.Vector3(0, 1.95, 0);
@@ -434,13 +435,14 @@ class VoltageChart3D {
     });
 
     const n = this.labels.length;
-    const count = this.xLabelNodes.length;
+    const isNarrow = w < 460;
+    const visibleSlots = isNarrow ? 4 : this.xLabelNodes.length;
     this.xLabelNodes.forEach((el, idx) => {
-      if (n < 2) {
+      if (n < 2 || idx >= visibleSlots) {
         el.style.display = 'none';
         return;
       }
-      const dataIdx = Math.round((idx / (count - 1)) * (n - 1));
+      const dataIdx = Math.round((idx / (visibleSlots - 1)) * (n - 1));
       const label = this.labels[dataIdx];
       if (!label) {
         el.style.display = 'none';

@@ -1334,5 +1334,30 @@ select.settings-ctrl {
   margin-right: 0.35rem;
 }
 
+@media (max-width: 600px) {
+  .section-title {
+    flex-wrap: wrap;
+    gap: 0.45rem;
+  }
+  .chart-header-controls {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .chart-3d-legend {
+    top: 8px;
+    gap: 0.65rem;
+    padding: 0.22rem 0.55rem;
+    font-size: 0.7rem;
+    white-space: nowrap;
+  }
+  .chart-3d-swatch {
+    width: 14px;
+    height: 8px;
+  }
+  .chart-3d-hint {
+    display: none;
+  }
+}
+
 
 
