@@ -19,7 +19,7 @@
   <script src="/static/chart.umd.min.js"></script>
   <script src="/static/three.min.js"></script>
   <script src="/static/voltage3d.js"></script>
-  <link rel="stylesheet" href="/static/styles.css?v=12">
+  <link rel="stylesheet" href="/static/styles.css?v=14">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 </head>
 <body>
@@ -761,7 +761,7 @@
               <span data-i18n="settings_header_title">Safe Shutdown & Alert Settings</span>
             </div>
           </div>
-          <div style="display:flex;flex-direction:column;gap:1rem;padding:0.5rem 0;">
+          <div class="settings-list">
             <!-- Auto Shutdown Toggle -->
             <div class="settings-row">
               <div class="settings-info">
@@ -846,8 +846,8 @@
                   <div class="settings-desc" data-i18n="set_sound_desc">Audio alert when switching to battery or AVR mode</div>
                 </div>
               </div>
-              <div style="display:flex;gap:0.5rem;">
-                <button id="testSoundBtn" class="btn-icon" style="background:rgba(59, 130, 246, 0.15);color:#93c5fd;border-color:rgba(59, 130, 246, 0.3);" title="Play test sound signal">
+              <div class="settings-btn-group">
+                <button id="testSoundBtn" class="btn-icon settings-btn-secondary" style="background:rgba(59, 130, 246, 0.15);color:#93c5fd;border-color:rgba(59, 130, 246, 0.3);" title="Play test sound signal">
                   <svg class="btn-icon-svg" viewBox="0 0 24 24" style="stroke:#93c5fd;margin-right:0;"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
                   <span data-i18n="btn_test_sound">Test Sound</span>
                 </button>
@@ -876,8 +876,8 @@
                   <div class="settings-desc" data-i18n="set_model_desc">Select your UPS model or configure nominal load rating</div>
                 </div>
               </div>
-              <div style="display:flex;align-items:center;gap:0.55rem;flex-wrap:wrap;justify-content:flex-end;">
-                <select id="settingsUpsModelSelect" class="settings-select settings-ctrl" style="min-width:230px;">
+              <div class="settings-model-group">
+                <select id="settingsUpsModelSelect" class="settings-select settings-ctrl">
                   <option value="UNB-1200" selected>ExeGate UNB-1200 (750 W)</option>
                   <option value="LLB-2200">ExeGate Smart LLB-2200 (1200 W)</option>
                   <option value="UNB-600">ExeGate UNB-600 / 650 (360 W)</option>
@@ -920,9 +920,9 @@
                   <div class="settings-desc" data-i18n="set_tariff_desc">Price per 1 kWh used for cost calculations</div>
                 </div>
               </div>
-              <div style="display:flex;align-items:center;gap:0.55rem;">
-                <input type="number" id="settingsTariffInput" class="settings-input settings-ctrl" step="any" min="0" max="1000" value="5.5">
-                <span style="font-size:0.85rem;color:var(--text-muted);font-weight:600;" data-i18n="rub_per_kwh">руб/кВт⋅ч</span>
+              <div class="settings-input-group">
+                <input type="number" id="settingsTariffInput" class="settings-input" step="any" min="0" max="1000" value="5.5">
+                <span class="settings-unit" data-i18n="rub_per_kwh">руб/кВт⋅ч</span>
               </div>
             </div>
 
@@ -935,9 +935,9 @@
                   <div class="settings-desc" data-i18n="set_self_watts_desc">Power consumed by UPS control board & charging circuit</div>
                 </div>
               </div>
-              <div style="display:flex;align-items:center;gap:0.55rem;">
-                <input type="number" id="settingsSelfWattsInput" class="settings-input settings-ctrl" step="any" min="0" max="500" value="15">
-                <span style="font-size:0.85rem;color:var(--text-muted);font-weight:600;" data-i18n="unit_w">W</span>
+              <div class="settings-input-group">
+                <input type="number" id="settingsSelfWattsInput" class="settings-input" step="any" min="0" max="500" value="15">
+                <span class="settings-unit" data-i18n="unit_w">W</span>
               </div>
             </div>
 
