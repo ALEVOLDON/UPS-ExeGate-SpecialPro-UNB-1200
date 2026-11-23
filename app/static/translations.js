@@ -6,9 +6,9 @@ const TRANSLATIONS = {
 
     // Navigation
     nav_overview: "Overview",
-    nav_flow: "Power Flow",
+    nav_flow: "Flow",
     nav_analytics: "Analytics",
-    nav_events: "Event Log",
+    nav_events: "Events",
     nav_settings: "Settings",
     nav_about: "About",
 
@@ -247,11 +247,11 @@ const TRANSLATIONS = {
 
     // Navigation
     nav_overview: "Обзор",
-    nav_flow: "Схема питания",
-    nav_analytics: "Аналитика",
+    nav_flow: "Схема",
+    nav_analytics: "Графики",
     nav_events: "Журнал",
-    nav_settings: "Настройки",
-    nav_about: "О программе",
+    nav_settings: "Опции",
+    nav_about: "Инфо",
 
     sidebar_connected: "ПОДКЛЮЧЕНО",
     sidebar_disconnected: "НЕТ СВЯЗИ",

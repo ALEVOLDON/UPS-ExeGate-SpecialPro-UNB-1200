@@ -146,7 +146,7 @@ function applyLanguage(lang) {
   document.title = t('app_title');
 
   // 4. Lang toggle button label
-  setText('langText', lang === 'en' ? 'EN 🇬🇧' : 'RU 🇷🇺');
+  setText('langText', lang === 'en' ? 'EN' : 'RU');
 
   // 5. Update header current view title
   const viewTitle = document.getElementById('currentViewTitle');
@@ -429,6 +429,7 @@ function initAnalyticsCharts() {
           y: {
             stacked: true,
             beginAtZero: true,
+            grace: '15%',
             grid: { color: 'rgba(255,255,255,0.04)' },
             ticks: { color: '#94a3b8', font: { size: 10 }, stepSize: 1 }
           }

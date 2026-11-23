@@ -1489,5 +1489,130 @@ select.settings-ctrl {
   }
 }
 
+/* ==========================================================================
+   Full Mobile & Cross-Tab Layout Polish (390px strict fit, zero overflow)
+   ========================================================================== */
+html, body {
+  max-width: 100%;
+  overflow-x: clip;
+}
+.app-layout,
+.main-content,
+.tab-view,
+.section-card,
+.dashboard-sections > *,
+.analytics-charts-grid > *,
+.chart-wrapper,
+.chart-3d-container,
+.about-hero,
+.about-hero-body,
+.about-feat-card {
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* Uniform nav icons & clean focus ring */
+.nav-item:focus {
+  outline: none;
+}
+.nav-item:focus-visible {
+  outline: 2px solid rgba(59, 130, 246, 0.75);
+  outline-offset: -2px;
+}
+.nav-icon,
+.nav-icon-svg {
+  width: 18px !important;
+  height: 18px !important;
+}
+
+/* Power Flow mode badge */
+#flowModeLabel {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.22rem 0.65rem;
+  border-radius: 999px;
+  background: rgba(59, 130, 246, 0.14);
+  border: 1px solid rgba(59, 130, 246, 0.35);
+  color: #93c5fd;
+  font-weight: 700;
+  font-size: 0.72rem;
+}
+
+/* Event table: clean single-line cells & dark scrollbar corner */
+.events-table th,
+.events-table td {
+  white-space: nowrap;
+}
+.events-table-wrapper::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+@media (max-width: 900px) {
+  /* 5th orphan mini-stat spans full width */
+  .mini-stats .mini-stat:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 850px) {
+  .nav-item {
+    font-size: 0.6rem;
+    letter-spacing: -0.01em;
+    padding: 0.42rem 0.12rem;
+  }
+  .settings-row > div:last-child,
+  .settings-select,
+  .settings-input-wrap {
+    width: 100%;
+    max-width: 100%;
+    margin-left: 0 !important;
+  }
+  .settings-select {
+    text-align: left;
+    text-align-last: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .settings-row .btn-icon {
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 720px) {
+  .about-hero {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1.25rem;
+    gap: 1rem;
+  }
+  .about-app-title {
+    font-size: 1.25rem;
+  }
+  .about-features-grid {
+    grid-template-columns: 1fr;
+    gap: 0.85rem;
+  }
+  .about-feat-card {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 540px) {
+  .socket-num {
+    white-space: nowrap;
+    font-size: 0.62rem;
+  }
+  .rate-box {
+    padding: 0.6rem 0.4rem;
+  }
+  .rate-value {
+    font-size: 0.92rem;
+  }
+  .rate-label {
+    font-size: 0.62rem;
+  }
+}
+
 
 
